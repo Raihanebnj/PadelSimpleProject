@@ -1,0 +1,8 @@
+﻿<Window x:Class="PadelSimple.Desktop.Views.ReservationDialog"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+Title="Reservatie detail" Width="420" Height="260">
+    <Grid Margin="12">
+        <TextBlock Text="Hier kan je extra info tonen..."/>
+    </Grid>
+</Window>

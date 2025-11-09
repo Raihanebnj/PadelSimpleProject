@@ -1,0 +1,120 @@
+﻿<Window x:Class="PadelSimple.Desktop.Views.MainWindow"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:controls="clr-namespace:PadelSimple.Desktop.Views.Controls"
+Title="PadelSimple" Width="980" Height="640">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Bestand">
+                <MenuItem Header="Afsluiten" Click="OnExit"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Over" Click="OnAbout"/>
+            </MenuItem>
+        </Menu>
+        <TabControl>
+            <TabItem Header="Dashboard">
+                <StackPanel Margin="12">
+                    <TextBlock Text="Welkom bij PadelSimple" FontSize="22" FontWeight="Bold"/>
+                    <controls:Badge Text="Vandaag" />
+                    <ListView ItemsSource="{Binding Reservations}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Start" DisplayMemberBinding="{Binding StartTime}"/>
+                                <GridViewColumn Header="Einde" DisplayMemberBinding="{Binding EndTime}"/>
+                                <GridViewColumn Header="Court" DisplayMemberBinding="{Binding Court.Name}"/>
+                                <GridViewColumn Header="Gebruiker" DisplayMemberBinding="{Binding User.Email}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button Content="Vernieuwen" Command="{Binding RefreshCommand}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Courts">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Add Court Button -->
+                    <Button Content="Nieuw Terrein" Width="140" Height="32" Margin="0 0 0 10"
+                Command="{Binding AddCourtCommand}"/>
+
+                    <!-- Court List -->
+                    <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Courts}"
+                  SelectedItem="{Binding SelectedCourt}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Naam" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Capaciteit" Binding="{Binding Capacity}"/>
+                            <DataGridCheckBoxColumn Header="Verwijderd?" Binding="{Binding IsDeleted}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Materiaal">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ListBox ItemsSource="{Binding Equipment}"
+                 SelectedItem="{Binding SelectedEquipment, Mode=TwoWay}"
+                 DisplayMemberPath="Name"/>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                        <TextBox Text="{Binding SelectedEquipment.Name, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Text="{Binding SelectedEquipment.Quantity, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <WrapPanel>
+                            <Button Content="Bewaar" Command="{Binding SaveEquipmentCommand}"/>
+                            <Button Content="Nieuw" Command="{Binding NewEquipmentCommand}"/>
+
+                            <!-- Alleen zichtbaar voor admin -->
+                            <Button Content="Verwijder"
+        Command="{Binding DeleteEquipmentCommand}"
+        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
+
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Reservaties">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListView ItemsSource="{Binding Reservations}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Start" DisplayMemberBinding="{Binding StartTime}"/>
+                                <GridViewColumn Header="Einde" DisplayMemberBinding="{Binding EndTime}"/>
+                                <GridViewColumn Header="Court" DisplayMemberBinding="{Binding Court.Name}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                        <ComboBox ItemsSource="{Binding Courts}" SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding NewReservation.CourtId}"/>
+                        <DatePicker SelectedDate="{Binding NewReservation.StartTime}"/>
+                        <TextBox Text="{Binding NewReservation.StartTime}" />
+                        <TextBox Text="{Binding NewReservation.EndTime}" />
+                        <ComboBox ItemsSource="{Binding Equipment}" SelectedValuePath="Id" DisplayMemberPath="Name" SelectedValue="{Binding NewReservation.EquipmentId}"/>
+                        <TextBox Text="{Binding NewReservation.EquipmentQuantity}" />
+                        <Button Content="Reserveer" Command="{Binding MakeReservationCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Gebruikers" x:Name="UsersTab" Visibility="Collapsed">
+                <StackPanel Margin="12">
+                    <TextBlock Text="(Placeholder) Rollen en blokkeren – enkel zichtbaar voor Admin"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
