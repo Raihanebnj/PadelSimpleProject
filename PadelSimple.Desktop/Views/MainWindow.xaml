@@ -73,13 +73,6 @@ Title="PadelSimple" Width="980" Height="640">
                         <WrapPanel>
                             <Button Content="Bewaar" Command="{Binding SaveEquipmentCommand}"/>
                             <Button Content="Nieuw" Command="{Binding NewEquipmentCommand}"/>
-
-                            <!-- Alleen zichtbaar voor admin -->
-                            <Button Content="Verwijder"
-        Command="{Binding DeleteEquipmentCommand}"
-        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-
-
                         </WrapPanel>
                     </StackPanel>
                 </Grid>
