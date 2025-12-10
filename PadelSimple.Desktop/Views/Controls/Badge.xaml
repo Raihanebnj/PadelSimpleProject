@@ -1,12 +1,16 @@
-﻿<UserControl x:Class="PadelSimple.Desktop.Views.Controls.Badge"
+﻿<UserControl x:Class="PadelSimple.Desktop.Controls.Badge"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PadelSimple.Desktop.Views.Controls">
-    <Border Background="#2D89EF" CornerRadius="10" Padding="4" Margin="2">
-        <TextBlock Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}"
+             x:Name="root">
+
+    <Border Background="{Binding Background, ElementName=root}"
+            CornerRadius="10"
+            Padding="5"
+            Margin="2">
+        <TextBlock Text="{Binding Text, ElementName=root}"
                    Foreground="White"
                    FontWeight="Bold"
-                   VerticalAlignment="Center"
                    HorizontalAlignment="Center"/>
     </Border>
 </UserControl>
+

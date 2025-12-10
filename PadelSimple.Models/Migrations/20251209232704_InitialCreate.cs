@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace PadelSimple.Models.Migrations
 {
     /// <inheritdoc />
@@ -31,8 +33,9 @@ namespace PadelSimple.Models.Migrations
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     IsMember = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsBlocked = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -61,8 +64,9 @@ namespace PadelSimple.Models.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Capacity = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsIndoor = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,9 +80,11 @@ namespace PadelSimple.Models.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalQuantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    AvailableQuantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -197,14 +203,16 @@ namespace PadelSimple.Models.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    CourtId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
+                    NumberOfPlayers = table.Column<int>(type: "INTEGER", nullable: false),
                     EquipmentId = table.Column<int>(type: "INTEGER", nullable: true),
                     EquipmentQuantity = table.Column<int>(type: "INTEGER", nullable: true),
+                    CourtId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -225,8 +233,35 @@ namespace PadelSimple.Models.Migrations
                         name: "FK_Reservations_Equipment_EquipmentId",
                         column: x => x.EquipmentId,
                         principalTable: "Equipment",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "ROLE_ADMIN", null, "Admin", "ADMIN" },
+                    { "ROLE_MEMBER", null, "Member", "MEMBER" },
+                    { "ROLE_STAFF", null, "Staff", "STAFF" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Courts",
+                columns: new[] { "Id", "Capacity", "DeletedAt", "IsDeleted", "IsIndoor", "Name" },
+                values: new object[,]
+                {
+                    { 1, 4, null, false, false, "Court 1" },
+                    { 2, 4, null, false, true, "Court 2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Equipment",
+                columns: new[] { "Id", "AvailableQuantity", "DeletedAt", "IsActive", "IsDeleted", "Name", "TotalQuantity" },
+                values: new object[,]
+                {
+                    { 1, 20, null, true, false, "Padelracket", 20 },
+                    { 2, 30, null, true, false, "Ballen set", 30 }
                 });
 
             migrationBuilder.CreateIndex(

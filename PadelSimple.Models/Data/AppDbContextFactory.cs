@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -13,7 +10,17 @@ namespace PadelSimple.Models.Data
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite("Data Source=padelsimple.db");
+
+            // EXACT hetzelfde pad als in App.xaml.cs
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "PadelSimple");
+
+            Directory.CreateDirectory(folder);
+
+            var dbPath = Path.Combine(folder, "padelsimple.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+
             return new AppDbContext(optionsBuilder.Options);
         }
     }

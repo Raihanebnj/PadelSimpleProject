@@ -1,8 +1,48 @@
 ﻿<Window x:Class="PadelSimple.Desktop.Views.ReservationDialog"
-xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-Title="Reservatie detail" Width="420" Height="260">
-    <Grid Margin="12">
-        <TextBlock Text="Hier kan je extra info tonen..."/>
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nieuwe Reservatie"
+        WindowStartupLocation="CenterOwner"
+        Height="430" Width="380">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <Label Content="Datum"/>
+            <DatePicker SelectedDate="{Binding Date}"/>
+
+            <Label Content="Starttijd (bv 18:00)"/>
+            <TextBox Text="{Binding StartTimeString}"/>
+
+            <Label Content="Eindtijd (bv 19:00)"/>
+            <TextBox Text="{Binding EndTimeString}"/>
+
+            <Label Content="Terrein"/>
+            <ComboBox ItemsSource="{Binding Courts}"
+                      SelectedItem="{Binding SelectedCourt}"
+                      DisplayMemberPath="Name"/>
+
+            <Label Content="Materiaal"/>
+            <ComboBox ItemsSource="{Binding Equipment}"
+                      SelectedItem="{Binding SelectedEquipment}"
+                      DisplayMemberPath="Name"/>
+
+            <Label Content="Aantal materiaal"/>
+            <TextBox Text="{Binding EquipmentQuantity}"/>
+
+            <Label Content="Aantal spelers"/>
+            <TextBox Text="{Binding NumberOfPlayers}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Annuleren" Width="80" Margin="0,0,10,0" IsCancel="True"/>
+            <Button Content="Opslaan" Width="80" IsDefault="True"
+                    Command="{Binding SaveCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+        </StackPanel>
     </Grid>
 </Window>

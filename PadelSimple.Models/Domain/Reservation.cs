@@ -1,26 +1,32 @@
-﻿using PadelSimple.Models.Identity;
+﻿using PadelSimple.Models.Common;
+using PadelSimple.Models.Identity;
 
 namespace PadelSimple.Models.Domain;
 
-public class Reservation
+public class Reservation : ISoftDeletable
 {
     public int Id { get; set; }
 
-    public int CourtId { get; set; }
-    public Court Court { get; set; } = default!;
+    public DateTime Date { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
 
+    public int NumberOfPlayers { get; set; }
+
+    // Eén soort materiaal per reservatie (simpel model)
     public int? EquipmentId { get; set; }
     public Equipment? Equipment { get; set; }
-
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
-
     public int? EquipmentQuantity { get; set; }
 
-    // ✅ User relatie toevoegen
-    public string UserId { get; set; } = default!;
-    public AppUser User { get; set; } = default!;
+    // Court
+    public int CourtId { get; set; }
+    public Court Court { get; set; } = null!;
 
-    public bool IsDeleted { get; set; } = false;
-    public DateTimeOffset? DeletedAt { get; set; }
+    // User
+    public string UserId { get; set; } = null!;
+    public AppUser User { get; set; } = null!;
+
+    // Soft delete
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

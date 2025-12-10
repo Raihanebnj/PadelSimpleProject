@@ -1,11 +1,18 @@
-﻿namespace PadelSimple.Models.Domain;
+﻿using PadelSimple.Models.Common;
 
-public class Court
+namespace PadelSimple.Models.Domain;
+
+public class Court : ISoftDeletable
 {
     public int Id { get; set; }
-    public string Name { get; set; } = "";
+    public string Name { get; set; } = null!;
     public int Capacity { get; set; }
+    public bool IsIndoor { get; set; }
 
-    public bool IsDeleted { get; set; } = false;
-    public DateTimeOffset? DeletedAt { get; set; }
+    // Soft delete
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 }
+

@@ -5,7 +5,7 @@
 namespace PadelSimple.Models.Migrations
 {
     /// <inheritdoc />
-    public partial class AddReservationUser : Migration
+    public partial class AddIsBlockedToAppUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

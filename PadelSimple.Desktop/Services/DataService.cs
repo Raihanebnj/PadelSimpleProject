@@ -1,110 +1,126 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
 
 namespace PadelSimple.Desktop.Services;
+
 public class DataService
 {
-    private readonly AppDbContext _db;
-    public DataService(AppDbContext db) => _db = db;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-    // --- Courts ---
-    public Task<List<Court>> GetCourtsAsync() => _db.Courts.OrderBy(c => c.Name).ToListAsync();
-    public async Task AddOrUpdateCourtAsync(Court c)
+    public DataService(IDbContextFactory<AppDbContext> contextFactory)
     {
-        if (c.Id == 0) _db.Courts.Add(c); else _db.Courts.Update(c);
-        await _db.SaveChangesAsync();
-    }
-    public async Task SoftDeleteCourtAsync(Court c)
-    {
-        c.IsDeleted = true; c.DeletedAt = DateTimeOffset.Now; _db.Courts.Update(c);
-        await _db.SaveChangesAsync();
+        _contextFactory = contextFactory;
     }
 
-    // --- Equipment ---
-    public async Task<List<Equipment>> GetEquipmentAsync()
+    public async Task<List<Court>> GetCourtsAsync()
     {
-        return await _db.Equipment
-            .Where(e => !e.IsDeleted)
-            .OrderBy(e => e.Name)
+        using var db = _contextFactory.CreateDbContext();
+        return await db.Courts
+            .OrderBy(c => c.Name)
             .ToListAsync();
     }
-    public async Task AddOrUpdateEquipmentAsync(Equipment e)
-    {
-        if (string.IsNullOrWhiteSpace(e.Name))
-            throw new Exception("Naam mag niet leeg zijn.");
 
-        if (e.Id == 0)
-            _db.Equipment.Add(e);
-        else
-            _db.Equipment.Update(e);
-
-        await _db.SaveChangesAsync();
-    }
-    public async Task SoftDeleteEquipmentAsync(Equipment e)
+    public async Task<List<Equipment>> GetEquipmentAsync()
     {
-        e.IsDeleted = true;
-        e.DeletedAt = DateTimeOffset.Now;
-        _db.Equipment.Update(e);
-        await _db.SaveChangesAsync();
+        using var db = _contextFactory.CreateDbContext();
+
+        var query =
+            from e in db.Equipment
+            where e.IsActive
+            orderby e.Name
+            select e;
+
+        return await query.ToListAsync();
     }
 
-
-    // --- Reservations ---
-    public Task<List<Reservation>> GetReservationsAsync(DateTime? day = null)
+    // Eerst uit DB halen, daarna in geheugen sorteren (TimeSpan -> geen probleem)
+    public async Task<List<Reservation>> GetReservationsAsync(DateTime? forDate = null)
     {
-        var q = _db.Reservations
-        .Include(r => r.Court)
-        .Include(r => r.User)
-        .Include(r => r.Equipment)
-        .AsQueryable();
+        using var db = _contextFactory.CreateDbContext();
 
-        if (day.HasValue)
+        var query = db.Reservations
+            .Include(r => r.Court)
+            .Include(r => r.Equipment)
+            .Include(r => r.User)
+            .AsQueryable();
+
+        if (forDate.HasValue)
+            query = query.Where(r => r.Date.Date == forDate.Value.Date);
+
+        var list = await query.ToListAsync();
+
+        return list
+            .OrderBy(r => r.Date)
+            .ThenBy(r => r.StartTime)
+            .ToList();
+    }
+
+    public async Task CreateReservationAsync(Reservation reservation)
+    {
+        using var db = _contextFactory.CreateDbContext();
+        using var tx = await db.Database.BeginTransactionAsync();
+
+        try
         {
-            var d = day.Value.Date;
-            // LINQ query syntax example
-            q = from r in q
-                where r.StartTime.Date == d
-                orderby r.StartTime
-                select r;
+            // Eerst alle reservaties voor zelfde terrein & datum ophalen
+            var sameCourtReservations = await db.Reservations
+                .Where(r => r.CourtId == reservation.CourtId &&
+                            r.Date == reservation.Date)
+                .ToListAsync();
+
+            // Overlap-check in geheugen (LINQ to Objects → TimeSpan ok)
+            bool overlap = sameCourtReservations.Any(r =>
+                r.StartTime < reservation.EndTime &&
+                reservation.StartTime < r.EndTime);
+
+            if (overlap)
+                throw new InvalidOperationException("Er bestaat al een reservatie voor dit terrein en tijdslot.");
+
+            // Materiaal
+            if (reservation.EquipmentId.HasValue && reservation.EquipmentQuantity.HasValue)
+            {
+                var eq = await db.Equipment.FindAsync(reservation.EquipmentId.Value)
+                         ?? throw new InvalidOperationException("Materiaal niet gevonden.");
+
+                if (eq.AvailableQuantity < reservation.EquipmentQuantity.Value)
+                    throw new InvalidOperationException("Niet genoeg materiaal beschikbaar.");
+
+                eq.AvailableQuantity -= reservation.EquipmentQuantity.Value;
+            }
+
+            db.Reservations.Add(reservation);
+            await db.SaveChangesAsync();
+            await tx.CommitAsync();
         }
-        else
+        catch
         {
-            // Method syntax example + lambda
-            q = q.OrderBy(r => r.StartTime);
+            await tx.RollbackAsync();
+            throw;
         }
-        return q.ToListAsync();
     }
 
-    public async Task<bool> CreateReservationAsync(Reservation r)
+    public async Task SoftDeleteReservationAsync(int id)
     {
-        // Simple conflict check (overlap on same court)
-        bool conflict = await _db.Reservations.AnyAsync(x => x.CourtId == r.CourtId &&
-        ((r.StartTime < x.EndTime) && (x.StartTime < r.EndTime)));
-        if (conflict) return false;
+        using var db = _contextFactory.CreateDbContext();
 
-        // Equipment stock check
-        if (r.EquipmentId.HasValue && r.EquipmentQuantity.HasValue)
+        var res = await db.Reservations.FindAsync(id);
+        if (res == null) return;
+
+        res.IsDeleted = true;
+        res.DeletedAt = DateTime.UtcNow;
+
+        if (res.EquipmentId.HasValue && res.EquipmentQuantity.HasValue)
         {
-            var eq = await _db.Equipment.FindAsync(r.EquipmentId.Value);
-            if (eq is null || eq.Quantity < r.EquipmentQuantity.Value) return false;
-            eq.Quantity -= r.EquipmentQuantity.Value; // reserve stock
+            var eq = await db.Equipment.FindAsync(res.EquipmentId.Value);
+            if (eq != null)
+            {
+                eq.AvailableQuantity += res.EquipmentQuantity.Value;
+                if (eq.AvailableQuantity > eq.TotalQuantity)
+                    eq.AvailableQuantity = eq.TotalQuantity;
+            }
         }
 
-        _db.Reservations.Add(r);
-        await _db.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task CancelReservationAsync(Reservation r)
-    {
-        r.IsDeleted = true; r.DeletedAt = DateTimeOffset.Now;
-        _db.Reservations.Update(r);
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
     }
 }

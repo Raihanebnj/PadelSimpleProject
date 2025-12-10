@@ -11,7 +11,7 @@ using PadelSimple.Models.Data;
 namespace PadelSimple.Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251108215234_InitialCreate")]
+    [Migration("20251209232704_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -131,10 +131,13 @@ namespace PadelSimple.Models.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsIndoor")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -144,6 +147,24 @@ namespace PadelSimple.Models.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Courts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Capacity = 4,
+                            IsDeleted = false,
+                            IsIndoor = false,
+                            Name = "Court 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Capacity = 4,
+                            IsDeleted = false,
+                            IsIndoor = true,
+                            Name = "Court 2"
+                        });
                 });
 
             modelBuilder.Entity("PadelSimple.Models.Domain.Equipment", b =>
@@ -152,8 +173,14 @@ namespace PadelSimple.Models.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
@@ -162,12 +189,32 @@ namespace PadelSimple.Models.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("TotalQuantity")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.ToTable("Equipment");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AvailableQuantity = 20,
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Padelracket",
+                            TotalQuantity = 20
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AvailableQuantity = 30,
+                            IsActive = true,
+                            IsDeleted = false,
+                            Name = "Ballen set",
+                            TotalQuantity = 30
+                        });
                 });
 
             modelBuilder.Entity("PadelSimple.Models.Domain.Reservation", b =>
@@ -179,10 +226,13 @@ namespace PadelSimple.Models.Migrations
                     b.Property<int>("CourtId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan>("EndTime")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("EquipmentId")
@@ -194,7 +244,10 @@ namespace PadelSimple.Models.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("StartTime")
+                    b.Property<int>("NumberOfPlayers")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<TimeSpan>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
@@ -236,6 +289,26 @@ namespace PadelSimple.Models.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "ROLE_ADMIN",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "ROLE_STAFF",
+                            Name = "Staff",
+                            NormalizedName = "STAFF"
+                        },
+                        new
+                        {
+                            Id = "ROLE_MEMBER",
+                            Name = "Member",
+                            NormalizedName = "MEMBER"
+                        });
                 });
 
             modelBuilder.Entity("PadelSimple.Models.Identity.AppUser", b =>
@@ -250,7 +323,7 @@ namespace PadelSimple.Models.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -258,6 +331,9 @@ namespace PadelSimple.Models.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsBlocked")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
@@ -365,18 +441,17 @@ namespace PadelSimple.Models.Migrations
             modelBuilder.Entity("PadelSimple.Models.Domain.Reservation", b =>
                 {
                     b.HasOne("PadelSimple.Models.Domain.Court", "Court")
-                        .WithMany()
+                        .WithMany("Reservations")
                         .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PadelSimple.Models.Domain.Equipment", "Equipment")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany("Reservations")
+                        .HasForeignKey("EquipmentId");
 
                     b.HasOne("PadelSimple.Models.Identity.AppUser", "User")
-                        .WithMany()
+                        .WithMany("Reservations")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -386,6 +461,21 @@ namespace PadelSimple.Models.Migrations
                     b.Navigation("Equipment");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Domain.Court", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Domain.Equipment", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Identity.AppUser", b =>
+                {
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }
