@@ -1,93 +1,171 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PadelSimple.Desktop.Services;
 using PadelSimple.Models.Domain;
 
-namespace PadelSimple.Desktop.ViewModels;
-
-public class ReservationDialogViewModel : INotifyPropertyChanged
+namespace PadelSimple.Desktop.ViewModels
 {
-    private readonly DataService _dataService;
-    private readonly AuthService _authService;
-
-    public IList<Court> Courts { get; }
-    public IList<Equipment> Equipment { get; }
-
-    public Court? SelectedCourt { get; set; }
-    public Equipment? SelectedEquipment { get; set; }
-
-    public DateTime Date { get; set; } = DateTime.Today;
-    public string StartTimeString { get; set; } = "18:00";
-    public string EndTimeString { get; set; } = "19:00";
-    public int NumberOfPlayers { get; set; } = 4;
-    public int EquipmentQuantity { get; set; } = 0;
-
-    public ICommand SaveCommand { get; }
-
-    public ReservationDialogViewModel(
-        DataService dataService,
-        AuthService authService,
-        IList<Court> courts,
-        IList<Equipment> equipment)
+    public partial class ReservationDialogViewModel : ObservableObject
     {
-        _dataService = dataService;
-        _authService = authService;
-        Courts = courts;
-        Equipment = equipment;
+        private readonly DataService _dataService;
+        private readonly AuthService _authService;
 
-        SaveCommand = new RelayCommand(async param =>
+        // ====== Lijsten voor ComboBoxen ======
+        public ObservableCollection<Court> Courts { get; } = new();
+
+        // Hoofdnaam: Equipment
+        public ObservableCollection<Equipment> Equipment { get; } = new();
+
+        // Alias zodat zowel Equipment als EquipmentList in XAML kunnen werken
+        public ObservableCollection<Equipment> EquipmentList => Equipment;
+
+        // ====== Geselecteerde items ======
+        private Court? _selectedCourt;
+        public Court? SelectedCourt
         {
+            get => _selectedCourt;
+            set => SetProperty(ref _selectedCourt, value);
+        }
+
+        private Equipment? _selectedEquipment;
+        public Equipment? SelectedEquipment
+        {
+            get => _selectedEquipment;
+            set => SetProperty(ref _selectedEquipment, value);
+        }
+
+        // ====== Velden van de reservatie ======
+        private DateTime _date = DateTime.Today;
+        public DateTime Date
+        {
+            get => _date;
+            set => SetProperty(ref _date, value);
+        }
+
+        // Deze twee worden in XAML als string gebruikt (bv "18:00")
+        private string _startTimeString = string.Empty;
+        public string StartTimeString
+        {
+            get => _startTimeString;
+            set => SetProperty(ref _startTimeString, value);
+        }
+
+        private string _endTimeString = string.Empty;
+        public string EndTimeString
+        {
+            get => _endTimeString;
+            set => SetProperty(ref _endTimeString, value);
+        }
+
+        private int _numberOfPlayers = 2;
+        public int NumberOfPlayers
+        {
+            get => _numberOfPlayers;
+            set => SetProperty(ref _numberOfPlayers, value);
+        }
+
+        private int _equipmentQuantity = 0;
+        public int EquipmentQuantity
+        {
+            get => _equipmentQuantity;
+            set => SetProperty(ref _equipmentQuantity, value);
+        }
+
+        // Eventuele foutboodschap (optioneel in XAML binden)
+        private string _errorMessage = string.Empty;
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
+
+        public ReservationDialogViewModel(DataService dataService, AuthService authService)
+        {
+            _dataService = dataService;
+            _authService = authService;
+        }
+
+        // ====== Wordt aangeroepen door MainViewModel ======
+        public async Task InitializeAsync(DateTime initialDate)
+        {
+            Date = initialDate;
+
+            Courts.Clear();
+            foreach (var c in await _dataService.GetCourtsAsync())
+                Courts.Add(c);
+
+            Equipment.Clear();
+            foreach (var e in await _dataService.GetEquipmentAsync())
+                Equipment.Add(e);
+        }
+
+        // ====== Commands ======
+
+        [RelayCommand]
+        private async Task Save(Window window)
+        {
+            ErrorMessage = string.Empty;
+
+            if (SelectedCourt == null)
+            {
+                ErrorMessage = "Kies een terrein.";
+                MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!TimeSpan.TryParse(StartTimeString, out var start))
+            {
+                ErrorMessage = "Starttijd ongeldig (bv. 18:00).";
+                MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!TimeSpan.TryParse(EndTimeString, out var end))
+            {
+                ErrorMessage = "Eindtijd ongeldig (bv. 19:00).";
+                MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_authService.CurrentUser == null)
+            {
+                ErrorMessage = "Je moet ingelogd zijn om een reservatie te maken.";
+                MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var reservation = new Reservation
+            {
+                CourtId = SelectedCourt.Id,
+                EquipmentId = SelectedEquipment?.Id,
+                EquipmentQuantity = EquipmentQuantity,
+                UserId = _authService.CurrentUser.Id,
+                Date = Date,
+                StartTime = start,
+                EndTime = end,
+                NumberOfPlayers = NumberOfPlayers
+            };
+
             try
             {
-                if (SelectedCourt == null)
-                {
-                    MessageBox.Show("Selecteer een terrein.");
-                    return;
-                }
-
-                if (!TimeSpan.TryParse(StartTimeString, out var start) ||
-                    !TimeSpan.TryParse(EndTimeString, out var end))
-                {
-                    MessageBox.Show("Ongeldige tijd.");
-                    return;
-                }
-
-                var user = _authService.CurrentUser;
-                if (user == null)
-                {
-                    MessageBox.Show("Geen gebruiker ingelogd.");
-                    return;
-                }
-
-                var res = new Reservation
-                {
-                    CourtId = SelectedCourt.Id,
-                    Date = Date.Date,
-                    StartTime = start,
-                    EndTime = end,
-                    NumberOfPlayers = NumberOfPlayers,
-                    UserId = user.Id,
-                    EquipmentId = SelectedEquipment?.Id,
-                    EquipmentQuantity = SelectedEquipment != null && EquipmentQuantity > 0
-                        ? EquipmentQuantity
-                        : null
-                };
-
-                await _dataService.CreateReservationAsync(res);
-
-                if (param is Window win)
-                    win.DialogResult = true;
+                await _dataService.CreateReservationAsync(reservation);
+                window.DialogResult = true;
             }
             catch (Exception ex)
             {
+                ErrorMessage = ex.Message;
                 MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        });
-    }
+        }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        [RelayCommand]
+        private void Cancel(Window window)
+        {
+            window.DialogResult = false;
+        }
+    }
 }

@@ -1,31 +1,61 @@
 ﻿<Window x:Class="PadelSimple.Desktop.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
         Title="PadelSimple - Login"
-        WindowStartupLocation="CenterScreen"
-        Height="250" Width="350"
-        ResizeMode="NoResize">
+        Height="400" Width="500"
+        WindowStartupLocation="CenterScreen">
+
+    <!-- GEEN <Window.DataContext> hier! -->
 
     <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <TextBlock Text="Gebruikersnaam" FontWeight="Bold"/>
-            <TextBox Text="{Binding Username}" Margin="0,5"/>
+        <!-- LOGIN -->
+        <GroupBox Header="Aanmelden" Margin="5" Grid.Column="0">
+            <StackPanel Margin="10">
+                <TextBlock Text="Gebruikersnaam / e-mail" />
+                <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock Text="Wachtwoord" FontWeight="Bold"/>
-            <PasswordBox x:Name="PasswordBox" Margin="0,5"/>
-        </StackPanel>
+                <TextBlock Text="Wachtwoord" Margin="0,10,0,0" />
+                <PasswordBox x:Name="PwdBox"
+                             Margin="0,0,0,5"
+                             PasswordChanged="PwdBox_OnPasswordChanged"/>
 
-        <Button Grid.Row="1"
-                Content="Login"
-                Height="35"
-                HorizontalAlignment="Right"
-                Width="100"
-                Command="{Binding LoginCommand}"
-                CommandParameter="{Binding ElementName=PasswordBox}" />
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" Margin="0,5,0,5"/>
+
+                <Button Content="Inloggen"
+                        Width="120"
+                        HorizontalAlignment="Right"
+                        Command="{Binding LoginCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- REGISTRATIE -->
+        <GroupBox Header="Nieuw account" Margin="5" Grid.Column="1">
+            <StackPanel Margin="10">
+                <TextBlock Text="E-mail" />
+                <TextBox Text="{Binding RegisterEmail, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Text="Wachtwoord" Margin="0,10,0,0"/>
+                <PasswordBox x:Name="RegPwd1" PasswordChanged="RegPwd1_OnPasswordChanged"/>
+
+                <TextBlock Text="Herhaal wachtwoord" Margin="0,10,0,0"/>
+                <PasswordBox x:Name="RegPwd2" PasswordChanged="RegPwd2_OnPasswordChanged"/>
+
+                <TextBlock Text="{Binding RegisterError}" Foreground="Red" Margin="0,5,0,5"/>
+
+                <Button Content="Account aanmaken"
+                        Width="150"
+                        HorizontalAlignment="Right"
+                        Command="{Binding RegisterCommand}"/>
+            </StackPanel>
+        </GroupBox>
     </Grid>
 </Window>

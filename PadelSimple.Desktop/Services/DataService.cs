@@ -123,4 +123,29 @@ public class DataService
 
         await db.SaveChangesAsync();
     }
+
+    public async Task SaveCourtAsync(Court court)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        if (court.Id == 0)
+            db.Courts.Add(court);
+        else
+            db.Courts.Update(court);
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SaveEquipmentAsync(Equipment equipment)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        if (equipment.Id == 0)
+            db.Equipment.Add(equipment);
+        else
+            db.Equipment.Update(equipment);
+
+        await db.SaveChangesAsync();
+    }
+
 }

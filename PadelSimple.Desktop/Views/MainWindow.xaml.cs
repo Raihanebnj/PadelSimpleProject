@@ -10,6 +10,15 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = vm;
 
-        Loaded += async (_, _) => await vm.LoadDataAsync();
+        Loaded += async (_, __) =>
+        {
+            if (DataContext is MainViewModel mvm)
+                await mvm.LoadDataCommand.ExecuteAsync(null);
+        };
+    }
+
+    private void Exit_Click(object sender, RoutedEventArgs e)
+    {
+        Application.Current.Shutdown();
     }
 }

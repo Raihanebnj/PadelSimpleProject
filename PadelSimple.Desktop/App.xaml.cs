@@ -18,6 +18,12 @@ public partial class App : Application
 {
     public static IHost? AppHost { get; private set; }
 
+    public App()
+    {
+        // 🔹 heel belangrijk: app sluit pas als ALLE vensters dicht zijn
+        ShutdownMode = ShutdownMode.OnLastWindowClose;
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -51,8 +57,8 @@ public partial class App : Application
                             options.Password.RequireUppercase = false;
                             options.Password.RequiredLength = 6;
                         })
-                            .AddRoles<AppRole>()
-                            .AddEntityFrameworkStores<AppDbContext>();
+                        .AddRoles<AppRole>()
+                        .AddEntityFrameworkStores<AppDbContext>();
 
                         // Services
                         services.AddScoped<AuthService>();
@@ -147,7 +153,6 @@ public partial class App : Application
             {
                 await userManager.AddToRoleAsync(admin, "Admin");
             }
-            // eventueel else: logging / MessageBox als aanmaken mislukt
         }
     }
 }

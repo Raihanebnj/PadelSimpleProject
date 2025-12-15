@@ -12,35 +12,55 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
+
             <Label Content="Datum"/>
-            <DatePicker SelectedDate="{Binding Date}"/>
+            <DatePicker SelectedDate="{Binding Date}" />
 
             <Label Content="Starttijd (bv 18:00)"/>
-            <TextBox Text="{Binding StartTimeString}"/>
+            <!-- TimeSpan-binding; gebruiker tikt bv. 18:00 -->
+            <TextBox Text="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" />
 
             <Label Content="Eindtijd (bv 19:00)"/>
-            <TextBox Text="{Binding EndTimeString}"/>
+            <TextBox Text="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" />
 
             <Label Content="Terrein"/>
             <ComboBox ItemsSource="{Binding Courts}"
                       SelectedItem="{Binding SelectedCourt}"
-                      DisplayMemberPath="Name"/>
+                      DisplayMemberPath="Name"
+                      Margin="0,0,0,5"/>
 
             <Label Content="Materiaal"/>
-            <ComboBox ItemsSource="{Binding Equipment}"
+            <ComboBox ItemsSource="{Binding EquipmentList}"
                       SelectedItem="{Binding SelectedEquipment}"
-                      DisplayMemberPath="Name"/>
+                      DisplayMemberPath="Name"
+                      Margin="0,0,0,5"/>
 
             <Label Content="Aantal materiaal"/>
-            <TextBox Text="{Binding EquipmentQuantity}"/>
+            <TextBox Text="{Binding EquipmentQuantity, UpdateSourceTrigger=PropertyChanged}" />
 
             <Label Content="Aantal spelers"/>
-            <TextBox Text="{Binding NumberOfPlayers}"/>
+            <TextBox Text="{Binding PlayerCount, UpdateSourceTrigger=PropertyChanged}" />
+
+            <!-- foutmelding uit viewmodel -->
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="Red"
+                       Margin="0,8,0,0" />
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Content="Annuleren" Width="80" Margin="0,0,10,0" IsCancel="True"/>
-            <Button Content="Opslaan" Width="80" IsDefault="True"
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,10,0,0">
+            <Button Content="Annuleren"
+                    Width="80"
+                    Margin="0,0,10,0"
+                    IsCancel="True"
+                    Command="{Binding CancelCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+            <Button Content="Opslaan"
+                    Width="80"
+                    IsDefault="True"
                     Command="{Binding SaveCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
         </StackPanel>
