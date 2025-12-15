@@ -60,7 +60,7 @@
                             <DataGridTextColumn Header="Terrein"
                                                 Binding="{Binding Court.Name}"/>
                             <DataGridTextColumn Header="Spelers"
-                                                Binding="{Binding PlayerCount}"/>
+                                                Binding="{Binding NumberOfPlayers}"/>
                             <DataGridTextColumn Header="Materiaal"
                                                 Binding="{Binding Equipment.Name}"/>
                             <DataGridTextColumn Header="Aantal"
@@ -89,9 +89,12 @@
                                 <Button Content="Opslaan" Command="{Binding SaveCourtCommand}"/>
                             </ToolBar>
                             <DataGrid ItemsSource="{Binding Courts}"
-                                      SelectedItem="{Binding SelectedCourt}"
-                                      AutoGenerateColumns="False"
-                                      Margin="0,5,0,0">
+          SelectedItem="{Binding SelectedCourt}"
+          AutoGenerateColumns="False"
+          Margin="0,5,0,0"
+          IsSynchronizedWithCurrentItem="True"
+          SelectionUnit="FullRow"
+          RowEditEnding="DataGrid_RowEditEnding">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Naam" Binding="{Binding Name}"/>
                                     <DataGridTextColumn Header="Capaciteit" Binding="{Binding Capacity}"/>
@@ -109,9 +112,12 @@
                                 <Button Content="Opslaan" Command="{Binding SaveEquipmentCommand}"/>
                             </ToolBar>
                             <DataGrid ItemsSource="{Binding EquipmentList}"
-                                      SelectedItem="{Binding SelectedEquipment}"
-                                      AutoGenerateColumns="False"
-                                      Margin="0,5,0,0">
+          SelectedItem="{Binding SelectedEquipment}"
+          AutoGenerateColumns="False"
+          Margin="0,5,0,0"
+          IsSynchronizedWithCurrentItem="True"
+          SelectionUnit="FullRow"
+          RowEditEnding="DataGrid_RowEditEnding">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Naam" Binding="{Binding Name}"/>
                                     <DataGridTextColumn Header="Totaal" Binding="{Binding TotalQuantity}"/>

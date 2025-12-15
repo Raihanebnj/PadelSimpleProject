@@ -17,7 +17,6 @@
             <DatePicker SelectedDate="{Binding Date}" />
 
             <Label Content="Starttijd (bv 18:00)"/>
-            <!-- TimeSpan-binding; gebruiker tikt bv. 18:00 -->
             <TextBox Text="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" />
 
             <Label Content="Eindtijd (bv 19:00)"/>

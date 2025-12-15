@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PadelSimple.Desktop.Services;
 using PadelSimple.Models.Domain;
+using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace PadelSimple.Desktop.ViewModels
 {
@@ -47,14 +48,14 @@ namespace PadelSimple.Desktop.ViewModels
         }
 
         // Deze twee worden in XAML als string gebruikt (bv "18:00")
-        private string _startTimeString = string.Empty;
+        private string _startTimeString = "18:00";
         public string StartTimeString
         {
             get => _startTimeString;
             set => SetProperty(ref _startTimeString, value);
         }
 
-        private string _endTimeString = string.Empty;
+        private string _endTimeString = "19:00";
         public string EndTimeString
         {
             get => _endTimeString;
@@ -101,6 +102,47 @@ namespace PadelSimple.Desktop.ViewModels
             Equipment.Clear();
             foreach (var e in await _dataService.GetEquipmentAsync())
                 Equipment.Add(e);
+
+            // (optioneel) auto-select first items
+            if (SelectedCourt == null && Courts.Count > 0) SelectedCourt = Courts[0];
+            if (SelectedEquipment == null && Equipment.Count > 0) SelectedEquipment = Equipment[0];
+        }
+
+        // ====== Helpers ======
+        private static bool TryParseTime(string? input, out TimeSpan time)
+        {
+            time = default;
+
+            // 1) trim + normaliseren
+            var txt = (input ?? string.Empty).Trim();
+
+            if (string.IsNullOrWhiteSpace(txt))
+                return false;
+
+            // "18.00" -> "18:00"
+            txt = txt.Replace('.', ':');
+
+            // "18u00" -> "18:00"
+            txt = txt.Replace('u', ':').Replace('U', ':');
+
+            // 2) formats toelaten
+            var formats = new[]
+            {
+                @"h\:mm",
+                @"hh\:mm",
+                @"h\:mm\:ss",
+                @"hh\:mm\:ss"
+            };
+
+            // 3) exact parse op invariant
+            if (TimeSpan.TryParseExact(txt, formats, CultureInfo.InvariantCulture, out time))
+                return true;
+
+            // 4) fallback parse (ook invariant)
+            if (TimeSpan.TryParse(txt, CultureInfo.InvariantCulture, out time))
+                return true;
+
+            return false;
         }
 
         // ====== Commands ======
@@ -117,16 +159,23 @@ namespace PadelSimple.Desktop.ViewModels
                 return;
             }
 
-            if (!TimeSpan.TryParse(StartTimeString, out var start))
+            if (!TryParseTime(StartTimeString, out var start))
             {
-                ErrorMessage = "Starttijd ongeldig (bv. 18:00).";
+                ErrorMessage = "Starttijd ongeldig. Gebruik bv. 18:00";
                 MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (!TimeSpan.TryParse(EndTimeString, out var end))
+            if (!TryParseTime(EndTimeString, out var end))
             {
-                ErrorMessage = "Eindtijd ongeldig (bv. 19:00).";
+                ErrorMessage = "Eindtijd ongeldig. Gebruik bv. 19:00";
+                MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (end <= start)
+            {
+                ErrorMessage = "Eindtijd moet na starttijd liggen.";
                 MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -144,7 +193,7 @@ namespace PadelSimple.Desktop.ViewModels
                 EquipmentId = SelectedEquipment?.Id,
                 EquipmentQuantity = EquipmentQuantity,
                 UserId = _authService.CurrentUser.Id,
-                Date = Date,
+                Date = Date.Date,
                 StartTime = start,
                 EndTime = end,
                 NumberOfPlayers = NumberOfPlayers

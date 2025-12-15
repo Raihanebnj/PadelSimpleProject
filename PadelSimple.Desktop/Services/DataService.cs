@@ -129,9 +129,19 @@ public class DataService
         using var db = _contextFactory.CreateDbContext();
 
         if (court.Id == 0)
+        {
             db.Courts.Add(court);
+        }
         else
-            db.Courts.Update(court);
+        {
+            var existing = await db.Courts.FirstOrDefaultAsync(x => x.Id == court.Id);
+            if (existing == null) return;
+
+            existing.Name = court.Name;
+            existing.Capacity = court.Capacity;
+            existing.IsIndoor = court.IsIndoor;
+            // IsDeleted niet aanpassen hier
+        }
 
         await db.SaveChangesAsync();
     }
@@ -140,10 +150,82 @@ public class DataService
     {
         using var db = _contextFactory.CreateDbContext();
 
+        if (equipment.AvailableQuantity > equipment.TotalQuantity)
+            equipment.AvailableQuantity = equipment.TotalQuantity;
+
         if (equipment.Id == 0)
+        {
             db.Equipment.Add(equipment);
+        }
         else
-            db.Equipment.Update(equipment);
+        {
+            var existing = await db.Equipment.FirstOrDefaultAsync(x => x.Id == equipment.Id);
+            if (existing == null) return;
+
+            existing.Name = equipment.Name;
+            existing.TotalQuantity = equipment.TotalQuantity;
+
+            // Belangrijk: available mag niet groter dan total
+            existing.AvailableQuantity = Math.Min(equipment.AvailableQuantity, equipment.TotalQuantity);
+
+            existing.IsActive = equipment.IsActive;
+            // IsDeleted niet aanpassen hier
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SaveCourtsAsync(IEnumerable<Court> courts)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        foreach (var court in courts)
+        {
+            if (court.Id == 0)
+            {
+                db.Courts.Add(court);
+            }
+            else
+            {
+                var existing = await db.Courts.FirstOrDefaultAsync(x => x.Id == court.Id);
+                if (existing == null) continue;
+
+                existing.Name = court.Name;
+                existing.Capacity = court.Capacity;
+                existing.IsIndoor = court.IsIndoor;
+            }
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task SaveEquipmentAsync(IEnumerable<Equipment> equipmentList)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        foreach (var equipment in equipmentList)
+        {
+            if (equipment.AvailableQuantity > equipment.TotalQuantity)
+                equipment.AvailableQuantity = equipment.TotalQuantity;
+
+            if (equipment.Id == 0)
+            {
+                db.Equipment.Add(equipment);
+            }
+            else
+            {
+                var existing = await db.Equipment.FirstOrDefaultAsync(x => x.Id == equipment.Id);
+                if (existing == null) continue;
+
+                existing.Name = equipment.Name;
+                existing.TotalQuantity = equipment.TotalQuantity;
+                existing.AvailableQuantity = Math.Min(
+                    equipment.AvailableQuantity,
+                    equipment.TotalQuantity
+                );
+                existing.IsActive = equipment.IsActive;
+            }
+        }
 
         await db.SaveChangesAsync();
     }

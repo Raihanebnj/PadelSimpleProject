@@ -127,11 +127,10 @@ namespace PadelSimple.Desktop.ViewModels
         [RelayCommand]
         private async Task SaveCourt()
         {
-            if (SelectedCourt == null) return;
-
             try
             {
-                await _dataService.SaveCourtAsync(SelectedCourt);
+                // alles opslaan, zodat edits in de grid zeker meegaan
+                await _dataService.SaveCourtsAsync(Courts);
                 await LoadData();
             }
             catch (Exception ex)
@@ -152,11 +151,10 @@ namespace PadelSimple.Desktop.ViewModels
         [RelayCommand]
         private async Task SaveEquipment()
         {
-            if (SelectedEquipment == null) return;
-
             try
             {
-                await _dataService.SaveEquipmentAsync(SelectedEquipment);
+                // 🔹 alles opslaan zodat grid-edits zeker meegaan
+                await _dataService.SaveEquipmentAsync(EquipmentList);
                 await LoadData();
             }
             catch (Exception ex)
@@ -164,6 +162,7 @@ namespace PadelSimple.Desktop.ViewModels
                 MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         [RelayCommand]
         private void NewEquipment()
