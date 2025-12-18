@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36623.8 d17.14
+VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Desktop", "PadelSimple.Desktop\PadelSimple.Desktop.csproj", "{38163995-6869-4090-92EC-F473BFBEEFFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Models", "PadelSimple.Models\PadelSimple.Models.csproj", "{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Web", "PadelSimple.Web\PadelSimple.Web.csproj", "{5DEF2802-75BF-47D7-8C19-834424F910B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,79 @@
+﻿@model PadelSimple.Web.Models.Admin.AdminUsersIndexVm
+@{
+    ViewData["Title"] = "Gebruikersbeheer";
+}
+
+<h2>Gebruikersbeheer</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input class="form-control" name="q" value="@Model.Query" placeholder="Zoek email/username" />
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="role">
+            <option value="">(alle rollen)</option>
+            @foreach (var r in Model.AvailableRoles)
+            {
+                <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="blocked">
+            <option value="">(blocked + unblocked)</option>
+            <option value="true" selected="@(Model.BlockedFilter == true)">Geblokkeerd</option>
+            <option value="false" selected="@(Model.BlockedFilter == false)">Niet geblokkeerd</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>UserName</th>
+            <th>Member</th>
+            <th>Blocked</th>
+            <th>Rollen</th>
+            <th class="text-end">Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model.Users)
+        {
+            <tr>
+                <td>@u.Email</td>
+                <td>@u.UserName</td>
+                <td>@(u.IsMember ? "Ja" : "Nee")</td>
+                <td>@(u.IsBlocked ? "Ja" : "Nee")</td>
+                <td>@string.Join(", ", u.Roles)</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@u.Id">Bewerken</a>
+
+                    @if (!u.IsBlocked)
+                    {
+                        <form class="d-inline" method="post" asp-action="Block">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Blokkeer</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form class="d-inline" method="post" asp-action="Unblock">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-sm btn-outline-success" type="submit">Deblokkeer</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

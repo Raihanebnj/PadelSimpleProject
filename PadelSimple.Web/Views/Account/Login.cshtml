@@ -1,0 +1,26 @@
+﻿@model PadelSimple.Web.Models.LoginVm
+@{
+    ViewData["Title"] = "Login";
+}
+<h2>Login</h2>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label class="form-label">E-mail of username</label>
+        <input asp-for="EmailOrUserName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Wachtwoord</label>
+        <input asp-for="Password" class="form-control" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="RememberMe" class="form-check-input" />
+        <label asp-for="RememberMe" class="form-check-label">Onthouden</label>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Login</button>
+</form>
