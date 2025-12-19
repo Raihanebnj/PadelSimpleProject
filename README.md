@@ -225,7 +225,8 @@ De applicatie gebruikt **SQLite**.
   "ConnectionStrings": {
     "Default": "Data Source=padelsimple.web.db"
   }
-}```
+}
+```
 
 🔐 Admin login (User Secrets)
 
@@ -354,7 +355,7 @@ public static class ApiConfig
         }
     }
 }
-
+```
 ---
 
 🗄️ Offline opslag
