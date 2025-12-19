@@ -415,3 +415,62 @@ Microsoft.Extensions.Logging.Debug
 Newtonsoft.Json
 
 sqlite-net-pcl
+
+------------------------------------------------------------------------------------------------
+
+## 📚 Bronnen & Verantwoording
+
+Bij de realisatie van dit project werden de volgende bronnen geraadpleegd:
+
+### Officiële documentatie
+- Microsoft Docs – .NET MAUI  
+  https://learn.microsoft.com/dotnet/maui/
+
+- Microsoft Docs – ASP.NET Core & Web API  
+  https://learn.microsoft.com/aspnet/core/
+
+- Microsoft Docs – Identity Framework  
+  https://learn.microsoft.com/aspnet/core/security/authentication/identity
+
+- Microsoft Docs – Entity Framework Core  
+  https://learn.microsoft.com/ef/core/
+
+- Microsoft Docs – HttpClient & REST API communicatie  
+  https://learn.microsoft.com/dotnet/fundamentals/networking/http/httpclient
+
+- Microsoft Docs – SQLite met .NET  
+  https://learn.microsoft.com/dotnet/standard/data/sqlite/
+
+---
+
+### Architectuur & patronen
+- MVVM Pattern – Microsoft  
+  https://learn.microsoft.com/dotnet/architecture/maui/mvvm
+
+- CommunityToolkit.Mvvm  
+  https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/
+
+---
+
+### AI-ondersteuning
+Bij het ontwikkelen van dit project werd **AI-ondersteuning (ChatGPT – OpenAI)** gebruikt:
+- als **hulpmiddel** voor uitleg, foutanalyse en herstructurering van code
+- niet voor het blind kopiëren van volledige oplossingen
+- alle code werd **begrepen, aangepast en geïntegreerd** door de student
+
+De student kan **elk onderdeel van de code en architectuur toelichten** tijdens de mondelinge verdediging.
+
+---
+
+### Eigen werk
+- Alle businesslogica
+- API-structuur
+- Mobile architectuur
+- Offline/online synchronisatie
+- UI-opbouw en bindingen
+
+werden **zelf uitgewerkt** in functie van het projectvoorstel.
+
+---
+
+© PadelSimple – Mobile & Web Project
