@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Localization;
-
-namespace PadelSimple.Web.Infrastructure;
+﻿namespace PadelSimple.Web.Infrastructure;
 
 public class CultureCookieMiddleware
 {
@@ -8,20 +6,19 @@ public class CultureCookieMiddleware
 
     public CultureCookieMiddleware(RequestDelegate next) => _next = next;
 
-    public async Task Invoke(HttpContext ctx)
+    public async Task Invoke(HttpContext context)
     {
-        // Als ?lang=nl/en/fr -> zet cookie
-        var lang = ctx.Request.Query["lang"].ToString();
+       
+        var lang = context.Request.Query["lang"].ToString();
         if (!string.IsNullOrWhiteSpace(lang))
         {
-            var culture = new RequestCulture(lang);
-            ctx.Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(culture),
+            context.Response.Cookies.Append(
+                ".AspNetCore.Culture",
+                $"c={lang}|uic={lang}",
                 new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
             );
         }
 
-        await _next(ctx);
+        await _next(context);
     }
 }

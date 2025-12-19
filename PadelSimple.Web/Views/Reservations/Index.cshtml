@@ -1,0 +1,52 @@
+﻿@model IEnumerable<PadelSimple.Models.Domain.Reservation>
+@{
+    ViewData["Title"] = "Reservations";
+    var sel = (string?)ViewBag.SelectedDate;
+}
+
+<h1>Reservations</h1>
+
+<form method="get" class="mb-3">
+    <label>Datum:</label>
+    <input type="date" name="date" value="@sel" />
+    <button class="btn btn-sm btn-primary" type="submit">Filter</button>
+    <a class="btn btn-sm btn-secondary" asp-action="Index">Reset</a>
+</form>
+
+<p>
+    <a class="btn btn-success" asp-action="Create">Nieuwe reservatie</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Start</th>
+            <th>Einde</th>
+            <th>Court</th>
+            <th>Spelers</th>
+            <th>Materiaal</th>
+            <th>Aantal</th>
+            <th>Gebruiker</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Date.ToString("dd/MM/yyyy")</td>
+                <td>@r.StartTime</td>
+                <td>@r.EndTime</td>
+                <td>@r.Court?.Name</td>
+                <td>@r.NumberOfPlayers</td>
+                <td>@r.Equipment?.Name</td>
+                <td>@r.EquipmentQuantity</td>
+                <td>@r.User?.Email</td>
+                <td>
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@r.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

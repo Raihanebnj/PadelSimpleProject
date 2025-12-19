@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Desktop", "Pade
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Models", "PadelSimple.Models\PadelSimple.Models.csproj", "{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Web", "PadelSimple.Web\PadelSimple.Web.csproj", "{5DEF2802-75BF-47D7-8C19-834424F910B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Web", "PadelSimple.Web\PadelSimple.Web.csproj", "{CCEF7B75-F02A-4931-8248-DF8666ACC70D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65CA5116-B1F5-4BCC-9077-6E9E2520CB27}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5DEF2802-75BF-47D7-8C19-834424F910B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

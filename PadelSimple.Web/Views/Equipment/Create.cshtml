@@ -1,0 +1,38 @@
+﻿@model PadelSimple.Models.Domain.Equipment
+@{
+    ViewData["Title"] = "Equipment toevoegen";
+}
+
+<h1>Equipment toevoegen</h1>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label class="form-label">Naam</label>
+        <input class="form-control" asp-for="Name" />
+        <span class="text-danger" asp-validation-for="Name"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Totaal</label>
+        <input class="form-control" asp-for="TotalQuantity" type="number" min="0" />
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Beschikbaar</label>
+        <input class="form-control" asp-for="AvailableQuantity" type="number" min="0" />
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="IsActive" type="checkbox" />
+        <label class="form-check-label">Actief</label>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Opslaan</button>
+    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

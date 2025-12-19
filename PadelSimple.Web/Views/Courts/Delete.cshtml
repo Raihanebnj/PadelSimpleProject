@@ -1,0 +1,13 @@
+﻿@model PadelSimple.Models.Domain.Court
+@{
+    ViewData["Title"] = "Delete court";
+}
+
+<h1>Delete court</h1>
+<p>Ben je zeker dat je <b>@Model.Name</b> wil verwijderen?</p>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <button class="btn btn-danger" type="submit">Delete</button>
+    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
+</form>

@@ -1,125 +1,95 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PadelSimple.Models.Identity;
-using PadelSimple.Web.Models;
-using PadelSimple.Web.Services;
+using PadelSimple.Web.ViewModels.Auth;
 
 namespace PadelSimple.Web.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly UserManager<AppUser> _users;
-    private readonly SignInManager<AppUser> _signIn;
-    private readonly IEmailSender _email;
-    private readonly ILogger<AccountController> _logger;
+    private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
 
-    public AccountController(UserManager<AppUser> users, SignInManager<AppUser> signIn, IEmailSender email, ILogger<AccountController> logger)
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
     {
-        _users = users;
-        _signIn = signIn;
-        _email = email;
-        _logger = logger;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
-    [HttpGet]
+    [HttpGet, AllowAnonymous]
+    public IActionResult Register() => View(new RegisterVm());
+
+    [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterVm vm)
+    {
+        if (!ModelState.IsValid) return View(vm);
+
+        var existing = await _userManager.FindByEmailAsync(vm.Email);
+        if (existing != null)
+        {
+            ModelState.AddModelError(nameof(vm.Email), "Email bestaat al.");
+            return View(vm);
+        }
+
+        var user = new AppUser
+        {
+            UserName = vm.Email,
+            Email = vm.Email,
+            IsMember = vm.IsMember,
+            IsBlocked = false
+        };
+
+        var result = await _userManager.CreateAsync(user, vm.Password);
+        if (!result.Succeeded)
+        {
+            foreach (var e in result.Errors)
+                ModelState.AddModelError(string.Empty, e.Description);
+            return View(vm);
+        }
+
+        await _userManager.AddToRoleAsync(user, "Member");
+        await _signInManager.SignInAsync(user, isPersistent: false);
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet, AllowAnonymous]
     public IActionResult Login() => View(new LoginVm());
 
-    [HttpPost]
+    [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginVm vm)
     {
         if (!ModelState.IsValid) return View(vm);
 
-        // zoeken op email of username
-        var user = await _users.FindByEmailAsync(vm.EmailOrUserName) ?? await _users.FindByNameAsync(vm.EmailOrUserName);
+        var user = await _userManager.FindByEmailAsync(vm.Email);
         if (user == null)
         {
-            ModelState.AddModelError("", "Gebruiker niet gevonden.");
+            ModelState.AddModelError(string.Empty, "Ongeldige login.");
             return View(vm);
         }
 
         if (user.IsBlocked)
         {
-            ModelState.AddModelError("", "Je account is geblokkeerd.");
+            ModelState.AddModelError(string.Empty, "Je account is geblokkeerd.");
             return View(vm);
         }
 
-        if (!user.EmailConfirmed)
-        {
-            ModelState.AddModelError("", "Bevestig eerst je e-mail.");
-            return View(vm);
-        }
-
-        var result = await _signIn.PasswordSignInAsync(user, vm.Password, vm.RememberMe, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(user, vm.Password, vm.RememberMe, false);
         if (!result.Succeeded)
         {
-            ModelState.AddModelError("", "Ongeldig wachtwoord.");
+            ModelState.AddModelError(string.Empty, "Ongeldige login.");
             return View(vm);
         }
 
         return RedirectToAction("Index", "Home");
     }
 
-    [HttpGet]
-    public IActionResult Register() => View(new RegisterVm());
-
-    [HttpPost]
-    public async Task<IActionResult> Register(RegisterVm vm)
-    {
-        if (!ModelState.IsValid) return View(vm);
-
-        var user = new AppUser
-        {
-            UserName = vm.Email,
-            Email = vm.Email,
-            IsMember = true,
-            IsBlocked = false
-        };
-
-        var created = await _users.CreateAsync(user, vm.Password);
-        if (!created.Succeeded)
-        {
-            foreach (var e in created.Errors) ModelState.AddModelError("", e.Description);
-            return View(vm);
-        }
-
-        // automatisch rol Member
-        await _users.AddToRoleAsync(user, "Member");
-
-        // email confirm link
-        var token = await _users.GenerateEmailConfirmationTokenAsync(user);
-        var url = Url.Action(nameof(ConfirmEmail), "Account",
-            new { userId = user.Id, token }, Request.Scheme);
-
-        await _email.SendAsync(vm.Email, "Bevestig je account",
-            $"Klik op deze link om te bevestigen: <a href=\"{url}\">Bevestigen</a>");
-
-        return RedirectToAction(nameof(RegisterDone));
-    }
-
-    [HttpGet]
-    public IActionResult RegisterDone() => View();
-
-    [HttpGet]
-    public async Task<IActionResult> ConfirmEmail(string userId, string token)
-    {
-        var user = await _users.FindByIdAsync(userId);
-        if (user == null) return NotFound();
-
-        var ok = await _users.ConfirmEmailAsync(user, token);
-        if (!ok.Succeeded)
-        {
-            _logger.LogWarning("Email confirm failed for {UserId}", userId);
-            return View("ConfirmFailed");
-        }
-
-        return View("ConfirmOk");
-    }
-
-    [HttpPost]
+    [HttpPost, Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signIn.SignOutAsync();
-        return RedirectToAction(nameof(Login));
+        await _signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
     }
 
     public IActionResult AccessDenied() => View();

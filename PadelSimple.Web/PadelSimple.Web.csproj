@@ -1,31 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>a8590328-0a6d-4c3f-857c-9f23104d569e</UserSecretsId>
-    <UserSecretsId>padelsimple-web-secrets</UserSecretsId>
-  </PropertyGroup>  <ItemGroup>
+    <UserSecretsId>857d5d86-dedb-4e9c-9101-01bac48eac98</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PadelSimple.Models\PadelSimple.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PadelSimple.Models\PadelSimple.Models.csproj" />
-  </ItemGroup>
 </Project>

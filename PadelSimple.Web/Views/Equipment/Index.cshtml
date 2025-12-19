@@ -1,0 +1,34 @@
+﻿@model PadelSimple.Web.ViewModels.Equipment.EquipmentIndexVm
+@{
+    ViewData["Title"] = "Materiaal";
+}
+
+<h2 class="mb-3">Materiaal</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Totaal</th>
+            <th>Beschikbaar</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model.Items)
+        {
+            <tr>
+                <td>@e.Name</td>
+                <td>@e.TotalQuantity</td>
+                <td>
+                    @e.AvailableQuantity
+                    @if (e.AvailableQuantity <= 0)
+                    {
+                        <span class="badge bg-danger ms-2">Niet beschikbaar</span>
+                    }
+                </td>
+                <td>@(e.IsActive ? "Actief" : "Inactief")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,100 @@
+﻿@model PadelSimple.Web.ViewModels.Courts.CourtsIndexVm
+@{
+    ViewData["Title"] = "Terreinen";
+}
+
+<h2 class="mb-3">Terreinen</h2>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Datum</label>
+        <input type="date"
+               name="date"
+               class="form-control"
+               value="@Model.Date.ToString("yyyy-MM-dd")" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Start (bv 18:00)</label>
+        <input type="text"
+               name="start"
+               class="form-control"
+               value="@Model.Start"
+               placeholder="18:00" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Einde (bv 19:00)</label>
+        <input type="text"
+               name="end"
+               class="form-control"
+               value="@Model.End"
+               placeholder="19:00" />
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">
+            Filter
+        </button>
+    </div>
+
+   
+</form>
+
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Naam</th>
+            <th>Capaciteit</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Vrij vanaf</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Courts)
+        {
+            <tr>
+                <td>@c.Name</td>
+                <td>@c.Capacity</td>
+                <td>
+                    @if (c.IsIndoor)
+                    {
+                        <span class="badge bg-info text-dark">Indoor</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Outdoor</span>
+                    }
+                </td>
+                <td>
+                    @if (c.IsAvailable)
+                    {
+                        <span class="badge bg-success">Vrij</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Bezet</span>
+                    }
+                </td>
+                <td>
+                    @if (c.IsAvailable)
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                    else
+                    {
+                        <strong>@(c.FreeFrom ?? "Onbekend")</strong>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Courts.Any())
+{
+    <div class="alert alert-info">
+        Geen terreinen gevonden voor deze selectie.
+    </div>
+}

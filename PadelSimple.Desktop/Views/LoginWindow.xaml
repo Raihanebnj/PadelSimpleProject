@@ -28,12 +28,10 @@
                              PasswordChanged="PwdBox_OnPasswordChanged"/>
 
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" Margin="0,5,0,5"/>
-
                 <Button Content="Inloggen"
                         Width="120"
-                        HorizontalAlignment="Right"
                         Command="{Binding LoginCommand}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
             </StackPanel>
         </GroupBox>
 
@@ -50,10 +48,8 @@
                 <PasswordBox x:Name="RegPwd2" PasswordChanged="RegPwd2_OnPasswordChanged"/>
 
                 <TextBlock Text="{Binding RegisterError}" Foreground="Red" Margin="0,5,0,5"/>
-
                 <Button Content="Account aanmaken"
                         Width="150"
-                        HorizontalAlignment="Right"
                         Command="{Binding RegisterCommand}"/>
             </StackPanel>
         </GroupBox>

@@ -1,0 +1,62 @@
+﻿@model PadelSimple.Web.ViewModels.ReservationEditVm
+@{
+    ViewData["Title"] = "Nieuwe reservatie";
+}
+
+<h1>Nieuwe reservatie</h1>
+
+<div class="text-danger">
+    @Html.ValidationSummary()
+</div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label class="form-label">Datum</label>
+        <input class="form-control" asp-for="Date" type="date" />
+        <span class="text-danger" asp-validation-for="Date"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Start (bv 18:00)</label>
+        <input class="form-control" asp-for="StartTime" />
+        <span class="text-danger" asp-validation-for="StartTime"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Einde (bv 19:00)</label>
+        <input class="form-control" asp-for="EndTime" />
+        <span class="text-danger" asp-validation-for="EndTime"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Terrein</label>
+        <select class="form-select" asp-for="CourtId" asp-items="Model.Courts"></select>
+        <span class="text-danger" asp-validation-for="CourtId"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Materiaal</label>
+        <select class="form-select" asp-for="EquipmentId" asp-items="Model.Equipment"></select>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Aantal materiaal</label>
+        <input class="form-control" asp-for="EquipmentQuantity" type="number" min="0" />
+        <span class="text-danger" asp-validation-for="EquipmentQuantity"></span>
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Aantal spelers</label>
+        <input class="form-control" asp-for="NumberOfPlayers" type="number" min="1" max="12" />
+        <span class="text-danger" asp-validation-for="NumberOfPlayers"></span>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Opslaan</button>
+    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
