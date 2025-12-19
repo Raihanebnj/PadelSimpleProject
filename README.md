@@ -102,3 +102,168 @@ Herformulering en foutopsporing
 Naam: Raihane Benjilali
 Opleiding: Graduaat Programmeren – EHB
 Project: Individueel eindproject C# WPF
+
+----------------------------------------------
+
+# 🏓 PadelSimple Web
+
+PadelSimple is een **ASP.NET Core MVC webapplicatie** voor het beheren van **padelterreinen, reservaties, materiaal en gebruikers**, met **rolgebaseerde toegang (Admin / User)** en een **SQLite database**.
+
+---
+
+## ✨ Functionaliteiten
+
+### 👤 Gebruikers
+- Registreren
+- Inloggen / Uitloggen
+- Rolgebaseerde toegang:
+  - **Admin**: volledig beheer
+  - **User**: reservaties bekijken en maken
+
+### 📅 Reservaties
+- Terreinen reserveren per **datum & tijdslot**
+- Materiaal toevoegen aan reservaties
+- Automatisch zien **wanneer een terrein weer vrij is**
+
+### 🏟️ Terreinen
+- Indoor / Outdoor
+- Capaciteit
+- Beschikbaarheid per geselecteerd tijdslot
+
+### 🎒 Materiaal
+- Totale en beschikbare hoeveelheid
+- Actief / Inactief
+- Admin kan toevoegen, aanpassen en verwijderen
+
+---
+
+## 🛠️ Technologie
+
+- ASP.NET Core MVC (.NET 9)
+- Entity Framework Core
+- SQLite
+- ASP.NET Identity
+- Bootstrap 5
+
+---
+
+## ✅ Vereisten
+
+- .NET SDK 9.0+
+- Visual Studio 2022 (of VS Code)
+
+---
+
+## 📁 Projectstructuur
+
+# 🏓 PadelSimple Web
+
+PadelSimple is een **ASP.NET Core MVC webapplicatie** voor het beheren van **padelterreinen, reservaties, materiaal en gebruikers**, met **rolgebaseerde toegang (Admin / User)** en een **SQLite database**.
+
+---
+
+## ✨ Functionaliteiten
+
+### 👤 Gebruikers
+- Registreren
+- Inloggen / Uitloggen
+- Rolgebaseerde toegang:
+  - **Admin**: volledig beheer
+  - **User**: reservaties bekijken en maken
+
+### 📅 Reservaties
+- Terreinen reserveren per **datum & tijdslot**
+- Materiaal toevoegen aan reservaties
+- Automatisch zien **wanneer een terrein weer vrij is**
+
+### 🏟️ Terreinen
+- Indoor / Outdoor
+- Capaciteit
+- Beschikbaarheid per geselecteerd tijdslot
+
+### 🎒 Materiaal
+- Totale en beschikbare hoeveelheid
+- Actief / Inactief
+- Admin kan toevoegen, aanpassen en verwijderen
+
+---
+
+## 🛠️ Technologie
+
+- ASP.NET Core MVC (.NET 9)
+- Entity Framework Core
+- SQLite
+- ASP.NET Identity
+- Bootstrap 5
+
+---
+
+## ✅ Vereisten
+
+- .NET SDK 9.0+
+- Visual Studio 2022 (of VS Code)
+
+---
+
+## 📁 Projectstructuur
+
+PadelSimpleProject
+│
+├── PadelSimple.Web → Web applicatie (MVC)
+├── PadelSimple.Models → Entities, DbContext, Identity
+└── PadelSimple.sln
+
+---
+
+## 🗄️ Database
+
+De applicatie gebruikt **SQLite**.
+
+**appsettings.json**
+```json
+{
+  "ConnectionStrings": {
+    "Default": "Data Source=padelsimple.web.db"
+  }
+}```
+
+🔐 Admin login (User Secrets)
+
+⚠️ Wachtwoorden staan NIET in de code
+
+De admin gebruiker wordt aangemaakt via User Secrets.
+
+1️⃣ Ga naar het webproject
+cd .\PadelSimple.Web\
+
+2️⃣ Initialiseer User Secrets
+dotnet user-secrets init
+
+3️⃣ Zet admin credentials
+dotnet user-secrets set "SeedAdmin:Email" "admin@padel.local"
+dotnet user-secrets set "SeedAdmin:Password" "Admin123!"
+
+4️⃣ Controleer
+dotnet user-secrets list
+
+🔑 Admin login gegevens
+Email	Wachtwoord
+admin@padel.local
+	Admin123!
+
+📦 Database migraties (optioneel)
+
+Indien nodig:
+
+Add-Migration InitWeb -Project PadelSimple.Web -StartupProject PadelSimple.Web
+Update-Database -Project PadelSimple.Web -StartupProject PadelSimple.Web
+
+▶️ Applicatie starten
+Via CLI
+dotnet run
+
+Via Visual Studio
+
+Zet PadelSimple.Web als Startup Project
+
+Klik op Run
