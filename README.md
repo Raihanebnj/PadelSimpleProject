@@ -267,3 +267,150 @@ Via Visual Studio
 Zet PadelSimple.Web als Startup Project
 
 Klik op Run
+
+---
+
+# PadelSimple Mobile (.NET MAUI)
+
+Dit project is de **mobiele applicatie** van het PadelSimple-platform en vormt de mobile-versie van de ASP.NET webapplicatie die werd ontwikkeld voor het vak **.NET Advanced**.
+
+De app is gerealiseerd met **.NET MAUI (.NET 9)** en gebruikt **XAML** als front-end.  
+Ze consumeert de **RESTful API** van het ASP.NET project en maakt gebruik van **gedeelde modellen** uit de `PadelSimple.Models` Class Library.
+
+---
+
+## 📱 Functionaliteiten
+
+- Inloggen via **Identity (API)**
+- Automatisch opnieuw aanmelden via lokaal opgeslagen token
+- Overzicht van:
+  - Terreinen (indoor / outdoor + beschikbaarheid)
+  - Materiaal (beschikbaar / niet beschikbaar)
+  - Reservaties
+- Nieuwe reservatie aanmaken
+- Volledig **asynchroon**
+- Werkt **online & offline** met lokale opslag (SQLite)
+- Automatische synchronisatie zodra internet beschikbaar is
+
+> Administratieve functies (gebruikersbeheer, verwijderen van data) zijn bewust niet aanwezig in de mobile app.
+
+---
+
+## 🧱 Architectuur
+
+- **MVVM-structuur** (Model-View-ViewModel)
+- Gebruik van **CommunityToolkit.Mvvm**
+- Dependency Injection via `MauiProgram`
+- XAML data binding
+- Services voor API, lokale opslag en synchronisatie
+
+PadelSimple.Mobile
+│
+├── Views
+│ ├── LoginPage.xaml
+│ ├── CourtsPage.xaml
+│ ├── EquipmentPage.xaml
+│ └── ReservationsPage.xaml
+│
+├── ViewModels
+│ ├── LoginVm.cs
+│ ├── CourtsVm.cs
+│ ├── EquipmentVm.cs
+│ └── ReservationsVm.cs
+│
+├── Services
+│ ├── ApiClient.cs
+│ ├── ApiConfig.cs
+│ ├── AuthService.cs
+│ ├── CourtsService.cs
+│ ├── EquipmentService.cs
+│ ├── ReservationsService.cs
+│ ├── LocalDb.cs
+│ └── SyncService.cs
+│
+└── App.xaml / AppShell.xaml
+
+---
+
+## 🌐 API Configuratie
+
+De mobile app gebruikt **platform-afhankelijke BaseUrl** configuratie.
+
+### `Services/ApiConfig.cs`
+```csharp
+public static class ApiConfig
+{
+    public static string BaseUrl
+    {
+        get
+        {
+#if ANDROID
+            return "http://10.0.2.2:5009/";
+#elif WINDOWS
+            return "http://localhost:5009/";
+#else
+            return "http://localhost:5009/";
+#endif
+        }
+    }
+}
+
+---
+
+🗄️ Offline opslag
+
+Lokale database via SQLite
+
+Basisdata wordt lokaal gesynchroniseerd
+
+Offline acties worden bijgehouden en later doorgestuurd naar de API
+
+---
+
+🔐 Authenticatie
+
+Login gebeurt éénmalig via API
+
+JWT/token wordt lokaal opgeslagen
+
+Automatische her-aanmelding bij volgende sessies
+
+Identity Framework wordt volledig via de API gebruikt
+
+---
+
+🧪 Platforms
+
+✅ Android (emulator)
+
+✅ Windows Desktop
+
+⚠️ iOS (niet getest)
+
+---
+
+🧩 Vereisten
+
+Visual Studio 2022+
+
+.NET SDK 9
+
+MAUI workload geïnstalleerd
+
+Android Emulator
+
+ASP.NET Web/API project actief
+
+---
+
+📦 Gebruikte NuGet packages
+
+CommunityToolkit.Mvvm
+
+Microsoft.Extensions.Http
+
+Microsoft.Extensions.Logging.Debug
+
+Newtonsoft.Json
+
+sqlite-net-pcl
