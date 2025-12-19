@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PadelSimple.Mobile.Views.ReservationsPage"
+    Title="Reservaties">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="12" Spacing="12">
+
+            <Label Text="Nieuwe reservatie" FontSize="20" FontAttributes="Bold"/>
+
+            <DatePicker Date="{Binding SelectedDate}" />
+
+            <Picker Title="Terrein"
+                    ItemsSource="{Binding Courts}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCourt}" />
+
+            <HorizontalStackLayout Spacing="10">
+                <VerticalStackLayout WidthRequest="140">
+                    <Label Text="Start (hh:mm)" />
+                    <Entry Text="{Binding StartTime}" Placeholder="18:00" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout WidthRequest="140">
+                    <Label Text="Einde (hh:mm)" />
+                    <Entry Text="{Binding EndTime}" Placeholder="19:00" />
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <VerticalStackLayout WidthRequest="140">
+                <Label Text="Spelers" />
+                <Entry Keyboard="Numeric" Text="{Binding NumberOfPlayers}" />
+            </VerticalStackLayout>
+
+            <Picker Title="Materiaal (optioneel)"
+                    ItemsSource="{Binding Equipment}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedEquipment}" />
+
+            <VerticalStackLayout>
+                <Label Text="Materiaal aantal" />
+                <Entry Keyboard="Numeric" Text="{Binding EquipmentQuantity}" />
+            </VerticalStackLayout>
+
+            <Button Text="Reservatie maken" Command="{Binding CreateCommand}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+
+    
+            <Label Text="{Binding Info}" TextColor="Green">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Info}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+        
+            <Label Text="{Binding Error}" TextColor="Red">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Error}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+            <BoxView HeightRequest="1" BackgroundColor="#333" Margin="0,8"/>
+
+            <HorizontalStackLayout>
+                <Label Text="Overzicht" FontSize="20" FontAttributes="Bold" />
+                <Button Text="Refresh" Command="{Binding LoadCommand}" HorizontalOptions="EndAndExpand"/>
+            </HorizontalStackLayout>
+
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="0,6" BorderColor="#333" CornerRadius="10">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding CourtName}" FontAttributes="Bold" FontSize="16"/>
+                                <Label Text="{Binding Date, StringFormat='Datum: {0:dd/MM/yyyy}'}" />
+                                <Label Text="{Binding StartTime, StringFormat='Start: {0}'}" />
+                                <Label Text="{Binding EndTime, StringFormat='Einde: {0}'}" />
+                                <Label Text="{Binding NumberOfPlayers, StringFormat='Spelers: {0}'}" />
+                                <Label Text="{Binding EquipmentName, StringFormat='Materiaal: {0}'}" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

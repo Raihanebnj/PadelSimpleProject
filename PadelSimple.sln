@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Models", "Padel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Web", "PadelSimple.Web\PadelSimple.Web.csproj", "{CCEF7B75-F02A-4931-8248-DF8666ACC70D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadelSimple.Mobile", "PadelSimple.Mobile\PadelSimple.Mobile.csproj", "{C00B56D4-9F99-4044-80FF-824F3DE98B03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCEF7B75-F02A-4931-8248-DF8666ACC70D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C00B56D4-9F99-4044-80FF-824F3DE98B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C00B56D4-9F99-4044-80FF-824F3DE98B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C00B56D4-9F99-4044-80FF-824F3DE98B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C00B56D4-9F99-4044-80FF-824F3DE98B03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

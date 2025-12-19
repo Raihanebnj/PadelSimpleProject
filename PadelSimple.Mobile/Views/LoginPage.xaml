@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PadelSimple.Mobile.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Login">
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+
+        <Label Text="Login" FontSize="24" FontAttributes="Bold" />
+
+        <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" />
+        <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" />
+
+        <Button Text="Login" Command="{Binding LoginCommand}" />
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        
+        <Label Text="{Binding Info}" TextColor="Green">
+            <Label.Triggers>
+                <DataTrigger TargetType="Label" Binding="{Binding Info}" Value="">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+                <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                    <Setter Property="IsVisible" Value="False" />
+                </Trigger>
+            </Label.Triggers>
+        </Label>
+
+     
+        <Label Text="{Binding Error}" TextColor="Red">
+            <Label.Triggers>
+                <DataTrigger TargetType="Label" Binding="{Binding Error}" Value="">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+                <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                    <Setter Property="IsVisible" Value="False" />
+                </Trigger>
+            </Label.Triggers>
+        </Label>
+
+    </VerticalStackLayout>
+</ContentPage>

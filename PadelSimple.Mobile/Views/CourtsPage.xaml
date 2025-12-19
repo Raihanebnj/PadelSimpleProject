@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="PadelSimple.Mobile.Views.CourtsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Terreinen">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="12" Spacing="12">
+
+            <HorizontalStackLayout>
+                <Label Text="Terreinen" FontSize="20" FontAttributes="Bold" />
+                <Button Text="Refresh" Command="{Binding LoadCommand}" HorizontalOptions="EndAndExpand" />
+            </HorizontalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+           
+            <Label Text="{Binding Info}" TextColor="Green">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Info}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+         
+            <Label Text="{Binding Error}" TextColor="Red">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Error}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+            <CollectionView ItemsSource="{Binding Courts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="0,6" BorderColor="#333" CornerRadius="10">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" />
+                                <Label Text="{Binding Capacity, StringFormat='Capaciteit: {0}'}" />
+                                <Label Text="{Binding IsIndoor, StringFormat='Indoor: {0}'}" />
+                                <Label Text="{Binding IsAvailable, StringFormat='Beschikbaar: {0}'}" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
