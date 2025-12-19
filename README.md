@@ -50,7 +50,7 @@ Zowel **leden** als **niet-leden** kunnen terreinen reserveren, en materiaalbesc
 ### 1. Clone project
 ```bash
 git clone https://github.com/RaihaneBnj/PadelSimpleProject.git
-
+```
 2. Update database
 
 In Visual Studio → Package Manager Console:
