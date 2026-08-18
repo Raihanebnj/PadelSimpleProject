@@ -1,83 +1,128 @@
-﻿using System.Threading.Tasks;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PadelSimple.Desktop.Services;
 using PadelSimple.Desktop.Views;
+using PadelSimple.Models.Domain;
+using PadelSimple.Models.Identity;
 
-namespace PadelSimple.Desktop.ViewModels;
-
-public partial class LoginViewModel : ObservableObject
+namespace PadelSimple.Desktop.ViewModels
 {
-    private readonly AuthService _authService;
-
-    [ObservableProperty] private string _userName = string.Empty;
-    [ObservableProperty] private string _password = string.Empty;
-
-    [ObservableProperty] private string _registerEmail = string.Empty;
-    [ObservableProperty] private string _registerPassword = string.Empty;
-    [ObservableProperty] private string _registerPasswordRepeat = string.Empty;
-
-    [ObservableProperty] private string _errorMessage = string.Empty;
-    [ObservableProperty] private string _registerError = string.Empty;
-
-    public LoginViewModel(AuthService authService)
+    public partial class LoginViewModel : ObservableObject
     {
-        _authService = authService;
-    }
+        private readonly AuthService _authService;
 
-    [RelayCommand]
-    private async Task Login(Window window)
-    {
-        ErrorMessage = string.Empty;
+        // ====== Login velden ======
+        [ObservableProperty] private string userName = string.Empty;
+        [ObservableProperty] private string password = string.Empty;
+        [ObservableProperty] private string errorMessage = string.Empty;
 
-        var (ok, error) = await _authService.LoginAsync(UserName, Password);
-        if (!ok)
+        // ====== Registratie velden ======
+        [ObservableProperty] private string registerEmail = string.Empty;
+        [ObservableProperty] private string registerVoornaam = string.Empty;
+        [ObservableProperty] private string registerAchternaam = string.Empty;
+        [ObservableProperty] private string registerTelefoon = string.Empty;
+        [ObservableProperty] private string registerPassword = string.Empty;
+        [ObservableProperty] private string registerPasswordHerhaal = string.Empty;
+        [ObservableProperty] private bool registerIsLid = false;
+        [ObservableProperty] private string registerError = string.Empty;
+
+        public LoginViewModel(AuthService authService)
         {
-            ErrorMessage = error;
-            return;
+            _authService = authService;
         }
 
-        // 🔹 Nieuwe MainWindow ophalen via DI
-        var main = App.GetService<MainWindow>();
-
-        // 🔹 Zeg expliciet tegen WPF: dit is nu de MainWindow
-        Application.Current.MainWindow = main;
-
-        main.Show();
-
-        // 🔹 Loginwindow sluiten
-        window.Close();
-    }
-
-    [RelayCommand]
-    private async Task Register()
-    {
-        RegisterError = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(RegisterEmail) ||
-            string.IsNullOrWhiteSpace(RegisterPassword))
+        [RelayCommand]
+        private async Task Login(Window window)
         {
-            RegisterError = "Vul e-mail en wachtwoord in.";
-            return;
+            ErrorMessage = string.Empty;
+            try
+            {
+                var (ok, fout) = await _authService.LoginAsync(UserName, Password);
+                if (!ok)
+                {
+                    ErrorMessage = fout;
+                    return;
+                }
+
+                // Open MainWindow via DI
+                var main = App.GetService<MainWindow>();
+                main.Show();
+
+                // Login venster sluiten
+                window.Close();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Onverwachte fout: {ex.Message}";
+            }
         }
 
-        if (RegisterPassword != RegisterPasswordRepeat)
+        [RelayCommand]
+        private async Task Register()
         {
-            RegisterError = "Wachtwoorden komen niet overeen.";
-            return;
-        }
+            RegisterError = string.Empty;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(RegisterEmail))
+                {
+                    RegisterError = "E-mailadres is verplicht.";
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(RegisterVoornaam))
+                {
+                    RegisterError = "Voornaam is verplicht.";
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(RegisterAchternaam))
+                {
+                    RegisterError = "Achternaam is verplicht.";
+                    return;
+                }
+                if (RegisterPassword != RegisterPasswordHerhaal)
+                {
+                    RegisterError = "Wachtwoorden komen niet overeen.";
+                    return;
+                }
+                if (RegisterPassword.Length < 6)
+                {
+                    RegisterError = "Wachtwoord moet minstens 6 tekens bevatten.";
+                    return;
+                }
 
-        var (ok, error) = await _authService.RegisterAsync(RegisterEmail, RegisterPassword);
-        if (!ok)
-        {
-            RegisterError = error;
-            return;
-        }
+                var (ok, fout) = await _authService.RegisterAsync(
+                    RegisterEmail,
+                    RegisterPassword,
+                    RegisterVoornaam,
+                    RegisterAchternaam,
+                    RegisterTelefoon,
+                    RegisterIsLid);
 
-        RegisterError = "Account aangemaakt. Je kan nu inloggen.";
-        RegisterEmail = string.Empty;
-        RegisterPassword = string.Empty;
-        RegisterPasswordRepeat = string.Empty;
+                if (!ok)
+                {
+                    RegisterError = fout;
+                    return;
+                }
+
+                MessageBox.Show(
+                    "Account succesvol aangemaakt! U kunt nu inloggen.",
+                    "Registratie geslaagd",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                // Velden wissen
+                RegisterEmail = RegisterVoornaam = RegisterAchternaam =
+                    RegisterTelefoon = RegisterPassword = RegisterPasswordHerhaal = string.Empty;
+                RegisterIsLid = false;
+            }
+            catch (Exception ex)
+            {
+                RegisterError = $"Registratiefout: {ex.Message}";
+            }
+        }
     }
 }

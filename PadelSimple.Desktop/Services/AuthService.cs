@@ -1,4 +1,3 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +7,9 @@ using PadelSimple.Models.Identity;
 
 namespace PadelSimple.Desktop.Services;
 
+/// <summary>
+/// Service voor authenticatie, registratie en gebruikersbeheer.
+/// </summary>
 public class AuthService
 {
     private readonly UserManager<AppUser> _userManager;
@@ -17,8 +19,10 @@ public class AuthService
     public IList<string> CurrentRoles { get; private set; } = new List<string>();
 
     public bool IsAdmin => CurrentRoles.Contains("Admin");
-    public bool IsStaff => CurrentRoles.Contains("Staff");
-    public bool IsMember => CurrentRoles.Contains("Member");
+    public bool IsKlant => CurrentRoles.Contains("Klant");
+    // Legacy alias
+    public bool IsStaff => false;
+    public bool IsMember => CurrentUser?.IsLid ?? false;
 
     public AuthService(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
     {
@@ -26,69 +30,94 @@ public class AuthService
         _roleManager = roleManager;
     }
 
-    // ✅ AANGEPASTE LoginAsync
+    /// <summary>Meldt een gebruiker aan op basis van e-mail of gebruikersnaam.</summary>
     public async Task<(bool Succeeded, string Error)> LoginAsync(string userNameOrEmail, string password)
     {
-        // Eerst zoeken op username
-        var user = await _userManager.FindByNameAsync(userNameOrEmail);
-
-        // Als niets gevonden: zoeken op e-mail
-        if (user == null)
-            user = await _userManager.FindByEmailAsync(userNameOrEmail);
-
-        CurrentUser = user;
-
-        if (CurrentUser == null)
-            return (false, "Gebruiker niet gevonden.");
-
-        if (CurrentUser.IsBlocked)
-            return (false, "Deze gebruiker is geblokkeerd.");
-
-        var ok = await _userManager.CheckPasswordAsync(CurrentUser, password);
-        if (!ok)
+        try
         {
-            CurrentUser = null;
-            CurrentRoles = new List<string>();
-            return (false, "Ongeldig wachtwoord.");
-        }
+            // Zoek op gebruikersnaam, daarna op e-mail
+            var user = await _userManager.FindByNameAsync(userNameOrEmail)
+                    ?? await _userManager.FindByEmailAsync(userNameOrEmail);
 
-        CurrentRoles = await _userManager.GetRolesAsync(CurrentUser);
-        return (true, string.Empty);
+            if (user == null)
+                return (false, "Gebruiker niet gevonden.");
+
+            if (user.IsBlocked)
+                return (false, "Dit account is geblokkeerd. Neem contact op met de beheerder.");
+
+            if (user.IsDeleted)
+                return (false, "Dit account bestaat niet meer.");
+
+            var ok = await _userManager.CheckPasswordAsync(user, password);
+            if (!ok)
+                return (false, "Ongeldig wachtwoord.");
+
+            CurrentUser = user;
+            CurrentRoles = await _userManager.GetRolesAsync(user);
+            return (true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Aanmeldfout: {ex.Message}");
+        }
     }
 
+    /// <summary>Meldt de huidige gebruiker af.</summary>
     public void Logout()
     {
         CurrentUser = null;
         CurrentRoles = new List<string>();
     }
 
-    // Registratie van gewone gebruiker (Member)
-    public async Task<(bool Succeeded, string Error)> RegisterAsync(string email, string password)
+    /// <summary>
+    /// Registreert een nieuwe gebruiker met optioneel lidmaatschap (Klant-rol).
+    /// </summary>
+    public async Task<(bool Succeeded, string Error)> RegisterAsync(
+        string email,
+        string password,
+        string voornaam,
+        string achternaam,
+        string telefoon,
+        bool isLid)
     {
-        var existing = await _userManager.FindByEmailAsync(email);
-        if (existing != null)
-            return (false, "Er bestaat al een account met dit e-mailadres.");
-
-        var user = new AppUser
+        try
         {
-            UserName = email,
-            Email = email,
-            IsMember = true,
-            IsBlocked = false
-        };
+            var existing = await _userManager.FindByEmailAsync(email);
+            if (existing != null)
+                return (false, "Er bestaat al een account met dit e-mailadres.");
 
-        var result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-        {
-            var msg = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
-            return (false, msg);
+            var user = new AppUser
+            {
+                UserName = email,
+                Email = email,
+                Voornaam = voornaam,
+                Achternaam = achternaam,
+                Telefoonnummer = telefoon,
+                IsLid = isLid,
+                IsBlocked = false,
+                IsDeleted = false
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                var msg = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
+                return (false, msg);
+            }
+
+            // Rol toewijzen: altijd Klant
+            await _userManager.AddToRoleAsync(user, "Klant");
+            return (true, string.Empty);
         }
-
-        await _userManager.AddToRoleAsync(user, "Member");
-        return (true, string.Empty);
+        catch (Exception ex)
+        {
+            return (false, $"Registratiefout: {ex.Message}");
+        }
     }
 
-    // === Admin / user beheer ===
+    // ================================================================
+    //  GEBRUIKERSBEHEER (Admin)
+    // ================================================================
 
     public async Task<List<AppUser>> GetAllUsersAsync()
     {
@@ -98,9 +127,7 @@ public class AuthService
     }
 
     public async Task<IList<string>> GetUserRolesAsync(AppUser user)
-    {
-        return await _userManager.GetRolesAsync(user);
-    }
+        => await _userManager.GetRolesAsync(user);
 
     public async Task AddRoleAsync(AppUser user, string roleName)
     {
@@ -117,9 +144,16 @@ public class AuthService
             await _userManager.RemoveFromRoleAsync(user, roleName);
     }
 
-    public async Task SetBlockedAsync(AppUser user, bool blocked)
+    public async Task SetBlockedAsync(AppUser user, bool geblokkeerd)
     {
-        user.IsBlocked = blocked;
+        user.IsBlocked = geblokkeerd;
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task VerwijderGebruikerAsync(AppUser user)
+    {
+        user.IsDeleted = true;
+        user.DeletedAt = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
     }
 }

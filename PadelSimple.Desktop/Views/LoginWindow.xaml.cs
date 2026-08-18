@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using PadelSimple.Desktop.ViewModels;
 
@@ -27,6 +27,6 @@ public partial class LoginWindow : Window
     private void RegPwd2_OnPasswordChanged(object sender, RoutedEventArgs e)
     {
         if (DataContext is LoginViewModel vm && sender is PasswordBox pb)
-            vm.RegisterPasswordRepeat = pb.Password;
+            vm.RegisterPasswordHerhaal = pb.Password;
     }
 }

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PadelSimple.Desktop.Services;
 using PadelSimple.Models.Domain;
@@ -10,79 +10,36 @@ using System.Windows;
 
 namespace PadelSimple.Desktop.ViewModels
 {
+    /// <summary>
+    /// ViewModel voor het dialoogvenster om een reservatie aan te maken of te bewerken.
+    /// </summary>
     public partial class ReservationDialogViewModel : ObservableObject
     {
         private readonly DataService _dataService;
         private readonly AuthService _authService;
 
-        // ====== Lijsten voor ComboBoxen ======
-        public ObservableCollection<Court> Courts { get; } = new();
+        // Lijsten voor ComboBoxen
+        public ObservableCollection<Terrein> Courts { get; } = new();
+        public ObservableCollection<Materiaal> Equipment { get; } = new();
+        public ObservableCollection<Materiaal> EquipmentList => Equipment;
 
-        // Hoofdnaam: Equipment
-        public ObservableCollection<Equipment> Equipment { get; } = new();
+        // Geselecteerde items
+        [ObservableProperty] private Terrein? selectedCourt;
+        [ObservableProperty] private Materiaal? selectedEquipment;
 
-        // Alias zodat zowel Equipment als EquipmentList in XAML kunnen werken
-        public ObservableCollection<Equipment> EquipmentList => Equipment;
+        // Reservatie-velden
+        [ObservableProperty] private DateTime date = DateTime.Today;
+        [ObservableProperty] private string startTimeString = "10:00";
+        [ObservableProperty] private string endTimeString = "11:00";
+        [ObservableProperty] private int numberOfPlayers = 2;
+        [ObservableProperty] private int equipmentQuantity = 0;
+        [ObservableProperty] private string errorMessage = string.Empty;
+        [ObservableProperty] private bool isEdit = false;
+        [ObservableProperty] private string windowTitle = "Nieuwe Reservatie";
+        [ObservableProperty] private decimal geschatPrijs = 0m;
 
-        // ====== Geselecteerde items ======
-        private Court? _selectedCourt;
-        public Court? SelectedCourt
-        {
-            get => _selectedCourt;
-            set => SetProperty(ref _selectedCourt, value);
-        }
-
-        private Equipment? _selectedEquipment;
-        public Equipment? SelectedEquipment
-        {
-            get => _selectedEquipment;
-            set => SetProperty(ref _selectedEquipment, value);
-        }
-
-        // ====== Velden van de reservatie ======
-        private DateTime _date = DateTime.Today;
-        public DateTime Date
-        {
-            get => _date;
-            set => SetProperty(ref _date, value);
-        }
-
-        // Deze twee worden in XAML als string gebruikt (bv "18:00")
-        private string _startTimeString = "18:00";
-        public string StartTimeString
-        {
-            get => _startTimeString;
-            set => SetProperty(ref _startTimeString, value);
-        }
-
-        private string _endTimeString = "19:00";
-        public string EndTimeString
-        {
-            get => _endTimeString;
-            set => SetProperty(ref _endTimeString, value);
-        }
-
-        private int _numberOfPlayers = 2;
-        public int NumberOfPlayers
-        {
-            get => _numberOfPlayers;
-            set => SetProperty(ref _numberOfPlayers, value);
-        }
-
-        private int _equipmentQuantity = 0;
-        public int EquipmentQuantity
-        {
-            get => _equipmentQuantity;
-            set => SetProperty(ref _equipmentQuantity, value);
-        }
-
-        // Eventuele foutboodschap (optioneel in XAML binden)
-        private string _errorMessage = string.Empty;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
+        // De reservatie die we bewerken (null = nieuw)
+        private Reservation? _bestaandeReservatie;
 
         public ReservationDialogViewModel(DataService dataService, AuthService authService)
         {
@@ -90,62 +47,80 @@ namespace PadelSimple.Desktop.ViewModels
             _authService = authService;
         }
 
-        // ====== Wordt aangeroepen door MainViewModel ======
-        public async Task InitializeAsync(DateTime initialDate)
+        /// <summary>Laadt courts, materialen en vult de velden in (nieuw of bestaand).</summary>
+        public async Task InitializeAsync(DateTime initialDate, Reservation? bestaand = null)
         {
             Date = initialDate;
+            _bestaandeReservatie = bestaand;
 
             Courts.Clear();
-            foreach (var c in await _dataService.GetCourtsAsync())
-                Courts.Add(c);
+            foreach (var t in await _dataService.GetTerreinen())
+                Courts.Add(t);
 
             Equipment.Clear();
-            foreach (var e in await _dataService.GetEquipmentAsync())
-                Equipment.Add(e);
+            // Voeg een lege optie toe voor "Geen materiaal"
+            foreach (var m in await _dataService.GetMaterialen())
+                Equipment.Add(m);
 
-            // (optioneel) auto-select first items
-            if (SelectedCourt == null && Courts.Count > 0) SelectedCourt = Courts[0];
-            if (SelectedEquipment == null && Equipment.Count > 0) SelectedEquipment = Equipment[0];
+            if (bestaand != null)
+            {
+                IsEdit = true;
+                WindowTitle = "Reservatie bewerken";
+                Date = bestaand.Datum;
+                StartTimeString = bestaand.StartUur.ToString(@"hh\:mm");
+                EndTimeString = bestaand.EindUur.ToString(@"hh\:mm");
+                NumberOfPlayers = bestaand.AantalSpelers;
+                EquipmentQuantity = bestaand.AantalMateriaal;
+
+                SelectedCourt = Courts.FirstOrDefault(t => t.Id == bestaand.TerreinId);
+                SelectedEquipment = bestaand.MateriaalId.HasValue
+                    ? Equipment.FirstOrDefault(m => m.Id == bestaand.MateriaalId.Value)
+                    : null;
+            }
+            else
+            {
+                IsEdit = false;
+                WindowTitle = "Nieuwe Reservatie";
+                if (Courts.Count > 0) SelectedCourt = Courts[0];
+            }
+
+            BerekenPrijs();
         }
 
-        // ====== Helpers ======
+        partial void OnSelectedCourtChanged(Terrein? value) => BerekenPrijs();
+        partial void OnStartTimeStringChanged(string value) => BerekenPrijs();
+        partial void OnEndTimeStringChanged(string value) => BerekenPrijs();
+        partial void OnSelectedEquipmentChanged(Materiaal? value) => BerekenPrijs();
+        partial void OnEquipmentQuantityChanged(int value) => BerekenPrijs();
+
+        private void BerekenPrijs()
+        {
+            if (SelectedCourt == null) { GeschatPrijs = 0; return; }
+            if (!TryParseTime(StartTimeString, out var start) ||
+                !TryParseTime(EndTimeString, out var end) ||
+                end <= start) { GeschatPrijs = 0; return; }
+
+            var duur = (decimal)(end - start).TotalHours;
+            GeschatPrijs = SelectedCourt.Uurtarief * duur
+                + (SelectedEquipment?.Huurprijs ?? 0m) * EquipmentQuantity;
+        }
+
         private static bool TryParseTime(string? input, out TimeSpan time)
         {
             time = default;
+            var txt = (input ?? string.Empty).Trim()
+                .Replace('.', ':')
+                .Replace('u', ':')
+                .Replace('U', ':');
 
-            // 1) trim + normaliseren
-            var txt = (input ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(txt)) return false;
 
-            if (string.IsNullOrWhiteSpace(txt))
-                return false;
-
-            // "18.00" -> "18:00"
-            txt = txt.Replace('.', ':');
-
-            // "18u00" -> "18:00"
-            txt = txt.Replace('u', ':').Replace('U', ':');
-
-            // 2) formats toelaten
-            var formats = new[]
-            {
-                @"h\:mm",
-                @"hh\:mm",
-                @"h\:mm\:ss",
-                @"hh\:mm\:ss"
-            };
-
-            // 3) exact parse op invariant
+            var formats = new[] { @"h\:mm", @"hh\:mm", @"h\:mm\:ss", @"hh\:mm\:ss" };
             if (TimeSpan.TryParseExact(txt, formats, CultureInfo.InvariantCulture, out time))
                 return true;
 
-            // 4) fallback parse (ook invariant)
-            if (TimeSpan.TryParse(txt, CultureInfo.InvariantCulture, out time))
-                return true;
-
-            return false;
+            return TimeSpan.TryParse(txt, CultureInfo.InvariantCulture, out time);
         }
-
-        // ====== Commands ======
 
         [RelayCommand]
         private async Task Save(Window window)
@@ -161,14 +136,14 @@ namespace PadelSimple.Desktop.ViewModels
 
             if (!TryParseTime(StartTimeString, out var start))
             {
-                ErrorMessage = "Starttijd ongeldig. Gebruik bv. 18:00";
+                ErrorMessage = "Starttijd ongeldig. Gebruik bv. 10:00";
                 MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!TryParseTime(EndTimeString, out var end))
             {
-                ErrorMessage = "Eindtijd ongeldig. Gebruik bv. 19:00";
+                ErrorMessage = "Eindtijd ongeldig. Gebruik bv. 11:00";
                 MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -182,26 +157,40 @@ namespace PadelSimple.Desktop.ViewModels
 
             if (_authService.CurrentUser == null)
             {
-                ErrorMessage = "Je moet ingelogd zijn om een reservatie te maken.";
+                ErrorMessage = "Je moet ingelogd zijn.";
                 MessageBox.Show(ErrorMessage, "Fout", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var reservation = new Reservation
-            {
-                CourtId = SelectedCourt.Id,
-                EquipmentId = SelectedEquipment?.Id,
-                EquipmentQuantity = EquipmentQuantity,
-                UserId = _authService.CurrentUser.Id,
-                Date = Date.Date,
-                StartTime = start,
-                EndTime = end,
-                NumberOfPlayers = NumberOfPlayers
-            };
-
             try
             {
-                await _dataService.CreateReservationAsync(reservation);
+                if (IsEdit && _bestaandeReservatie != null)
+                {
+                    _bestaandeReservatie.TerreinId = SelectedCourt.Id;
+                    _bestaandeReservatie.MateriaalId = SelectedEquipment?.Id;
+                    _bestaandeReservatie.AantalMateriaal = EquipmentQuantity;
+                    _bestaandeReservatie.Datum = Date.Date;
+                    _bestaandeReservatie.StartUur = start;
+                    _bestaandeReservatie.EindUur = end;
+                    _bestaandeReservatie.AantalSpelers = NumberOfPlayers;
+                    await _dataService.WijzigReservatieAsync(_bestaandeReservatie);
+                }
+                else
+                {
+                    var reservatie = new Reservation
+                    {
+                        TerreinId = SelectedCourt.Id,
+                        MateriaalId = SelectedEquipment?.Id,
+                        AantalMateriaal = EquipmentQuantity,
+                        UserId = _authService.CurrentUser.Id,
+                        Datum = Date.Date,
+                        StartUur = start,
+                        EindUur = end,
+                        AantalSpelers = NumberOfPlayers
+                    };
+                    await _dataService.MaakReservatieAanAsync(reservatie);
+                }
+
                 window.DialogResult = true;
             }
             catch (Exception ex)

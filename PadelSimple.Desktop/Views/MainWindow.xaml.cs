@@ -1,9 +1,9 @@
-﻿using PadelSimple.Desktop.ViewModels;
+using PadelSimple.Desktop.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using PadelSimple.Models.Domain;
-namespace PadelSimple.Desktop.Views;
 using System.Windows.Threading;
+
+namespace PadelSimple.Desktop.Views;
 
 public partial class MainWindow : Window
 {
@@ -12,31 +12,25 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = vm;
 
-        Loaded += async (_, __) =>
+        Loaded += async (_, _) =>
         {
             if (DataContext is MainViewModel mvm)
                 await mvm.LoadDataCommand.ExecuteAsync(null);
         };
     }
 
-    private void Exit_Click(object sender, RoutedEventArgs e)
-    {
-        Application.Current.Shutdown();
-    }
-
     private bool _commitBusy;
 
+    /// <summary>
+    /// Commit van een rij in de DataGrid wordt uitgesteld om een recursieve StackOverflow te vermijden.
+    /// </summary>
     private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (_commitBusy) return;
         if (sender is not DataGrid grid) return;
+        if (e.EditAction != DataGridEditAction.Commit) return;
 
-        if (e.EditAction != DataGridEditAction.Commit)
-            return;
-
-        // Belangrijk: commit pas NA dit event uitvoeren (anders recursion -> StackOverflow)
         _commitBusy = true;
-
         grid.Dispatcher.BeginInvoke(new Action(() =>
         {
             try

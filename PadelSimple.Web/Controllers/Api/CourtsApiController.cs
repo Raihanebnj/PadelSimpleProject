@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
+using Court = PadelSimple.Models.Domain.Terrein;
 
 namespace PadelSimple.Web.Controllers.Api;
 

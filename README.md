@@ -1,476 +1,214 @@
-# 🎾 PadelSimple
+# PadelSimple 🏓
 
-PadelSimple is een WPF desktopapplicatie ontwikkeld voor padelclubs om eenvoudig **reservaties**, **terreinen**, **materiaal** en **gebruikersbeheer** te organiseren.  
-Zowel **leden** als **niet-leden** kunnen terreinen reserveren, en materiaalbeschikbaarheid wordt automatisch beheerd.
-
----
-
-## ✅ Functionaliteiten
-
-| Domein | Mogelijkheden |
-|-------|---------------|
-| **Gebruikers** | Registreren, aanmelden, afmelden, rollenbeheer (Admin / Manager / Member) |
-| **Reservaties** | Een gebruiker kan een terrein reserveren binnen een tijdslot, optioneel met materiaal |
-| **Terreinen** | CRUD-bewerkingen (toevoegen, wijzigen, soft-delete) |
-| **Materiaal (Equipment)** | Inventaris en beschikbaarheid wordt automatisch beheerd |
-| **Beveiliging** | Identity Framework + Role-based UI en toegang |
-| **Soft Delete** | Records worden nooit fysiek verwijderd, enkel gemarkeerd |
-| **Databank Seeding** | Dummy-data + Administrator account automatisch aangemaakt |
+> **Beheersapplicatie voor padelclubs** — reservaties, terreinen en materiaal in één overzichtelijke WPF-desktop-app.
 
 ---
 
-## 🏗️ Technologieën
+## 📋 Inhoudsopgave
 
-| Technologie | Gebruik |
-|------------|---------|
-| **.NET 9 / WPF** | Desktop UI (XAML + MVVM) |
-| **Entity Framework Core** | ORM + Migrations + SQLite database |
-| **ASP.NET Core Identity** | Gebruikers & Rollenbeheer |
-| **SQLite** | Relationale lokale databank |
-| **MVVM** | Scheiding tussen UI en logica |
-| **Dependency Injection** | Beheer van services en viewmodels |
-
----
-
-## 🗄️ Databasemodel (vereisten voldaan)
-
-| Tabel | Beschrijving | Relaties |
-|------|--------------|----------|
-| **AspNetUsers (AppUser)** | Gebruikers + IsClubMember | 1-* met Reservations |
-| **Court** | Terrein met capaciteit | 1-* met Reservations |
-| **Equipment** | Materiaalvoorraad | 1-* met Reservations |
-| **Reservation** | Koppelt User + Court + (optioneel) Equipment + Tijd | FK UserId, CourtId, EquipmentId |
-
-**Soft Delete toegepast op elke hoofd-entiteit.**
+1. [Projectbeschrijving](#-projectbeschrijving)
+2. [Features](#-features)
+3. [Projectstructuur](#-projectstructuur)
+4. [Vereisten](#-vereisten)
+5. [Installatie en opstarten](#-installatie-en-opstarten)
+6. [Standaard aanmeldgegevens](#-standaard-aanmeldgegevens)
+7. [Technologieën](#-technologieën)
+8. [AI-verantwoording (EHB CopyWrite)](#-ai-verantwoording-ehb-copywrite)
+9. [Licentie](#-licentie)
 
 ---
 
-## ▶️ Installatie & Uitvoering
+## 📖 Projectbeschrijving
 
-### 1. Clone project
-```bash
-git clone https://github.com/RaihaneBnj/PadelSimpleProject.git
+**PadelSimple** is een WPF .NET 9.0 bureaubladapplicatie die ontwikkeld werd als oefenproject voor condities en iteraties (EHB). De applicatie stelt een padelclub in staat om:
+
+- Reservaties van klanten te beheren (aanmaken, bewerken, verwijderen)
+- Terreinen en materialen te beheren als administrator
+- Gebruikersaccounts te beheren (blokkeren, rollen toewijzen)
+
+Klanten kunnen zelf een account aanmaken, optioneel een lidmaatschap nemen en reservaties plaatsen voor terreinen met of zonder gehuurde uitrusting.
+
+---
+
+## ✅ Features
+
+### Authenticatie
+- Inloggen op basis van e-mail of gebruikersnaam
+- Registratie met voornaam, achternaam, telefoonnummer en optioneel lidmaatschap
+- Geblokkeerde accounts worden geweigerd bij aanmelding
+- Rollen: **Admin** en **Klant**
+
+### Reservatiebeheer (Klanten & Admin)
+- Volledige CRUD: aanmaken, bewerken en verwijderen (soft-delete)
+- ComboBox-selectie voor **Terrein** en optioneel **Materiaal**
+- Automatische prijsberekening (uurtarief × uren + materiaal × aantal)
+- Overlap-controle: dubbele boekingen worden geweigerd
+
+### Beheerschermen (Admin only)
+- **Terreinen**: naam, capaciteit, overdekt/buiten, uurtarief — inline bewerken
+- **Materialen**: naam, inventaris, huurprijs, actief — inline bewerken
+- **Gebruikers**: e-mail, lidmaatschap, geblokkeerd — Admin-rol toewijzen/verwijderen, blokkeren/deblokkeren
+
+### Extra technische vereisten (voldaan)
+| Vereiste | Implementatie |
+|---|---|
+| 3+ containertypen | `Grid`, `StackPanel`, `DockPanel`, `WrapPanel` |
+| Centrale XAML-stijlen | `App.xaml`: buttons, textboxen, datagrids, labels, … |
+| XAML Data Binding | `Binding Path=...` doorheen alle views |
+| LINQ Query Syntax | `DataService.GetMaterialen()`, `GetReservatiesVanGebruiker()` |
+| LINQ Method Syntax | `DataService.GetTerreinen()`, `GetReservaties()` |
+| Extra Window (popup) | `TerreinWindow.xaml`, `ReservationDialog.xaml` |
+| Custom UserControl | `StatusBadge` (toont groen/grijs badge op basis van status) |
+| Try-catch + MessageBox | Alle database-acties hebben foutafhandeling |
+| Soft-delete | Global Query Filter op alle entiteiten |
+
+---
+
+## 🗂️ Projectstructuur
+
 ```
-2. Update database
-
-In Visual Studio → Package Manager Console:
-
-Update-Database -Project PadelSimple.Model -StartupProject PadelSimple.Desktop
-
-3. Start de applicatie
-F5
-
-Aanmeldgegevens (Seed gebruiker)
-Rol	Email	Wachtwoord
-Admin	admin@padelsimple.local
-	Admin!12345
-
-🎨 UI Kenmerken
-
-MVVM binding
-
-Menu gebaseerd op gebruikersrol
-
-Extra popup venster voor beheer
-
-Styles in XAML
-
-Selectievelden (ComboBox) voor Users, Courts en Equipment
-
-DataGrids voor overzichtsweergaves
-
-🧑‍⚖️ Licenties & Copyright
-
-Alle programmatiecode is zelf geschreven, met respect voor copywritingregels.
-
-Gebruikte libraries volgen MIT / Apache licenties (EF Core, Identity, SQLite).
-
-Geen code gekopieerd uit ongevalideerde externe bronnen.
-
-🤖 Gebruik van AI-tools
-
-Ik heb ChatGPT en/of GitHub Copilot gebruikt voor:
-
-Uitleg & debugging
-
-Structuurplanning & documentatie
-
-Herformulering en foutopsporing
-
-📜 Auteur
-
-Naam: Raihane Benjilali
-Opleiding: Graduaat Programmeren – EHB
-Project: Individueel eindproject C# WPF
-
-----------------------------------------------
-
-# 🏓 PadelSimple Web
-
-PadelSimple is een **ASP.NET Core MVC webapplicatie** voor het beheren van **padelterreinen, reservaties, materiaal en gebruikers**, met **rolgebaseerde toegang (Admin / User)** en een **SQLite database**.
-
----
-
-## ✨ Functionaliteiten
-
-### 👤 Gebruikers
-- Registreren
-- Inloggen / Uitloggen
-- Rolgebaseerde toegang:
-  - **Admin**: volledig beheer
-  - **User**: reservaties bekijken en maken
-
-### 📅 Reservaties
-- Terreinen reserveren per **datum & tijdslot**
-- Materiaal toevoegen aan reservaties
-- Automatisch zien **wanneer een terrein weer vrij is**
-
-### 🏟️ Terreinen
-- Indoor / Outdoor
-- Capaciteit
-- Beschikbaarheid per geselecteerd tijdslot
-
-### 🎒 Materiaal
-- Totale en beschikbare hoeveelheid
-- Actief / Inactief
-- Admin kan toevoegen, aanpassen en verwijderen
-
----
-
-## 🛠️ Technologie
-
-- ASP.NET Core MVC (.NET 9)
-- Entity Framework Core
-- SQLite
-- ASP.NET Identity
-- Bootstrap 5
-
----
-
-## ✅ Vereisten
-
-- .NET SDK 9.0+
-- Visual Studio 2022 (of VS Code)
-
----
-
-## 📁 Projectstructuur
-
-# 🏓 PadelSimple Web
-
-PadelSimple is een **ASP.NET Core MVC webapplicatie** voor het beheren van **padelterreinen, reservaties, materiaal en gebruikers**, met **rolgebaseerde toegang (Admin / User)** en een **SQLite database**.
-
----
-
-## ✨ Functionaliteiten
-
-### 👤 Gebruikers
-- Registreren
-- Inloggen / Uitloggen
-- Rolgebaseerde toegang:
-  - **Admin**: volledig beheer
-  - **User**: reservaties bekijken en maken
-
-### 📅 Reservaties
-- Terreinen reserveren per **datum & tijdslot**
-- Materiaal toevoegen aan reservaties
-- Automatisch zien **wanneer een terrein weer vrij is**
-
-### 🏟️ Terreinen
-- Indoor / Outdoor
-- Capaciteit
-- Beschikbaarheid per geselecteerd tijdslot
-
-### 🎒 Materiaal
-- Totale en beschikbare hoeveelheid
-- Actief / Inactief
-- Admin kan toevoegen, aanpassen en verwijderen
-
----
-
-## 🛠️ Technologie
-
-- ASP.NET Core MVC (.NET 9)
-- Entity Framework Core
-- SQLite
-- ASP.NET Identity
-- Bootstrap 5
-
----
-
-## ✅ Vereisten
-
-- .NET SDK 9.0+
-- Visual Studio 2022 (of VS Code)
-
----
-
-## 📁 Projectstructuur
-
-PadelSimpleProject
+PadelSimpleProject/
+├── PadelSimple.Models/          # Class Library – datamodellen en database
+│   ├── Common/
+│   │   └── ISoftDeletable.cs
+│   ├── Identity/
+│   │   ├── AppUser.cs           # IdentityUser + Voornaam, Achternaam, IsLid, …
+│   │   └── AppRole.cs
+│   ├── Domain/
+│   │   ├── Terrein.cs
+│   │   ├── Materiaal.cs
+│   │   └── Reservation.cs
+│   └── Data/
+│       ├── AppDbContext.cs      # DbContext + seeding + query filters
+│       └── AppDbContextFactory.cs
 │
-├── PadelSimple.Web → Web applicatie (MVC)
-├── PadelSimple.Models → Entities, DbContext, Identity
-└── PadelSimple.sln
-
----
-
-## 🗄️ Database
-
-De applicatie gebruikt **SQLite**.
-
-**appsettings.json**
-```json
-{
-  "ConnectionStrings": {
-    "Default": "Data Source=padelsimple.web.db"
-  }
-}
+└── PadelSimple.Desktop/         # WPF Desktop – UI en logica
+    ├── App.xaml / App.xaml.cs
+    ├── Services/
+    │   ├── AuthService.cs       # Login, registratie, gebruikersbeheer
+    │   └── DataService.cs       # CRUD terreinen, materialen, reservaties
+    ├── VieuwModels/
+    │   ├── LoginViewModel.cs
+    │   ├── MainViewModel.cs
+    │   └── ReservationDialogViewModel.cs
+    ├── Views/
+    │   ├── LoginWindow.xaml     # Aanmelden + Registratie (met Lid-checkbox)
+    │   ├── MainWindow.xaml      # TabControl: Reservaties | Mijn Account | Beheer
+    │   ├── ReservationDialog.xaml   # Popup: reservatie aanmaken/bewerken
+    │   ├── TerreinWindow.xaml   # Popup: terrein aanmaken/bewerken
+    │   └── Controls/
+    │       ├── StatusBadge.xaml # Custom UserControl: gekleurde badge
+    │       └── Badge.xaml       # Generieke badge
+    └── Converters/
+        └── BoolToVisibilityConverter.cs  # + 3 andere converters
 ```
 
-🔐 Admin login (User Secrets)
+---
 
-⚠️ Wachtwoorden staan NIET in de code
+## 🔧 Vereisten
 
-De admin gebruiker wordt aangemaakt via User Secrets.
-
-1️⃣ Ga naar het webproject
-cd .\PadelSimple.Web\
-
-2️⃣ Initialiseer User Secrets
-dotnet user-secrets init
-
-3️⃣ Zet admin credentials
-dotnet user-secrets set "SeedAdmin:Email" "admin@padel.local"
-dotnet user-secrets set "SeedAdmin:Password" "Admin123!"
-
-4️⃣ Controleer
-dotnet user-secrets list
-
-🔑 Admin login gegevens
-Email	Wachtwoord
-admin@padel.local
-	Admin123!
-
-📦 Database migraties (optioneel)
-
-Indien nodig:
-
-Add-Migration InitWeb -Project PadelSimple.Web -StartupProject PadelSimple.Web
-Update-Database -Project PadelSimple.Web -StartupProject PadelSimple.Web
-
-▶️ Applicatie starten
-Via CLI
-dotnet run
-
-Via Visual Studio
-
-Zet PadelSimple.Web als Startup Project
-
-Klik op Run
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- Visual Studio 2022 (v17.8+) met **Desktop development with .NET** workload
+- NuGet pakketten worden automatisch hersteld bij eerste build
 
 ---
 
-# PadelSimple Mobile (.NET MAUI)
+## 🚀 Installatie en opstarten
 
-Dit project is de **mobiele applicatie** van het PadelSimple-platform en vormt de mobile-versie van de ASP.NET webapplicatie die werd ontwikkeld voor het vak **.NET Advanced**.
+1. **Clone de repository**
+   ```bash
+   git clone https://github.com/<jouw-repo>/PadelSimpleProject.git
+   cd PadelSimpleProject
+   ```
 
-De app is gerealiseerd met **.NET MAUI (.NET 9)** en gebruikt **XAML** als front-end.  
-Ze consumeert de **RESTful API** van het ASP.NET project en maakt gebruik van **gedeelde modellen** uit de `PadelSimple.Models` Class Library.
+2. **Migraties toepassen** (optioneel – de app doet dit ook automatisch bij opstarten)
+   ```bash
+   cd PadelSimple.Models
+   dotnet ef database update --startup-project ../PadelSimple.Desktop
+   ```
 
----
+3. **Applicatie starten**
+   ```
+   Open PadelSimple.sln in Visual Studio
+   Stel PadelSimple.Desktop als startup-project in
+   Druk F5
+   ```
 
-## 📱 Functionaliteiten
+   Of via terminal:
+   ```bash
+   cd PadelSimple.Desktop
+   dotnet run
+   ```
 
-- Inloggen via **Identity (API)**
-- Automatisch opnieuw aanmelden via lokaal opgeslagen token
-- Overzicht van:
-  - Terreinen (indoor / outdoor + beschikbaarheid)
-  - Materiaal (beschikbaar / niet beschikbaar)
-  - Reservaties
-- Nieuwe reservatie aanmaken
-- Volledig **asynchroon**
-- Werkt **online & offline** met lokale opslag (SQLite)
-- Automatische synchronisatie zodra internet beschikbaar is
-
-> Administratieve functies (gebruikersbeheer, verwijderen van data) zijn bewust niet aanwezig in de mobile app.
-
----
-
-## 🧱 Architectuur
-
-- **MVVM-structuur** (Model-View-ViewModel)
-- Gebruik van **CommunityToolkit.Mvvm**
-- Dependency Injection via `MauiProgram`
-- XAML data binding
-- Services voor API, lokale opslag en synchronisatie
-
-PadelSimple.Mobile
-│
-├── Views
-│ ├── LoginPage.xaml
-│ ├── CourtsPage.xaml
-│ ├── EquipmentPage.xaml
-│ └── ReservationsPage.xaml
-│
-├── ViewModels
-│ ├── LoginVm.cs
-│ ├── CourtsVm.cs
-│ ├── EquipmentVm.cs
-│ └── ReservationsVm.cs
-│
-├── Services
-│ ├── ApiClient.cs
-│ ├── ApiConfig.cs
-│ ├── AuthService.cs
-│ ├── CourtsService.cs
-│ ├── EquipmentService.cs
-│ ├── ReservationsService.cs
-│ ├── LocalDb.cs
-│ └── SyncService.cs
-│
-└── App.xaml / AppShell.xaml
+De SQLite-databank wordt automatisch aangemaakt in:
+`%AppData%\PadelSimple\padelsimple.db`
 
 ---
 
-## 🌐 API Configuratie
+## 🔑 Standaard aanmeldgegevens
 
-De mobile app gebruikt **platform-afhankelijke BaseUrl** configuratie.
+| Rol | E-mail | Wachtwoord |
+|---|---|---|
+| **Admin** | admin@padelsimple.be | `Admin123!` |
+| **Klant** | klant@padelsimple.be | `Klant123!` |
 
-### `Services/ApiConfig.cs`
-```csharp
-public static class ApiConfig
-{
-    public static string BaseUrl
-    {
-        get
-        {
-#if ANDROID
-            return "http://10.0.2.2:5009/";
-#elif WINDOWS
-            return "http://localhost:5009/";
-#else
-            return "http://localhost:5009/";
-#endif
-        }
-    }
-}
+---
+
+## 🛠️ Technologieën
+
+| Technologie | Versie | Gebruik |
+|---|---|---|
+| .NET | 9.0 | Target framework |
+| WPF | - | UI framework |
+| Entity Framework Core | 9.0.10 | ORM / database |
+| SQLite | - | Database |
+| ASP.NET Core Identity | 9.0.10 | Authenticatie en rollen |
+| CommunityToolkit.Mvvm | 8.4.0 | ObservableObject, RelayCommand |
+| Microsoft.Extensions.Hosting | 9.0.10 | Dependency Injection / DI |
+
+---
+
+## 🤖 AI-verantwoording (EHB CopyWrite)
+
+> **Conform de EHB CopyWrite-richtlijnen voor AI-gebruik bij opdrachten.**
+
+Dit project werd deels gerealiseerd met behulp van **AI-assistentie** (Google Deepmind Antigravity / Claude Sonnet). De AI werd ingezet voor:
+
+- Het genereren van boilerplate XAML-structuren
+- Het opstellen van de AppDbContext-seeding
+- Suggesties voor LINQ-queries en service-methoden
+- Opmaak van de README
+
+**Alle gegenereerde code werd gecontroleerd, aangepast en begrepen** door de student alvorens op te leveren. De functionele logica, keuze van structuur en implementatiebeslissingen zijn de verantwoordelijkheid van de student.
+
+**Gebruikte AI-tool:** Google Deepmind Antigravity (Claude Sonnet 4.6 Thinking)
+**Datum:** augustus 2026
+**Student:** [Voornaam Achternaam] — EHB, opleiding Toegepaste Informatica
+
+---
+
+## 📄 Licentie
+
 ```
----
+MIT License
 
-🗄️ Offline opslag
+Copyright (c) 2026 PadelSimple Project Contributors
 
-Lokale database via SQLite
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Basisdata wordt lokaal gesynchroniseerd
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Offline acties worden bijgehouden en later doorgestuurd naar de API
-
----
-
-🔐 Authenticatie
-
-Login gebeurt éénmalig via API
-
-JWT/token wordt lokaal opgeslagen
-
-Automatische her-aanmelding bij volgende sessies
-
-Identity Framework wordt volledig via de API gebruikt
-
----
-
-🧪 Platforms
-
-✅ Android (emulator)
-
-✅ Windows Desktop
-
-⚠️ iOS (niet getest)
-
----
-
-🧩 Vereisten
-
-Visual Studio 2022+
-
-.NET SDK 9
-
-MAUI workload geïnstalleerd
-
-Android Emulator
-
-ASP.NET Web/API project actief
-
----
-
-📦 Gebruikte NuGet packages
-
-CommunityToolkit.Mvvm
-
-Microsoft.Extensions.Http
-
-Microsoft.Extensions.Logging.Debug
-
-Newtonsoft.Json
-
-sqlite-net-pcl
-
-------------------------------------------------------------------------------------------------
-
-## 📚 Bronnen & Verantwoording
-
-Bij de realisatie van dit project werden de volgende bronnen geraadpleegd:
-
-### Officiële documentatie
-- Microsoft Docs – .NET MAUI  
-  https://learn.microsoft.com/dotnet/maui/
-
-- Microsoft Docs – ASP.NET Core & Web API  
-  https://learn.microsoft.com/aspnet/core/
-
-- Microsoft Docs – Identity Framework  
-  https://learn.microsoft.com/aspnet/core/security/authentication/identity
-
-- Microsoft Docs – Entity Framework Core  
-  https://learn.microsoft.com/ef/core/
-
-- Microsoft Docs – HttpClient & REST API communicatie  
-  https://learn.microsoft.com/dotnet/fundamentals/networking/http/httpclient
-
-- Microsoft Docs – SQLite met .NET  
-  https://learn.microsoft.com/dotnet/standard/data/sqlite/
-
----
-
-### Architectuur & patronen
-- MVVM Pattern – Microsoft  
-  https://learn.microsoft.com/dotnet/architecture/maui/mvvm
-
-- CommunityToolkit.Mvvm  
-  https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/
-
----
-
-### AI-ondersteuning
-Bij het ontwikkelen van dit project werd **AI-ondersteuning (ChatGPT – OpenAI)** gebruikt:
-- als **hulpmiddel** voor uitleg, foutanalyse en herstructurering van code
-- niet voor het blind kopiëren van volledige oplossingen
-- alle code werd **begrepen, aangepast en geïntegreerd** door de student
-
-De student kan **elk onderdeel van de code en architectuur toelichten** tijdens de mondelinge verdediging.
-
----
-
-### Eigen werk
-- Alle businesslogica
-- API-structuur
-- Mobile architectuur
-- Offline/online synchronisatie
-- UI-opbouw en bindingen
-
-werden **zelf uitgewerkt** in functie van het projectvoorstel.
-
----
-
-© PadelSimple – Mobile & Web Project
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

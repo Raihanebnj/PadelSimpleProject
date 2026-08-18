@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,24 +12,30 @@ using PadelSimple.Models.Identity;
 
 namespace PadelSimple.Desktop.ViewModels
 {
+    /// <summary>
+    /// ViewModel voor het hoofdvenster. Beheert reservaties, terreinen, materialen en gebruikers.
+    /// </summary>
     public partial class MainViewModel : ObservableObject
     {
         private readonly DataService _dataService;
         private readonly AuthService _authService;
 
-        public ObservableCollection<Court> Courts { get; } = new();
-        public ObservableCollection<Equipment> EquipmentList { get; } = new();
+        public ObservableCollection<Terrein> Courts { get; } = new();
+        public ObservableCollection<Materiaal> EquipmentList { get; } = new();
         public ObservableCollection<Reservation> Reservations { get; } = new();
         public ObservableCollection<AppUser> Users { get; } = new();
 
-        [ObservableProperty] private Court? selectedCourt;
-        [ObservableProperty] private Equipment? selectedEquipment;
+        [ObservableProperty] private Terrein? selectedCourt;
+        [ObservableProperty] private Materiaal? selectedEquipment;
         [ObservableProperty] private AppUser? selectedUser;
+        [ObservableProperty] private Reservation? selectedReservation;
 
-        // Datum-filter voor de Overzicht-tab
         [ObservableProperty] private DateTime selectedDate = DateTime.Today;
 
         public bool IsAdmin => _authService.IsAdmin;
+        public string WelkomTekst => _authService.CurrentUser != null
+            ? $"Welkom, {_authService.CurrentUser.Voornaam} {_authService.CurrentUser.Achternaam}"
+            : "Welkom";
 
         public MainViewModel(DataService dataService, AuthService authService)
         {
@@ -37,43 +43,71 @@ namespace PadelSimple.Desktop.ViewModels
             _authService = authService;
         }
 
-        // ======= INIT / LADEN =======
+        // ================================================================
+        //  DATA LADEN
+        // ================================================================
 
         [RelayCommand]
         public async Task LoadData()
         {
-            // Terreinen
-            Courts.Clear();
-            foreach (var c in await _dataService.GetCourtsAsync())
-                Courts.Add(c);
-
-            // Materiaal
-            EquipmentList.Clear();
-            foreach (var e in await _dataService.GetEquipmentAsync())
-                EquipmentList.Add(e);
-
-            // Reservaties (voor geselecteerde datum)
-            await LoadReservations();
-
-            // Users (alleen als admin)
-            if (_authService.IsAdmin)
+            try
             {
-                Users.Clear();
-                foreach (var u in await _authService.GetAllUsersAsync())
-                    Users.Add(u);
+                Courts.Clear();
+                foreach (var t in await _dataService.GetTerreinen())
+                    Courts.Add(t);
+
+                EquipmentList.Clear();
+                foreach (var m in await _dataService.GetMaterialen())
+                    EquipmentList.Add(m);
+
+                await LoadReservations();
+
+                if (_authService.IsAdmin)
+                {
+                    Users.Clear();
+                    foreach (var u in await _authService.GetAllUsersAsync())
+                        Users.Add(u);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden van gegevens:\n{ex.Message}",
+                    "Laadifout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         [RelayCommand]
         public async Task LoadReservations()
         {
-            Reservations.Clear();
-            var list = await _dataService.GetReservationsAsync(SelectedDate);
-            foreach (var r in list)
-                Reservations.Add(r);
+            try
+            {
+                Reservations.Clear();
+                // Admin ziet alle reservaties, klant alleen die van zichzelf
+                List<Reservation> lijst;
+                if (_authService.IsAdmin)
+                {
+                    lijst = await _dataService.GetReservaties(SelectedDate);
+                }
+                else
+                {
+                    // LINQ Method Syntax: filter op gebruiker
+                    var alles = await _dataService.GetReservaties(SelectedDate);
+                    lijst = alles.Where(r => r.UserId == _authService.CurrentUser?.Id).ToList();
+                }
+
+                foreach (var r in lijst)
+                    Reservations.Add(r);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden van reservaties:\n{ex.Message}",
+                    "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        // ======= NIEUWE RESERVATIE =======
+        // ================================================================
+        //  RESERVATIES – CRUD
+        // ================================================================
 
         [RelayCommand]
         public async Task NewReservation()
@@ -85,53 +119,66 @@ namespace PadelSimple.Desktop.ViewModels
                 return;
             }
 
-            // Dialog via DI
             var dialog = App.GetService<ReservationDialog>();
-
-            // ViewModel initialiseren: datum + courts + materiaal laden
             if (dialog.DataContext is ReservationDialogViewModel vm)
-            {
-                await vm.InitializeAsync(SelectedDate);
-            }
+                await vm.InitializeAsync(SelectedDate, null);
 
             dialog.Owner = Application.Current.MainWindow;
-
-            var result = dialog.ShowDialog();
-            if (result == true)
-            {
-                // Na succesvolle reservatie opnieuw laden
+            if (dialog.ShowDialog() == true)
                 await LoadReservations();
-            }
         }
-
-        // ======= UITLOGGEN =======
 
         [RelayCommand]
-        private void Logout()
+        public async Task EditReservation()
         {
-            _authService.Logout();
+            if (SelectedReservation == null) return;
 
-            var login = App.GetService<LoginWindow>();
-            login.Show();
+            var dialog = App.GetService<ReservationDialog>();
+            if (dialog.DataContext is ReservationDialogViewModel vm)
+                await vm.InitializeAsync(SelectedReservation.Datum, SelectedReservation);
 
-            // Alle andere vensters sluiten (incl. main)
-            foreach (Window w in Application.Current.Windows.Cast<Window>().ToList())
+            dialog.Owner = Application.Current.MainWindow;
+            if (dialog.ShowDialog() == true)
+                await LoadReservations();
+        }
+
+        [RelayCommand]
+        public async Task DeleteReservation()
+        {
+            if (SelectedReservation == null) return;
+
+            var bevestig = MessageBox.Show(
+                $"Wilt u de reservatie voor {SelectedReservation.Terrein?.Naam} op " +
+                $"{SelectedReservation.Datum:dd/MM/yyyy} om {SelectedReservation.StartUur} verwijderen?",
+                "Bevestig verwijdering", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (bevestig != MessageBoxResult.Yes) return;
+
+            try
             {
-                if (w != login)
-                    w.Close();
+                await _dataService.SoftDeleteReservatieAsync(SelectedReservation.Id);
+                await LoadReservations();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij verwijderen:\n{ex.Message}",
+                    "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ======= COURT MANAGEMENT =======
+        // ================================================================
+        //  TERREINEN – CRUD
+        // ================================================================
 
         [RelayCommand]
         private async Task SaveCourt()
         {
             try
             {
-                // alles opslaan, zodat edits in de grid zeker meegaan
                 await _dataService.SaveCourtsAsync(Courts);
                 await LoadData();
+                MessageBox.Show("Terreinen opgeslagen.", "Succes",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -142,19 +189,22 @@ namespace PadelSimple.Desktop.ViewModels
         [RelayCommand]
         private void NewCourt()
         {
-            Courts.Add(new Court { Name = "Nieuw terrein", Capacity = 4 });
-            SelectedCourt = Courts.Last();
+            var terrein = new Terrein { Naam = "Nieuw terrein", Capaciteit = 4, Uurtarief = 15m };
+            Courts.Add(terrein);
+            SelectedCourt = terrein;
         }
 
-        // ======= EQUIPMENT MANAGEMENT =======
-
         [RelayCommand]
-        private async Task SaveEquipment()
+        private async Task DeleteCourt()
         {
+            if (SelectedCourt == null) return;
+            var bev = MessageBox.Show(
+                $"Terrein '{SelectedCourt.Naam}' verwijderen?",
+                "Bevestig", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (bev != MessageBoxResult.Yes) return;
             try
             {
-                // 🔹 alles opslaan zodat grid-edits zeker meegaan
-                await _dataService.SaveEquipmentAsync(EquipmentList);
+                await _dataService.VerwijderTerreinAsync(SelectedCourt.Id);
                 await LoadData();
             }
             catch (Exception ex)
@@ -163,52 +213,129 @@ namespace PadelSimple.Desktop.ViewModels
             }
         }
 
+        // ================================================================
+        //  MATERIALEN – CRUD
+        // ================================================================
+
+        [RelayCommand]
+        private async Task SaveEquipment()
+        {
+            try
+            {
+                await _dataService.SaveEquipmentAsync(EquipmentList);
+                await LoadData();
+                MessageBox.Show("Materialen opgeslagen.", "Succes",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         [RelayCommand]
         private void NewEquipment()
         {
-            EquipmentList.Add(new Equipment
-            {
-                Name = "Nieuw materiaal",
-                TotalQuantity = 1,
-                AvailableQuantity = 1,
-                IsActive = true
-            });
-            SelectedEquipment = EquipmentList.Last();
+            var mat = new Materiaal { Naam = "Nieuw materiaal", AantalInInventaris = 1, Huurprijs = 2.50m, IsActief = true };
+            EquipmentList.Add(mat);
+            SelectedEquipment = mat;
         }
 
-        // ======= USER MANAGEMENT =======
+        [RelayCommand]
+        private async Task DeleteEquipment()
+        {
+            if (SelectedEquipment == null) return;
+            var bev = MessageBox.Show(
+                $"Materiaal '{SelectedEquipment.Naam}' verwijderen?",
+                "Bevestig", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (bev != MessageBoxResult.Yes) return;
+            try
+            {
+                await _dataService.VerwijderMateriaalAsync(SelectedEquipment.Id);
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ================================================================
+        //  GEBRUIKERSBEHEER (Admin)
+        // ================================================================
 
         [RelayCommand]
         private async Task MakeAdmin()
         {
             if (SelectedUser == null) return;
-            await _authService.AddRoleAsync(SelectedUser, "Admin");
-            await LoadData();
+            try
+            {
+                await _authService.AddRoleAsync(SelectedUser, "Admin");
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]
         private async Task RemoveAdmin()
         {
             if (SelectedUser == null) return;
-            await _authService.RemoveRoleAsync(SelectedUser, "Admin");
-            await LoadData();
+            try
+            {
+                await _authService.RemoveRoleAsync(SelectedUser, "Admin");
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]
         private async Task BlockUser()
         {
             if (SelectedUser == null) return;
-            await _authService.SetBlockedAsync(SelectedUser, true);
-            await LoadData();
+            try
+            {
+                await _authService.SetBlockedAsync(SelectedUser, true);
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]
         private async Task UnblockUser()
         {
             if (SelectedUser == null) return;
-            await _authService.SetBlockedAsync(SelectedUser, false);
-            await LoadData();
+            try
+            {
+                await _authService.SetBlockedAsync(SelectedUser, false);
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ================================================================
+        //  UITLOGGEN
+        // ================================================================
+
+        [RelayCommand]
+        private void Logout()
+        {
+            _authService.Logout();
+            var login = App.GetService<LoginWindow>();
+            login.Show();
+            foreach (Window w in Application.Current.Windows.Cast<Window>().ToList())
+                if (w != login) w.Close();
         }
     }
 }

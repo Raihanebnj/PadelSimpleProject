@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,7 +20,6 @@ public partial class App : Application
 
     public App()
     {
-        // 🔹 heel belangrijk: app sluit pas als ALLE vensters dicht zijn
         ShutdownMode = ShutdownMode.OnLastWindowClose;
     }
 
@@ -30,26 +29,23 @@ public partial class App : Application
 
         try
         {
-            // Host maar één keer bouwen
             if (AppHost == null)
             {
                 AppHost = Host.CreateDefaultBuilder()
                     .ConfigureServices((context, services) =>
                     {
-                        // DB – vaste locatie in AppData
+                        // ---- Database ----
                         services.AddDbContextFactory<AppDbContext>(options =>
                         {
                             var folder = Path.Combine(
                                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                                 "PadelSimple");
-
                             Directory.CreateDirectory(folder);
-
                             var dbPath = Path.Combine(folder, "padelsimple.db");
                             options.UseSqlite($"Data Source={dbPath}");
                         });
 
-                        // Identity
+                        // ---- ASP.NET Identity ----
                         services.AddIdentityCore<AppUser>(options =>
                         {
                             options.Password.RequireDigit = false;
@@ -60,16 +56,16 @@ public partial class App : Application
                         .AddRoles<AppRole>()
                         .AddEntityFrameworkStores<AppDbContext>();
 
-                        // Services
+                        // ---- Services ----
                         services.AddScoped<AuthService>();
                         services.AddScoped<DataService>();
 
-                        // ViewModels
+                        // ---- ViewModels ----
                         services.AddTransient<LoginViewModel>();
                         services.AddTransient<MainViewModel>();
                         services.AddTransient<ReservationDialogViewModel>();
 
-                        // Windows
+                        // ---- Windows ----
                         services.AddTransient<LoginWindow>();
                         services.AddTransient<MainWindow>();
                         services.AddTransient<ReservationDialog>();
@@ -78,7 +74,13 @@ public partial class App : Application
             }
 
             await AppHost.StartAsync();
-            await SeedDataAsync(AppHost.Services);
+
+            // Migrations toepassen bij opstarten
+            using (var scope = AppHost.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                await db.Database.MigrateAsync();
+            }
 
             var login = AppHost.Services.GetRequiredService<LoginWindow>();
             MainWindow = login;
@@ -87,11 +89,10 @@ public partial class App : Application
         catch (Exception ex)
         {
             MessageBox.Show(
-                $"Er is een fout opgetreden bij het starten van de applicatie:\n{ex.Message}",
+                $"Er is een fout opgetreden bij het starten van de applicatie:\n\n{ex.Message}",
                 "Opstartfout",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
-
             Shutdown(-1);
         }
     }
@@ -103,56 +104,13 @@ public partial class App : Application
             await AppHost.StopAsync();
             AppHost.Dispose();
         }
-
         base.OnExit(e);
     }
 
     public static T GetService<T>() where T : class
     {
         if (AppHost == null)
-            throw new InvalidOperationException("AppHost is nog niet geïnitialiseerd. OnStartup is nog niet uitgevoerd.");
-
+            throw new InvalidOperationException("AppHost is nog niet geïnitialiseerd.");
         return AppHost.Services.GetRequiredService<T>();
-    }
-
-    private static async Task SeedDataAsync(IServiceProvider services)
-    {
-        using var scope = services.CreateScope();
-        var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // Migrations doe je via Update-Database, niet hier.
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
-
-        // Rollen
-        foreach (var roleName in new[] { "Admin", "Staff", "Member" })
-        {
-            if (!await roleManager.RoleExistsAsync(roleName))
-            {
-                await roleManager.CreateAsync(new AppRole
-                {
-                    Name = roleName,
-                    NormalizedName = roleName.ToUpper()
-                });
-            }
-        }
-
-        // Admin user
-        var admin = await userManager.FindByNameAsync("admin");
-        if (admin == null)
-        {
-            admin = new AppUser
-            {
-                UserName = "admin",
-                Email = "admin@padel.local",
-                IsMember = true
-            };
-
-            var result = await userManager.CreateAsync(admin, "Admin123!");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(admin, "Admin");
-            }
-        }
     }
 }

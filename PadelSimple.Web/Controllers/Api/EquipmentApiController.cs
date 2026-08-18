@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
+using Equipment = PadelSimple.Models.Domain.Materiaal;
 
 namespace PadelSimple.Web.Controllers.Api;
 
