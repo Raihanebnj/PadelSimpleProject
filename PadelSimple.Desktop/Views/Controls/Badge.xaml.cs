@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -21,7 +21,7 @@ public partial class Badge : UserControl
         set => SetValue(TextProperty, value);
     }
 
-    public static readonly DependencyProperty BackgroundProperty =
+    public static new readonly DependencyProperty BackgroundProperty =
         DependencyProperty.Register(nameof(Background), typeof(Brush), typeof(Badge),
             new PropertyMetadata(Brushes.SteelBlue));
 

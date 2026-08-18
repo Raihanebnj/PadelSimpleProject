@@ -23,12 +23,14 @@ namespace PadelSimple.Desktop.ViewModels
         public ObservableCollection<Terrein> Courts { get; } = new();
         public ObservableCollection<Materiaal> EquipmentList { get; } = new();
         public ObservableCollection<Reservation> Reservations { get; } = new();
+        public ObservableCollection<Reservation> MyReservations { get; } = new();
         public ObservableCollection<AppUser> Users { get; } = new();
 
         [ObservableProperty] private Terrein? selectedCourt;
         [ObservableProperty] private Materiaal? selectedEquipment;
         [ObservableProperty] private AppUser? selectedUser;
         [ObservableProperty] private Reservation? selectedReservation;
+        [ObservableProperty] private Reservation? selectedMyReservation;
 
         [ObservableProperty] private DateTime selectedDate = DateTime.Today;
 
@@ -82,21 +84,36 @@ namespace PadelSimple.Desktop.ViewModels
             try
             {
                 Reservations.Clear();
-                // Admin ziet alle reservaties, klant alleen die van zichzelf
+                MyReservations.Clear();
+
+                // 1. "Reservaties" tab:
+                // - Admin ziet ALLE reservaties van alle klanten voor de geselecteerde datum.
+                // - Klant ziet ENKEL zijn eigen reservaties.
                 List<Reservation> lijst;
                 if (_authService.IsAdmin)
                 {
                     lijst = await _dataService.GetReservaties(SelectedDate);
                 }
+                else if (_authService.CurrentUser != null)
+                {
+                    var alleOpDatum = await _dataService.GetReservaties(SelectedDate);
+                    lijst = alleOpDatum.Where(r => r.UserId == _authService.CurrentUser.Id).ToList();
+                }
                 else
                 {
-                    // LINQ Method Syntax: filter op gebruiker
-                    var alles = await _dataService.GetReservaties(SelectedDate);
-                    lijst = alles.Where(r => r.UserId == _authService.CurrentUser?.Id).ToList();
+                    lijst = new List<Reservation>();
                 }
 
                 foreach (var r in lijst)
                     Reservations.Add(r);
+
+                // 2. "Mijn Account" tab: toont ENKEL de eigen reservaties van de ingelogde gebruiker (Admin of Klant)
+                if (_authService.CurrentUser != null)
+                {
+                    var mijnLijst = await _dataService.GetReservatiesVanGebruiker(_authService.CurrentUser.Id);
+                    foreach (var r in mijnLijst)
+                        MyReservations.Add(r);
+                }
             }
             catch (Exception ex)
             {

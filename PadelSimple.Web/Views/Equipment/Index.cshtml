@@ -1,34 +1,121 @@
-﻿@model PadelSimple.Web.ViewModels.Equipment.EquipmentIndexVm
+@model PadelSimple.Web.ViewModels.Equipment.EquipmentIndexVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Materiaal";
+    ViewData["Title"] = Localizer["Nav_Materiaal"];
+    var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
 }
 
-<h2 class="mb-3">Materiaal</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-success mb-1">🎾 Materiaalinventaris</h2>
+        <p class="text-muted mb-0">Overzicht van al het verhuurbare padelmateriaal</p>
+    </div>
+    @if (isBeheerder)
+    {
+        <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
+            ➕ Nieuw Materiaal
+        </a>
+    }
+</div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Naam</th>
-            <th>Totaal</th>
-            <th>Beschikbaar</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var e in Model.Items)
-        {
-            <tr>
-                <td>@e.Name</td>
-                <td>@e.TotalQuantity</td>
-                <td>
-                    @e.AvailableQuantity
-                    @if (e.AvailableQuantity <= 0)
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var item in Model.Items)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold text-success mb-0">@item.Name</h5>
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Actief</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactief</span>
+                        }
+                    </div>
+
+                    <p class="fs-5 fw-bold text-success mb-3">
+                        € @item.Huurprijs.ToString("F2") <small class="text-muted fs-6">/ stuk</small>
+                    </p>
+
+                    <div class="p-3 bg-light rounded mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Totaal in voorraad:</span>
+                            <strong id="totaal-@item.Id">@item.TotalQuantity stuks</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Momenteel beschikbaar:</span>
+                            <span class="badge bg-success fs-6" id="beschikbaar-@item.Id">@item.AvailableQuantity stuks</span>
+                        </div>
+                    </div>
+
+                    <!-- Live AJAX Quick Stock Adjustment (voor Admin & Medewerker) -->
+                    @if (isBeheerder)
                     {
-                        <span class="badge bg-danger ms-2">Niet beschikbaar</span>
+                        <div class="p-2 border rounded bg-white">
+                            <label class="form-label small fw-bold text-muted mb-1">⚡ Snel voorraad aanpassen (Live AJAX):</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="input-stock-@item.Id" value="@item.TotalQuantity" min="0" class="form-control" />
+                                <button type="button" onclick="updateStockLive(@item.Id)" class="btn btn-outline-success font-weight-bold">
+                                    Update Stock
+                                </button>
+                            </div>
+                            <small class="text-success" id="msg-@item.Id" style="display:none;"></small>
+                        </div>
                     }
-                </td>
-                <td>@(e.IsActive ? "Actief" : "Inactief")</td>
-            </tr>
+                </div>
+
+                @if (isBeheerder)
+                {
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">✏️ Bewerken</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">🗑️</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // AJAX: live update van materiaalinventaris zonder pagina reload
+        async function updateStockLive(id) {
+            const nieuwAantal = document.getElementById(`input-stock-${id}`).value;
+            const msgEl = document.getElementById(`msg-${id}`);
+
+            try {
+                const response = await fetch(`/Equipment/UpdateStockAsync?id=${id}&nieuwAantal=${nieuwAantal}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById(`totaal-${id}`).innerText = `${data.totaal} stuks`;
+                    document.getElementById(`beschikbaar-${id}`).innerText = `${data.beschikbaar} stuks`;
+                    msgEl.style.display = 'block';
+                    msgEl.innerText = '✓ Voorraad live bijgewerkt!';
+                    setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+                } else {
+                    alert(data.message || 'Fout bij bijwerken voorraad.');
+                }
+            } catch (err) {
+                console.error('AJAX fout:', err);
+            }
         }
-    </tbody>
-</table>
+    </script>
+}

@@ -4,7 +4,7 @@ using PadelSimple.Models.Identity;
 namespace PadelSimple.Models.Domain;
 
 /// <summary>
-/// Een reservatie voor een terrein, optioneel met materiaal.
+/// Een reservatie voor een terrein, optioneel met meerdere stuks materiaal.
 /// </summary>
 public class Reservation : ISoftDeletable
 {
@@ -18,12 +18,13 @@ public class Reservation : ISoftDeletable
     public int TerreinId { get; set; }
     public Terrein Terrein { get; set; } = null!;
 
-    // Optionele FK naar Materiaal
+    // Optionele legacy FK naar 1 Materiaal (achterwaartse compatibiliteit)
     public int? MateriaalId { get; set; }
     public Materiaal? Materiaal { get; set; }
-
-    /// <summary>Aantal gehuurde stuks materiaal.</summary>
     public int AantalMateriaal { get; set; }
+
+    // Meerdere materialen per reservatie
+    public ICollection<ReservationMateriaal> ReservationMaterialen { get; set; } = new List<ReservationMateriaal>();
 
     /// <summary>Datum van de reservatie.</summary>
     public DateTime Datum { get; set; }
@@ -37,12 +38,29 @@ public class Reservation : ISoftDeletable
     /// <summary>Totale prijs inclusief terrein en materiaal.</summary>
     public decimal TotalePrijs { get; set; }
 
-    /// <summary>Aantal spelers (voor achterwaartse compat.).</summary>
+    /// <summary>Aantal spelers.</summary>
     public int AantalSpelers { get; set; } = 2;
 
     // Soft delete
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+
+    // --- Weergave helper voor DataGrid ---
+    public string MateriaalSamenvatting
+    {
+        get
+        {
+            if (ReservationMaterialen != null && ReservationMaterialen.Count > 0)
+            {
+                return string.Join(", ", ReservationMaterialen.Select(rm => $"{rm.Materiaal?.Naam ?? "Materiaal"} ({rm.Aantal}x)"));
+            }
+            if (Materiaal != null && AantalMateriaal > 0)
+            {
+                return $"{Materiaal.Naam} ({AantalMateriaal}x)";
+            }
+            return "Geen";
+        }
+    }
 
     // --- Aliassen voor bestaande code ---
     public int CourtId

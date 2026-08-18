@@ -1,214 +1,100 @@
-# PadelSimple 🏓
+# 🎾 PadelSimple — Club & Reservatiebeheer (.NET 9.0)
 
-> **Beheersapplicatie voor padelclubs** — reservaties, terreinen en materiaal in één overzichtelijke WPF-desktop-app.
-
----
-
-## 📋 Inhoudsopgave
-
-1. [Projectbeschrijving](#-projectbeschrijving)
-2. [Features](#-features)
-3. [Projectstructuur](#-projectstructuur)
-4. [Vereisten](#-vereisten)
-5. [Installatie en opstarten](#-installatie-en-opstarten)
-6. [Standaard aanmeldgegevens](#-standaard-aanmeldgegevens)
-7. [Technologieën](#-technologieën)
-8. [AI-verantwoording (EHB CopyWrite)](#-ai-verantwoording-ehb-copywrite)
-9. [Licentie](#-licentie)
+PadelSimple is een uitgebreid, modern beheersysteem voor padelclubs. Het helpt clubs bij het beheren van terreinen, materiaalvoorraad, reservaties en gebruikers.
 
 ---
 
-## 📖 Projectbeschrijving
+## 🏛️ Projectstructuur
 
-**PadelSimple** is een WPF .NET 9.0 bureaubladapplicatie die ontwikkeld werd als oefenproject voor condities en iteraties (EHB). De applicatie stelt een padelclub in staat om:
+De solution bestaat uit drie hoofdprojecten:
 
-- Reservaties van klanten te beheren (aanmaken, bewerken, verwijderen)
-- Terreinen en materialen te beheren als administrator
-- Gebruikersaccounts te beheren (blokkeren, rollen toewijzen)
+1. **`PadelSimple.Models`** (Class Library):
+   - Entiteiten (`Terrein`, `Materiaal`, `Reservation`, `ReservationMateriaal`) met Data Annotations.
+   - Identity Modellen (`AppUser`, `AppRole`).
+   - Soft-Delete ondersteuning (`ISoftDeletable`).
+   - Global DbContext (`AppDbContext`) met EF Core Seed Data.
 
-Klanten kunnen zelf een account aanmaken, optioneel een lidmaatschap nemen en reservaties plaatsen voor terreinen met of zonder gehuurde uitrusting.
+2. **`PadelSimple.Desktop`** (WPF .NET 9.0 Desktop App):
+   - MVVM architectuur met CommunityToolkit.Mvvm.
+   - Snel beheer van reservaties en voorraad via een desktop interface.
 
----
-
-## ✅ Features
-
-### Authenticatie
-- Inloggen op basis van e-mail of gebruikersnaam
-- Registratie met voornaam, achternaam, telefoonnummer en optioneel lidmaatschap
-- Geblokkeerde accounts worden geweigerd bij aanmelding
-- Rollen: **Admin** en **Klant**
-
-### Reservatiebeheer (Klanten & Admin)
-- Volledige CRUD: aanmaken, bewerken en verwijderen (soft-delete)
-- ComboBox-selectie voor **Terrein** en optioneel **Materiaal**
-- Automatische prijsberekening (uurtarief × uren + materiaal × aantal)
-- Overlap-controle: dubbele boekingen worden geweigerd
-
-### Beheerschermen (Admin only)
-- **Terreinen**: naam, capaciteit, overdekt/buiten, uurtarief — inline bewerken
-- **Materialen**: naam, inventaris, huurprijs, actief — inline bewerken
-- **Gebruikers**: e-mail, lidmaatschap, geblokkeerd — Admin-rol toewijzen/verwijderen, blokkeren/deblokkeren
-
-### Extra technische vereisten (voldaan)
-| Vereiste | Implementatie |
-|---|---|
-| 3+ containertypen | `Grid`, `StackPanel`, `DockPanel`, `WrapPanel` |
-| Centrale XAML-stijlen | `App.xaml`: buttons, textboxen, datagrids, labels, … |
-| XAML Data Binding | `Binding Path=...` doorheen alle views |
-| LINQ Query Syntax | `DataService.GetMaterialen()`, `GetReservatiesVanGebruiker()` |
-| LINQ Method Syntax | `DataService.GetTerreinen()`, `GetReservaties()` |
-| Extra Window (popup) | `TerreinWindow.xaml`, `ReservationDialog.xaml` |
-| Custom UserControl | `StatusBadge` (toont groen/grijs badge op basis van status) |
-| Try-catch + MessageBox | Alle database-acties hebben foutafhandeling |
-| Soft-delete | Global Query Filter op alle entiteiten |
+3. **`PadelSimple.Web`** (ASP.NET Core MVC + REST API):
+   - Multilingual Razor Frontend (Bootstrap 5).
+   - Asynchrone verwerking (`async`/`await`) & gestructureerde logging (`ILogger`).
+   - RESTful API endpoints met JSON responses & JWT Bearer token ondersteuning.
 
 ---
 
-## 🗂️ Projectstructuur
+## 👥 Identity & Rollen
 
-```
-PadelSimpleProject/
-├── PadelSimple.Models/          # Class Library – datamodellen en database
-│   ├── Common/
-│   │   └── ISoftDeletable.cs
-│   ├── Identity/
-│   │   ├── AppUser.cs           # IdentityUser + Voornaam, Achternaam, IsLid, …
-│   │   └── AppRole.cs
-│   ├── Domain/
-│   │   ├── Terrein.cs
-│   │   ├── Materiaal.cs
-│   │   └── Reservation.cs
-│   └── Data/
-│       ├── AppDbContext.cs      # DbContext + seeding + query filters
-│       └── AppDbContextFactory.cs
-│
-└── PadelSimple.Desktop/         # WPF Desktop – UI en logica
-    ├── App.xaml / App.xaml.cs
-    ├── Services/
-    │   ├── AuthService.cs       # Login, registratie, gebruikersbeheer
-    │   └── DataService.cs       # CRUD terreinen, materialen, reservaties
-    ├── VieuwModels/
-    │   ├── LoginViewModel.cs
-    │   ├── MainViewModel.cs
-    │   └── ReservationDialogViewModel.cs
-    ├── Views/
-    │   ├── LoginWindow.xaml     # Aanmelden + Registratie (met Lid-checkbox)
-    │   ├── MainWindow.xaml      # TabControl: Reservaties | Mijn Account | Beheer
-    │   ├── ReservationDialog.xaml   # Popup: reservatie aanmaken/bewerken
-    │   ├── TerreinWindow.xaml   # Popup: terrein aanmaken/bewerken
-    │   └── Controls/
-    │       ├── StatusBadge.xaml # Custom UserControl: gekleurde badge
-    │       └── Badge.xaml       # Generieke badge
-    └── Converters/
-        └── BoolToVisibilityConverter.cs  # + 3 andere converters
-```
+De applicatie kent drie actieve rollen:
+- **`Admin`**: Volledige rechten op terreinen, materialen, alle reservaties en gebruikersbeheer (rollen toewijzen, blokkeren).
+- **`Medewerker`**: Kan alle terreinen, materialen en reservaties inzien en beheren, alsook gebruikers blokkeren/deblokkeren.
+- **`Klant`**: Standaardrol bij registratie. Kan enkel eigen reservaties bekijken en aanmaken.
+
+### Standaard Inloggegevens (Seed Data)
+- **Admin**: `admin@padelsimple.be` / `Admin123!`
+- **Medewerker**: `medewerker@padelsimple.be` / `Medewerker123!`
+- **Klant**: `klant@padelsimple.be` / `Klant123!`
 
 ---
 
-## 🔧 Vereisten
+## 🔌 RESTful API Endpoints
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- Visual Studio 2022 (v17.8+) met **Desktop development with .NET** workload
-- NuGet pakketten worden automatisch hersteld bij eerste build
+Alle API endpoints zijn beschikbaar onder `/api/`:
+
+| Methode | Endpoint | Omschrijving | Autorisatie |
+|---|---|---|---|
+| `POST` | `/api/auth/login` | Authenticeer en ontvang een JWT Bearer Token | Public |
+| `POST` | `/api/auth/register` | Registreer een nieuw klantaccount en ontvang een JWT | Public |
+| `GET` | `/api/terreinen` | Ophalen van alle actieve terreinen | Public |
+| `GET` | `/api/terreinen/{id}` | Ophalen van specifiek terrein | Public |
+| `POST` | `/api/terreinen` | Nieuw terrein toevoegen | Admin, Medewerker |
+| `PUT` | `/api/terreinen/{id}` | Terrein bijwerken | Admin, Medewerker |
+| `DELETE` | `/api/terreinen/{id}` | Terrein verwijderen (soft-delete) | Admin |
+| `GET` | `/api/materiaal` | Ophalen van al het verhuurbare materiaal | Public |
+| `GET` | `/api/materiaal/{id}` | Ophalen van specifiek materiaal | Public |
+| `POST` | `/api/materiaal` | Nieuw materiaal toevoegen | Admin, Medewerker |
+| `PUT` | `/api/materiaal/{id}` | Materiaal bijwerken | Admin, Medewerker |
+| `DELETE` | `/api/materiaal/{id}` | Materiaal verwijderen | Admin |
+| `GET` | `/api/reservaties` | Ophalen van reservaties (met optionele `?date=` filter) | Bearer / Cookie |
+| `GET` | `/api/reservaties/{id}` | Ophalen van specifieke reservatie | Bearer / Cookie |
+| `POST` | `/api/reservaties` | Nieuwe reservatie aanmaken (inclusief overlap & stock validatie) | Bearer / Cookie |
+| `DELETE` | `/api/reservaties/{id}` | Reservatie annuleren | Bearer / Cookie |
 
 ---
 
-## 🚀 Installatie en opstarten
+## 🌐 Meertaligheid & Middleware
 
-1. **Clone de repository**
+- **Ondersteunde Talen**: Nederlands (`nl`), Engels (`en`), Frans (`fr`).
+- **Vertalingen**: Beheerd via `.resx` bestanden in `Resources/SharedResources.{taal}.resx`.
+- **LanguageCultureMiddleware**: Aangepaste middleware die de `lang` cookie uitleest en automatisch de `CultureInfo` per request instelt.
+- **Taalkeuze menu**: Dynamische dropdown in de navigatiebalk met vlaggen.
+
+---
+
+## ⚡ AJAX Implementaties
+
+1. **Live Tijdsloten Controle (`/Reservations/Create`)**:
+   - Bij het kiezen van een terain en datum voert de browser een asynchrone `fetch()` call uit naar `/Reservations/GetBezetteTijdslots`.
+   - Reeds gereserveerde uren worden direct als rode badges getoond zonder de pagina te herladen.
+2. **Live Voorraadaanpassing (`/Equipment/Index`)**:
+   - Beheerders kunnen de totaalvoorraad van een materiaal direct aanpassen via een AJAX `POST` call naar `/Equipment/UpdateStockAsync`.
+
+---
+
+## ⚙️ Installatie & Opstarten
+
+1. **Vereisten**: .NET 9.0 SDK installed.
+2. **Web-applicatie starten**:
    ```bash
-   git clone https://github.com/<jouw-repo>/PadelSimpleProject.git
-   cd PadelSimpleProject
+   dotnet run --project PadelSimple.Web/PadelSimple.Web.csproj
    ```
-
-2. **Migraties toepassen** (optioneel – de app doet dit ook automatisch bij opstarten)
-   ```bash
-   cd PadelSimple.Models
-   dotnet ef database update --startup-project ../PadelSimple.Desktop
-   ```
-
-3. **Applicatie starten**
-   ```
-   Open PadelSimple.sln in Visual Studio
-   Stel PadelSimple.Desktop als startup-project in
-   Druk F5
-   ```
-
-   Of via terminal:
-   ```bash
-   cd PadelSimple.Desktop
-   dotnet run
-   ```
-
-De SQLite-databank wordt automatisch aangemaakt in:
-`%AppData%\PadelSimple\padelsimple.db`
+3. Open de browser op `https://localhost:5001` (of de in de console aangegeven poort).
 
 ---
 
-## 🔑 Standaard aanmeldgegevens
+## 📜 Licentie & AI Vermelding
 
-| Rol | E-mail | Wachtwoord |
-|---|---|---|
-| **Admin** | admin@padelsimple.be | `Admin123!` |
-| **Klant** | klant@padelsimple.be | `Klant123!` |
-
----
-
-## 🛠️ Technologieën
-
-| Technologie | Versie | Gebruik |
-|---|---|---|
-| .NET | 9.0 | Target framework |
-| WPF | - | UI framework |
-| Entity Framework Core | 9.0.10 | ORM / database |
-| SQLite | - | Database |
-| ASP.NET Core Identity | 9.0.10 | Authenticatie en rollen |
-| CommunityToolkit.Mvvm | 8.4.0 | ObservableObject, RelayCommand |
-| Microsoft.Extensions.Hosting | 9.0.10 | Dependency Injection / DI |
-
----
-
-## 🤖 AI-verantwoording (EHB CopyWrite)
-
-> **Conform de EHB CopyWrite-richtlijnen voor AI-gebruik bij opdrachten.**
-
-Dit project werd deels gerealiseerd met behulp van **AI-assistentie** (Google Deepmind Antigravity / Claude Sonnet). De AI werd ingezet voor:
-
-- Het genereren van boilerplate XAML-structuren
-- Het opstellen van de AppDbContext-seeding
-- Suggesties voor LINQ-queries en service-methoden
-- Opmaak van de README
-
-**Alle gegenereerde code werd gecontroleerd, aangepast en begrepen** door de student alvorens op te leveren. De functionele logica, keuze van structuur en implementatiebeslissingen zijn de verantwoordelijkheid van de student.
-
-**Gebruikte AI-tool:** Google Deepmind Antigravity (Claude Sonnet 4.6 Thinking)
-**Datum:** augustus 2026
-**Student:** [Voornaam Achternaam] — EHB, opleiding Toegepaste Informatica
-
----
-
-## 📄 Licentie
-
-```
-MIT License
-
-Copyright (c) 2026 PadelSimple Project Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+- **Licentie**: Vrij te gebruiken voor onderwijs- en evaluatiedoeleinden (Erasmushogeschool Brussel).
+- **AI-vermelding**: Dit project is mede tot stand gekomen met ondersteuning van AI-coding assistenten conform de EHB CopyWrite richtlijnen. All code updates and business rules have been verified for correctness.

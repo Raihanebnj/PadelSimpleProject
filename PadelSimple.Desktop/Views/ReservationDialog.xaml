@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{Binding WindowTitle}"
         WindowStartupLocation="CenterOwner"
-        Height="500" Width="420"
+        Height="560" Width="440"
         ResizeMode="NoResize"
         Background="#F1F8E9">
 
@@ -22,15 +22,15 @@
                    Text="{Binding WindowTitle}"
                    FontSize="18" FontWeight="Bold"
                    Foreground="#1B5E20"
-                   Margin="0,0,0,16"/>
+                   Margin="0,0,0,14"/>
 
         <!-- Formulier -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
             <StackPanel>
                 <Label Content="Datum"/>
                 <DatePicker SelectedDate="{Binding Date}"/>
 
-                <Grid>
+                <Grid Margin="0,4,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
@@ -46,44 +46,73 @@
                     </StackPanel>
                 </Grid>
 
-                <Label Content="Terrein"/>
-                <ComboBox ItemsSource="{Binding Courts}"
-                          SelectedItem="{Binding SelectedCourt}"
-                          DisplayMemberPath="Naam"/>
-
-                <Label Content="Materiaal (optioneel)"/>
-                <ComboBox ItemsSource="{Binding EquipmentList}"
-                          SelectedItem="{Binding SelectedEquipment}"
-                          DisplayMemberPath="Naam"/>
-
-                <Grid>
+                <Grid Margin="0,4,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <Label Content="Aantal materiaal"/>
-                        <TextBox Text="{Binding EquipmentQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Content="Terrein"/>
+                        <ComboBox ItemsSource="{Binding Courts}"
+                                  SelectedItem="{Binding SelectedCourt}"
+                                  DisplayMemberPath="Naam"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <Label Content="Aantal spelers"/>
+                        <Label Content="Spelers"/>
                         <TextBox Text="{Binding NumberOfPlayers, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
+                <!-- Meerdere materialen selecteren -->
+                <Label Content="Materiaal huren (optioneel, meerdere mogelijk)"
+                       Margin="0,10,0,2" FontWeight="Bold" Foreground="#1B5E20"/>
+                <Border Background="White" BorderBrush="#C8E6C9" BorderThickness="1" CornerRadius="6" Padding="10">
+                    <ItemsControl ItemsSource="{Binding EquipmentItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="55"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Naam}" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Huurprijs, StringFormat='€ {0:F2} / stuk'}" Foreground="#78909C" FontSize="11"/>
+                                            <TextBlock Text="  • Stock: " Foreground="#78909C" FontSize="11"/>
+                                            <TextBlock Text="{Binding AantalInInventaris}" Foreground="#2E7D32" FontSize="11" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="1" Text="Aantal:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12"/>
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding Aantal, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="50"
+                                             Padding="4,2"
+                                             HorizontalContentAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <!-- Foutmelding -->
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#C62828" Margin="0,6,0,0"
-                           TextWrapping="Wrap"/>
+                           Foreground="#C62828" Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           FontWeight="SemiBold"/>
             </StackPanel>
         </ScrollViewer>
 
         <!-- Prijs en knoppen -->
-        <DockPanel Grid.Row="2" Margin="0,12,0,0">
+        <DockPanel Grid.Row="2" Margin="0,8,0,0">
             <Border Background="#E8F5E9" CornerRadius="6" Padding="10,6"
                     DockPanel.Dock="Left" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Geschatte prijs: " FontWeight="SemiBold" Foreground="#1B5E20"/>
+                    <TextBlock Text="Totaal: " FontWeight="SemiBold" Foreground="#1B5E20"/>
                     <TextBlock Text="{Binding GeschatPrijs, StringFormat='€ {0:F2}'}"
                                FontWeight="Bold" Foreground="#1B5E20" FontSize="15"/>
                 </StackPanel>
@@ -95,12 +124,12 @@
                         Style="{StaticResource SecondaryButton}"
                         IsCancel="True"
                         Command="{Binding CancelCommand}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
-                <Button Content="💾 Opslaan"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
+                <Button Content="Opslaan"
                         Width="100"
                         IsDefault="True"
                         Command="{Binding SaveCommand}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
             </StackPanel>
         </DockPanel>
     </Grid>

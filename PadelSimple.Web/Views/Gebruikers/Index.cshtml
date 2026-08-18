@@ -1,0 +1,126 @@
+@model PadelSimple.Web.ViewModels.Gebruikers.GebruikerIndexVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Nav_Gebruikers"];
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-success mb-1">👥 Gebruikersbeheer</h2>
+        <p class="text-muted mb-0">Beheer van rollen, blokkades en e-mailverificatie status</p>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Zoek op naam of e-mail</label>
+                <input type="text" name="zoek" value="@Model.ZoekTerm" placeholder="bijv. Jan of admin@padelsimple.be" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Filter op Rol</label>
+                <select name="rolFilter" class="form-select">
+                    <option value="">-- Alle Rollen --</option>
+                    @foreach (var rol in Model.BeschikbareRollen)
+                    {
+                        <option value="@rol" selected="@(Model.RolFilter == rol)">@rol</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success w-100 fw-bold">@Localizer["Btn_Filteren"]</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Gebruikers Tabel -->
+<div class="card shadow border-0 rounded-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>Naam</th>
+                        <th>E-mailadres</th>
+                        <th>Rollen</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Gebruikers.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <em>Geen gebruikers gevonden.</em>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var g in Model.Gebruikers)
+                        {
+                            <tr class="@(g.IsGeblokkeerd ? "table-secondary text-muted" : "")">
+                                <td class="fw-bold">@g.VolledigeNaam</td>
+                                <td>@g.Email</td>
+                                <td>
+                                    @foreach (var rol in g.Rollen)
+                                    {
+                                        <span class="badge @(rol == "Admin" ? "bg-danger" : rol == "Medewerker" ? "bg-primary" : "bg-success") me-1">
+                                            @rol
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (g.IsGeblokkeerd)
+                                    {
+                                        <span class="badge bg-danger">Geblokkeerd</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Actief</span>
+                                    }
+
+                                    @if (g.IsLid)
+                                    {
+                                        <span class="badge bg-info text-dark ms-1">Lid</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@g.Id" class="btn btn-outline-primary">
+                                            🔍 Details
+                                        </a>
+
+                                        @if (g.IsGeblokkeerd)
+                                        {
+                                            <form asp-action="Deblokkeer" asp-route-id="@g.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-success">Deblokkeer</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="Blokkeer" asp-route-id="@g.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-warning">Blokkeer</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

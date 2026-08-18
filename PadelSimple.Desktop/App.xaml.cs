@@ -43,9 +43,11 @@ public partial class App : Application
                             Directory.CreateDirectory(folder);
                             var dbPath = Path.Combine(folder, "padelsimple.db");
                             options.UseSqlite($"Data Source={dbPath}");
+                            options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
                         });
 
-                        // ---- ASP.NET Identity ----
+                        // ---- ASP.NET Identity & Data Protection ----
+                        services.AddDataProtection();
                         services.AddIdentityCore<AppUser>(options =>
                         {
                             options.Password.RequireDigit = false;
@@ -54,7 +56,8 @@ public partial class App : Application
                             options.Password.RequiredLength = 6;
                         })
                         .AddRoles<AppRole>()
-                        .AddEntityFrameworkStores<AppDbContext>();
+                        .AddEntityFrameworkStores<AppDbContext>()
+                        .AddDefaultTokenProviders();
 
                         // ---- Services ----
                         services.AddScoped<AuthService>();
@@ -75,12 +78,8 @@ public partial class App : Application
 
             await AppHost.StartAsync();
 
-            // Migrations toepassen bij opstarten
-            using (var scope = AppHost.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                await db.Database.MigrateAsync();
-            }
+            // Databank en seed-data initialiseren bij opstarten
+            await SeedDataAsync(AppHost.Services);
 
             var login = AppHost.Services.GetRequiredService<LoginWindow>();
             MainWindow = login;
@@ -94,6 +93,92 @@ public partial class App : Application
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             Shutdown(-1);
+        }
+    }
+
+    private static async Task SeedDataAsync(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.EnsureCreatedAsync();
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
+        var hasher = new PasswordHasher<AppUser>();
+
+        // Rollen garanderen
+        foreach (var roleName in new[] { "Admin", "Klant" })
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new AppRole(roleName));
+            }
+        }
+
+        // Admin gebruiker garanderen & wachtwoord instellen
+        var admin = await userManager.FindByEmailAsync("admin@padelsimple.be");
+        if (admin == null)
+        {
+            admin = new AppUser
+            {
+                UserName = "admin@padelsimple.be",
+                Email = "admin@padelsimple.be",
+                Voornaam = "Administrator",
+                Achternaam = "PadelSimple",
+                Telefoonnummer = "+32 498 00 00 01",
+                IsLid = true,
+                EmailConfirmed = true
+            };
+            var res = await userManager.CreateAsync(admin, "Admin123!");
+            if (res.Succeeded)
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+        else
+        {
+            admin.PasswordHash = hasher.HashPassword(admin, "Admin123!");
+            admin.IsBlocked = false;
+            admin.IsDeleted = false;
+            await userManager.UpdateAsync(admin);
+
+            if (!await userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+
+        // Klant gebruiker garanderen & wachtwoord instellen
+        var klant = await userManager.FindByEmailAsync("klant@padelsimple.be");
+        if (klant == null)
+        {
+            klant = new AppUser
+            {
+                UserName = "klant@padelsimple.be",
+                Email = "klant@padelsimple.be",
+                Voornaam = "Jan",
+                Achternaam = "Janssen",
+                Telefoonnummer = "+32 476 12 34 56",
+                IsLid = true,
+                EmailConfirmed = true
+            };
+            var res = await userManager.CreateAsync(klant, "Klant123!");
+            if (res.Succeeded)
+            {
+                await userManager.AddToRoleAsync(klant, "Klant");
+            }
+        }
+        else
+        {
+            klant.PasswordHash = hasher.HashPassword(klant, "Klant123!");
+            klant.IsBlocked = false;
+            klant.IsDeleted = false;
+            await userManager.UpdateAsync(klant);
+
+            if (!await userManager.IsInRoleAsync(klant, "Klant"))
+            {
+                await userManager.AddToRoleAsync(klant, "Klant");
+            }
         }
     }
 

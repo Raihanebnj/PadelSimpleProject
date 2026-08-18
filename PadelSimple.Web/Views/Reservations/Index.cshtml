@@ -1,52 +1,120 @@
-﻿@model IEnumerable<PadelSimple.Models.Domain.Reservation>
+@model IEnumerable<PadelSimple.Models.Domain.Reservation>
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Reservations";
-    var sel = (string?)ViewBag.SelectedDate;
+    ViewData["Title"] = Localizer["Nav_Reservaties"];
+    var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
 }
 
-<h1>Reservations</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-success mb-1">📅 @Localizer["Nav_Reservaties"]</h2>
+        <p class="text-muted mb-0">
+            @(isBeheerder ? "Overzicht van alle clubreservaties" : "Overzicht van uw persoonlijke reservaties")
+        </p>
+    </div>
+    <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
+        ➕ Nieuwe Reservatie
+    </a>
+</div>
 
-<form method="get" class="mb-3">
-    <label>Datum:</label>
-    <input type="date" name="date" value="@sel" />
-    <button class="btn btn-sm btn-primary" type="submit">Filter</button>
-    <a class="btn btn-sm btn-secondary" asp-action="Index">Reset</a>
-</form>
+<!-- Filtering & Sortering Bar -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Datum filter</label>
+                <input type="date" name="datum" value="@ViewBag.GeselecteerdeDatum" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Terrein filter</label>
+                <select name="terreinId" class="form-select" asp-items="ViewBag.Terreinen">
+                    <option value="">-- Alle Terreinen --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Sorteren op</label>
+                <select name="sortering" class="form-select">
+                    <option value="datum_desc" selected="@(ViewBag.HuidigeSortering == "datum_desc")">Datum (nieuwste eerst)</option>
+                    <option value="datum_asc" selected="@(ViewBag.HuidigeSortering == "datum_asc")">Datum (oudste eerst)</option>
+                    <option value="prijs_desc" selected="@(ViewBag.HuidigeSortering == "prijs_desc")">Prijs (hoog naar laag)</option>
+                    <option value="prijs_asc" selected="@(ViewBag.HuidigeSortering == "prijs_asc")">Prijs (laag naar hoog)</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-success w-100 fw-bold">@Localizer["Btn_Filteren"]</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
 
-<p>
-    <a class="btn btn-success" asp-action="Create">Nieuwe reservatie</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Datum</th>
-            <th>Start</th>
-            <th>Einde</th>
-            <th>Court</th>
-            <th>Spelers</th>
-            <th>Materiaal</th>
-            <th>Aantal</th>
-            <th>Gebruiker</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var r in Model)
-        {
-            <tr>
-                <td>@r.Date.ToString("dd/MM/yyyy")</td>
-                <td>@r.StartTime</td>
-                <td>@r.EndTime</td>
-                <td>@r.Court?.Name</td>
-                <td>@r.NumberOfPlayers</td>
-                <td>@r.Equipment?.Name</td>
-                <td>@r.EquipmentQuantity</td>
-                <td>@r.User?.Email</td>
-                <td>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@r.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Tabel -->
+<div class="card shadow border-0 rounded-3">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>@Localizer["Res_Datum"]</th>
+                        <th>@Localizer["Res_Starttijd"]</th>
+                        <th>@Localizer["Res_Eindtijd"]</th>
+                        <th>@Localizer["Res_Terrein"]</th>
+                        <th>@Localizer["Res_Materiaal"]</th>
+                        <th>@Localizer["Res_AantalSpelers"]</th>
+                        <th>@Localizer["Res_TotalePrijs"]</th>
+                        @if (isBeheerder)
+                        {
+                            <th>@Localizer["Res_Klant"]</th>
+                        }
+                        <th class="text-end pe-4">@Localizer["Lbl_Acties"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="@(isBeheerder ? 9 : 8)" class="text-center text-muted py-5">
+                                <em>Geen reservaties gevonden voor deze criteria.</em>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.Datum.ToString("dd/MM/yyyy")</td>
+                                <td><span class="badge bg-light text-dark border">@item.StartUur.ToString(@"hh\:mm")</span></td>
+                                <td><span class="badge bg-light text-dark border">@item.EindUur.ToString(@"hh\:mm")</span></td>
+                                <td>
+                                    <span class="fw-semibold text-success">@item.Terrein?.Naam</span>
+                                    @if (item.Terrein?.IsIndoors == true)
+                                    {
+                                        <span class="badge bg-info text-dark ms-1">Indoors</span>
+                                    }
+                                </td>
+                                <td>@item.MateriaalSamenvatting</td>
+                                <td>@item.AantalSpelers spelers</td>
+                                <td class="fw-bold text-success">€ @item.TotalePrijs.ToString("F2")</td>
+                                @if (isBeheerder)
+                                {
+                                    <td>
+                                        <small class="text-muted">@(item.User?.VolledigeNaam ?? item.User?.Email)</small>
+                                    </td>
+                                }
+                                <td class="text-end pe-4">
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                        🗑️ Cancel
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

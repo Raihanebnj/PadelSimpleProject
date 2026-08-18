@@ -1,39 +1,79 @@
-﻿@model PadelSimple.Web.ViewModels.Auth.RegisterVm
+@model PadelSimple.Web.ViewModels.Auth.RegisterVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = Localizer["Nav_Registreren"];
 }
-<h2>Register</h2>
 
-<form asp-action="Register" method="post" class="mt-3">
-    @Html.AntiForgeryToken()
+<div class="row justify-content-center mt-3">
+    <div class="col-md-7">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0 fw-bold">Nieuw Account Registreren</h4>
+                <small>Word gratis lid van PadelSimple</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Voornaam" class="form-label fw-semibold"></label>
+                            <input asp-for="Voornaam" class="form-control" placeholder="Jan" />
+                            <span asp-validation-for="Voornaam" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Achternaam" class="form-label fw-semibold"></label>
+                            <input asp-for="Achternaam" class="form-control" placeholder="Janssen" />
+                            <span asp-validation-for="Achternaam" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" placeholder="jan@voorbeeld.be" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Telefoon" class="form-label fw-semibold"></label>
+                        <input asp-for="Telefoon" class="form-control" placeholder="+32 476 12 34 56" />
+                        <span asp-validation-for="Telefoon" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Wachtwoord" class="form-label fw-semibold"></label>
+                            <input asp-for="Wachtwoord" type="password" class="form-control" />
+                            <span asp-validation-for="Wachtwoord" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HerhaalWachtwoord" class="form-label fw-semibold"></label>
+                            <input asp-for="HerhaalWachtwoord" type="password" class="form-control" />
+                            <span asp-validation-for="HerhaalWachtwoord" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check bg-light p-3 border rounded">
+                        <input asp-for="IsLid" class="form-check-input ms-1 me-2" />
+                        <label asp-for="IsLid" class="form-check-label fw-bold text-success"></label>
+                        <div class="form-text ms-1">Als lid krijgt u korting op alle terreinreservaties.</div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">@Localizer["Nav_Registreren"]</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3 bg-light">
+                Heeft u al een account? <a asp-action="Login" class="text-success fw-bold">@Localizer["Nav_Aanmelden"]</a>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ConfirmPassword" class="form-label"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="form-check mb-3">
-        <input asp-for="IsMember" class="form-check-input" />
-        <label asp-for="IsMember" class="form-check-label">Is Member</label>
-    </div>
-
-    <div asp-validation-summary="All" class="text-danger mb-2"></div>
-
-    <button class="btn btn-success" type="submit">Account aanmaken</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

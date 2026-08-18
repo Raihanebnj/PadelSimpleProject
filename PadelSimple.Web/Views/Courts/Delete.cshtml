@@ -1,13 +1,43 @@
-﻿@model PadelSimple.Models.Domain.Court
+@model PadelSimple.Models.Domain.Terrein
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Delete court";
+    ViewData["Title"] = "Terrein Verwijderen";
 }
 
-<h1>Delete court</h1>
-<p>Ben je zeker dat je <b>@Model.Name</b> wil verwijderen?</p>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow border-danger border-2">
+            <div class="card-header bg-danger text-white py-3">
+                <h4 class="mb-0 fw-bold">⚠️ Terrein Verwijderen</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">Weet u zeker dat u dit terrein wilt verwijderen (soft-delete)?</p>
+                <dl class="row">
+                    <dt class="col-sm-4">Naam:</dt>
+                    <dd class="col-sm-8 fw-bold text-success">@Model.Naam</dd>
 
-<form method="post">
-    @Html.AntiForgeryToken()
-    <button class="btn btn-danger" type="submit">Delete</button>
-    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
-</form>
+                    <dt class="col-sm-4">Capaciteit:</dt>
+                    <dd class="col-sm-8">@Model.Capaciteit spelers</dd>
+
+                    <dt class="col-sm-4">Uurtarief:</dt>
+                    <dd class="col-sm-8">€ @Model.Uurtarief.ToString("F2")</dd>
+
+                    <dt class="col-sm-4">Overdekt:</dt>
+                    <dd class="col-sm-8">@(Model.IsIndoors ? "Ja" : "Nee")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-danger btn-lg">🗑️ Bevestig Verwijdering</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

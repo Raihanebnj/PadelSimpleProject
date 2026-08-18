@@ -1,62 +1,132 @@
-﻿@model PadelSimple.Web.ViewModels.ReservationEditVm
+@model PadelSimple.Web.ViewModels.ReservationEditVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Nieuwe reservatie";
+    ViewData["Title"] = "Nieuwe Reservatie";
 }
 
-<h1>Nieuwe reservatie</h1>
+<div class="row justify-content-center mt-3">
+    <div class="col-md-8">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0 fw-bold">➕ Nieuwe Padelreservatie</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post" id="reservationForm">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<div class="text-danger">
-    @Html.ValidationSummary()
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Date" class="form-label fw-semibold">Datum</label>
+                            <input asp-for="Date" type="date" class="form-control" id="inputDatum" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CourtId" class="form-label fw-semibold">Padelterrein</label>
+                            <select asp-for="CourtId" asp-items="Model.Courts" class="form-select" id="selectTerrein">
+                                <option value="">-- Kies een terrein --</option>
+                            </select>
+                            <span asp-validation-for="CourtId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Live AJAX Bezette Tijdslots Preview Badge Box -->
+                    <div class="mb-3 p-3 bg-light border rounded" id="ajaxBezetBox" style="display: none;">
+                        <h6 class="fw-bold text-success mb-2">⚡ Reeds gereserveerde tijdslots op dit terrein (Live AJAX):</h6>
+                        <div id="bezetTijdslotsContainer" class="d-flex flex-wrap gap-2">
+                            <span class="text-muted">Laden...</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="StartTime" class="form-label fw-semibold">Starttijd (bv. 10:00)</label>
+                            <input asp-for="StartTime" class="form-control" placeholder="10:00" />
+                            <span asp-validation-for="StartTime" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="EndTime" class="form-label fw-semibold">Eindtijd (bv. 11:00)</label>
+                            <input asp-for="EndTime" class="form-control" placeholder="11:00" />
+                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="NumberOfPlayers" class="form-label fw-semibold">Aantal Spelers</label>
+                            <input asp-for="NumberOfPlayers" type="number" min="1" max="8" class="form-control" />
+                            <span asp-validation-for="NumberOfPlayers" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <h5 class="fw-bold text-success mb-3">🎾 Optioneel Materiaal Huren</h5>
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label asp-for="EquipmentId" class="form-label fw-semibold">Materiaal</label>
+                            <select asp-for="EquipmentId" asp-items="Model.Equipment" class="form-select">
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="EquipmentQuantity" class="form-label fw-semibold">Aantal stuks</label>
+                            <input asp-for="EquipmentQuantity" type="number" min="0" max="20" class="form-control" />
+                            <span asp-validation-for="EquipmentQuantity" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary btn-lg">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-success btn-lg shadow-sm">💾 Reservatie Opslaan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-
-<form method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="mb-2">
-        <label class="form-label">Datum</label>
-        <input class="form-control" asp-for="Date" type="date" />
-        <span class="text-danger" asp-validation-for="Date"></span>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Start (bv 18:00)</label>
-        <input class="form-control" asp-for="StartTime" />
-        <span class="text-danger" asp-validation-for="StartTime"></span>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Einde (bv 19:00)</label>
-        <input class="form-control" asp-for="EndTime" />
-        <span class="text-danger" asp-validation-for="EndTime"></span>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Terrein</label>
-        <select class="form-select" asp-for="CourtId" asp-items="Model.Courts"></select>
-        <span class="text-danger" asp-validation-for="CourtId"></span>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Materiaal</label>
-        <select class="form-select" asp-for="EquipmentId" asp-items="Model.Equipment"></select>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Aantal materiaal</label>
-        <input class="form-control" asp-for="EquipmentQuantity" type="number" min="0" />
-        <span class="text-danger" asp-validation-for="EquipmentQuantity"></span>
-    </div>
-
-    <div class="mb-2">
-        <label class="form-label">Aantal spelers</label>
-        <input class="form-control" asp-for="NumberOfPlayers" type="number" min="1" max="12" />
-        <span class="text-danger" asp-validation-for="NumberOfPlayers"></span>
-    </div>
-
-    <button class="btn btn-primary" type="submit">Opslaan</button>
-    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
-</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // AJAX: Haal live bezette tijdslots op wanneer terrein of datum verandert (zonder herladen!)
+        async function laadBezetteTijdslots() {
+            const terreinId = document.getElementById('selectTerrein').value;
+            const datum = document.getElementById('inputDatum').value;
+            const box = document.getElementById('ajaxBezetBox');
+            const container = document.getElementById('bezetTijdslotsContainer');
+
+            if (!terreinId || !datum) {
+                box.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Reservations/GetBezetteTijdslots?terreinId=${terreinId}&datum=${datum}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    box.style.display = 'block';
+                    container.innerHTML = '';
+
+                    if (data.bezet.length === 0) {
+                        container.innerHTML = '<span class="badge bg-success p-2">✓ Dit terrein is nog de hele dag volledig vrij!</span>';
+                    } else {
+                        data.bezet.forEach(slot => {
+                            container.innerHTML += `<span class="badge bg-danger p-2">🔒 ${slot.start} - ${slot.einde} (Gereserveerd)</span>`;
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('AJAX fout:', err);
+            }
+        }
+
+        document.getElementById('selectTerrein').addEventListener('change', laadBezetteTijdslots);
+        document.getElementById('inputDatum').addEventListener('change', laadBezetteTijdslots);
+
+        // Voer 1x uit bij laden als er al een terain geselecteerd is
+        if (document.getElementById('selectTerrein').value) {
+            laadBezetteTijdslots();
+        }
+    </script>
 }

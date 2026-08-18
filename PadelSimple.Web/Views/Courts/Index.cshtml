@@ -1,100 +1,104 @@
-﻿@model PadelSimple.Web.ViewModels.Courts.CourtsIndexVm
+@model PadelSimple.Web.ViewModels.Courts.CourtsIndexVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Terreinen";
+    ViewData["Title"] = Localizer["Nav_Terreinen"];
+    var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
 }
 
-<h2 class="mb-3">Terreinen</h2>
-
-<form method="get" class="row g-2 align-items-end mb-4">
-    <div class="col-md-3">
-        <label class="form-label">Datum</label>
-        <input type="date"
-               name="date"
-               class="form-control"
-               value="@Model.Date.ToString("yyyy-MM-dd")" />
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-success mb-1">🏟️ Padelterreinen</h2>
+        <p class="text-muted mb-0">Overzicht en beschikbaarheidscontrole van alle terreinen</p>
     </div>
+    @if (isBeheerder)
+    {
+        <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
+            ➕ Nieuw Terrein
+        </a>
+    }
+</div>
 
-    <div class="col-md-2">
-        <label class="form-label">Start (bv 18:00)</label>
-        <input type="text"
-               name="start"
-               class="form-control"
-               value="@Model.Start"
-               placeholder="18:00" />
+<!-- Availability Filter Bar -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Datum</label>
+                <input type="date" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Starttijd (bv. 18:00)</label>
+                <input type="text" name="start" value="@Model.Start" placeholder="18:00" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Eindtijd (bv. 19:00)</label>
+                <input type="text" name="end" value="@Model.End" placeholder="19:00" class="form-control" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success w-100 fw-bold">🔍 Check Beschikbaarheid</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="col-md-2">
-        <label class="form-label">Einde (bv 19:00)</label>
-        <input type="text"
-               name="end"
-               class="form-control"
-               value="@Model.End"
-               placeholder="19:00" />
-    </div>
+<!-- Cards Grid -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var court in Model.Courts)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold text-success mb-0">@court.Name</h5>
+                        @if (court.IsIndoor)
+                        {
+                            <span class="badge bg-info text-dark">Overdekt (Indoors)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Openlucht</span>
+                        }
+                    </div>
 
-    <div class="col-md-2">
-        <button class="btn btn-primary w-100" type="submit">
-            Filter
-        </button>
-    </div>
+                    <p class="text-muted small mb-2">Capaciteit: <strong>@court.Capacity spelers</strong></p>
+                    <p class="fs-5 fw-bold text-success mb-3">€ @court.Uurtarief.ToString("F2") <small class="text-muted fs-6">/ uur</small></p>
 
-   
-</form>
+                    <div class="p-3 bg-light rounded text-center mb-3">
+                        @if (court.IsAvailable)
+                        {
+                            <span class="badge bg-success p-2 fs-6">✓ Vrij op gekozen tijdstip</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger p-2 fs-6">🔒 Bezet</span>
+                            @if (!string.IsNullOrEmpty(court.FreeFrom))
+                            {
+                                <div class="small text-muted mt-1">Vrij vanaf: <strong>@court.FreeFrom</strong></div>
+                            }
+                        }
+                    </div>
+                </div>
 
-<table class="table table-striped align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>Naam</th>
-            <th>Capaciteit</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Vrij vanaf</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var c in Model.Courts)
-        {
-            <tr>
-                <td>@c.Name</td>
-                <td>@c.Capacity</td>
-                <td>
-                    @if (c.IsIndoor)
+                <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between">
+                    <a asp-controller="Reservations" asp-action="Create" class="btn btn-sm btn-outline-success fw-bold">
+                        📅 Reserveer
+                    </a>
+                    @if (isBeheerder)
                     {
-                        <span class="badge bg-info text-dark">Indoor</span>
+                        <div class="btn-group btn-group-sm">
+                            <a asp-action="Edit" asp-route-id="@court.Id" class="btn btn-outline-secondary">✏️ Bewerken</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@court.Id" class="btn btn-outline-danger">🗑️</a>
+                            }
+                        </div>
                     }
-                    else
-                    {
-                        <span class="badge bg-secondary">Outdoor</span>
-                    }
-                </td>
-                <td>
-                    @if (c.IsAvailable)
-                    {
-                        <span class="badge bg-success">Vrij</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger">Bezet</span>
-                    }
-                </td>
-                <td>
-                    @if (c.IsAvailable)
-                    {
-                        <span class="text-muted">—</span>
-                    }
-                    else
-                    {
-                        <strong>@(c.FreeFrom ?? "Onbekend")</strong>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!Model.Courts.Any())
-{
-    <div class="alert alert-info">
-        Geen terreinen gevonden voor deze selectie.
-    </div>
-}
+                </div>
+            </div>
+        </div>
+    }
+</div>

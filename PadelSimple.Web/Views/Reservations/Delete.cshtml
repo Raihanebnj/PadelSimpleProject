@@ -1,21 +1,46 @@
-﻿@model PadelSimple.Models.Domain.Reservation
+@model PadelSimple.Models.Domain.Reservation
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "Delete reservatie";
+    ViewData["Title"] = "Reservatie Annuleren";
 }
 
-<h1>Delete reservatie</h1>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow border-danger border-2">
+            <div class="card-header bg-danger text-white py-3">
+                <h4 class="mb-0 fw-bold">⚠️ Reservatie Annuleren</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">Weet u zeker dat u onderstaande reservatie wilt annuleren?</p>
+                <dl class="row">
+                    <dt class="col-sm-4">Datum:</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.Datum.ToString("dd/MM/yyyy")</dd>
 
-<p>Ben je zeker?</p>
+                    <dt class="col-sm-4">Tijdslot:</dt>
+                    <dd class="col-sm-8">@Model.StartUur.ToString(@"hh\:mm") - @Model.EindUur.ToString(@"hh\:mm")</dd>
 
-<ul>
-    <li>Datum: @Model.Date.ToString("dd/MM/yyyy")</li>
-    <li>Court: @Model.Court?.Name</li>
-    <li>Start: @Model.StartTime</li>
-    <li>Einde: @Model.EndTime</li>
-</ul>
+                    <dt class="col-sm-4">Terrein:</dt>
+                    <dd class="col-sm-8 text-success fw-bold">@Model.Terrein?.Naam</dd>
 
-<form method="post">
-    @Html.AntiForgeryToken()
-    <button class="btn btn-danger" type="submit">Delete</button>
-    <a class="btn btn-secondary" asp-action="Index">Annuleren</a>
-</form>
+                    <dt class="col-sm-4">Materiaal:</dt>
+                    <dd class="col-sm-8">@Model.MateriaalSamenvatting</dd>
+
+                    <dt class="col-sm-4">Totale Prijs:</dt>
+                    <dd class="col-sm-8 fw-bold text-success">€ @Model.TotalePrijs.ToString("F2")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-danger btn-lg">🗑️ Bevestig Annulering</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+@model PadelSimple.Models.Domain.Materiaal
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = "Materiaal Verwijderen";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow border-danger border-2">
+            <div class="card-header bg-danger text-white py-3">
+                <h4 class="mb-0 fw-bold">⚠️ Materiaal Verwijderen</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">Weet u zeker dat u dit materiaal wilt verwijderen (soft-delete)?</p>
+                <dl class="row">
+                    <dt class="col-sm-4">Naam:</dt>
+                    <dd class="col-sm-8 fw-bold text-success">@Model.Naam</dd>
+
+                    <dt class="col-sm-4">Totaal in stock:</dt>
+                    <dd class="col-sm-8">@Model.AantalInInventaris stuks</dd>
+
+                    <dt class="col-sm-4">Huurprijs:</dt>
+                    <dd class="col-sm-8">€ @Model.Huurprijs.ToString("F2")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-danger btn-lg">🗑️ Bevestig Verwijdering</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

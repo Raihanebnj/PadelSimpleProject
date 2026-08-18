@@ -1,11 +1,13 @@
-﻿@* Views/Shared/_Layout.cshtml *@
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Localization
 @using PadelSimple.Models.Identity
+@using PadelSimple.Web.Resources
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
+@inject IStringLocalizer<SharedResources> Localizer
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="@System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,9 +18,11 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success border-bottom shadow-sm mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">PadelSimple</a>
+                <a class="navbar-brand fw-bold fs-4" asp-controller="Home" asp-action="Index">
+                    PadelSimple
+                </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                         aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,60 +32,70 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
                         </li>
 
-                        @* Zichtbaar voor ingelogde users *@
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Reservations" asp-action="Index">Reservaties</a>
+                                <a class="nav-link" asp-controller="Reservations" asp-action="Index">@Localizer["Nav_Reservaties"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Courts" asp-action="Index">Terreinen</a>
+                                <a class="nav-link" asp-controller="Courts" asp-action="Index">@Localizer["Nav_Terreinen"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Equipment" asp-action="Index">Materiaal</a>
+                                <a class="nav-link" asp-controller="Equipment" asp-action="Index">@Localizer["Nav_Materiaal"]</a>
                             </li>
                         }
 
-                        @* Admin menu: alleen Users hier (Courts/Equipment staan al boven voor alle users) *@
-                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        @* Admin & Medewerker menu *@
+                        @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Medewerker")))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="adminDrop" role="button"
                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    Beheer
+                                    @Localizer["Nav_Beheer"]
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="adminDrop">
+                                <ul class="dropdown-menu shadow" aria-labelledby="adminDrop">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Users" asp-action="Index">Gebruikers</a>
+                                        <a class="dropdown-item" asp-controller="Gebruikers" asp-action="Index">@Localizer["Nav_Gebruikers"]</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Courts" asp-action="Create">@Localizer["Btn_Toevoegen"] Terrein</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Equipment" asp-action="Create">@Localizer["Btn_Toevoegen"] Materiaal</a>
                                     </li>
                                 </ul>
                             </li>
                         }
                     </ul>
 
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @* Taalkeuze menu partial *@
+                        @await Html.PartialAsync("_LanguagePartial")
+
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <li class="nav-item">
-                                <span class="navbar-text me-2">@User.Identity!.Name</span>
+                            <li class="nav-item ms-2">
+                                <a class="nav-link text-light font-weight-bold" asp-controller="Account" asp-action="Profiel">
+                                    👤 @User.Identity!.Name
+                                </a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item ms-2">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                                    <button class="btn btn-outline-light btn-sm" type="submit">@Localizer["Nav_Afmelden"]</button>
                                 </form>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="btn btn-outline-light btn-sm me-2" asp-controller="Account" asp-action="Login">Login</a>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-outline-light btn-sm me-2" asp-controller="Account" asp-action="Login">@Localizer["Nav_Aanmelden"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-light btn-sm" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="btn btn-light btn-sm text-success fw-bold" asp-controller="Account" asp-action="Register">@Localizer["Nav_Registreren"]</a>
                             </li>
                         }
                     </ul>
@@ -91,19 +105,17 @@
     </header>
 
     <div class="container">
-
-        @* TempData messages *@
         @if (TempData["Success"] is string okMsg)
         {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @okMsg
+            <div class="alert alert-success alert-dismissible fade show shadow-sm mb-3" role="alert">
+                ✅ @okMsg
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
         @if (TempData["Error"] is string errMsg)
         {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @errMsg
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+                ⚠️ @errMsg
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
@@ -113,18 +125,15 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-4">
-        <div class="container py-3">
-            &copy; @DateTime.Now.Year - PadelSimple
+    <footer class="border-top footer text-muted mt-5 bg-white py-3">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - <strong>PadelSimple</strong> - Club &amp; Reservatiebeheer
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @* BELANGRIJK: nodig voor views met @section Scripts *@
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

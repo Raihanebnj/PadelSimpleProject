@@ -6,6 +6,7 @@ namespace PadelSimple.Desktop.Services;
 
 /// <summary>
 /// Service voor alle CRUD-operaties op terreinen, materialen en reservaties.
+/// Bevat strikte voorraad- en overlapvalidatie en ondersteunt meerdere materialen per reservatie.
 /// Gebruikt zowel LINQ Query Syntax als LINQ Method Syntax (vereiste opdracht).
 /// </summary>
 public class DataService
@@ -31,7 +32,6 @@ public class DataService
             .ToListAsync();
     }
 
-    /// <summary>Alias voor GetTerreinen – compatibiliteit met bestaande code.</summary>
     public Task<List<Terrein>> GetCourtsAsync() => GetTerreinen();
 
     public async Task<Terrein?> GetTerreinByIdAsync(int id)
@@ -43,27 +43,20 @@ public class DataService
     public async Task SlaTerreinOpAsync(Terrein terrein)
     {
         using var db = _contextFactory.CreateDbContext();
-        try
+        if (terrein.Id == 0)
         {
-            if (terrein.Id == 0)
-            {
-                db.Terreinen.Add(terrein);
-            }
-            else
-            {
-                var bestaand = await db.Terreinen.FirstOrDefaultAsync(t => t.Id == terrein.Id);
-                if (bestaand == null) return;
-                bestaand.Naam = terrein.Naam;
-                bestaand.Capaciteit = terrein.Capaciteit;
-                bestaand.IsIndoors = terrein.IsIndoors;
-                bestaand.Uurtarief = terrein.Uurtarief;
-            }
-            await db.SaveChangesAsync();
+            db.Terreinen.Add(terrein);
         }
-        catch
+        else
         {
-            throw;
+            var bestaand = await db.Terreinen.FirstOrDefaultAsync(t => t.Id == terrein.Id);
+            if (bestaand == null) return;
+            bestaand.Naam = terrein.Naam;
+            bestaand.Capaciteit = terrein.Capaciteit;
+            bestaand.IsIndoors = terrein.IsIndoors;
+            bestaand.Uurtarief = terrein.Uurtarief;
         }
+        await db.SaveChangesAsync();
     }
 
     public async Task SaveCourtAsync(Terrein terrein) => await SlaTerreinOpAsync(terrein);
@@ -109,7 +102,7 @@ public class DataService
     {
         using var db = _contextFactory.CreateDbContext();
 
-        // LINQ Query Syntax (vereist in opdracht)
+        // LINQ Query Syntax
         var query = from m in db.Materialen
                     where m.IsActief && !m.IsDeleted
                     orderby m.Naam
@@ -118,7 +111,6 @@ public class DataService
         return await query.ToListAsync();
     }
 
-    /// <summary>Alias voor GetMaterialen – compatibiliteit.</summary>
     public Task<List<Materiaal>> GetEquipmentAsync() => GetMaterialen();
 
     public async Task<Materiaal?> GetMateriaalByIdAsync(int id)
@@ -130,27 +122,20 @@ public class DataService
     public async Task SlaMateriaalOpAsync(Materiaal materiaal)
     {
         using var db = _contextFactory.CreateDbContext();
-        try
+        if (materiaal.Id == 0)
         {
-            if (materiaal.Id == 0)
-            {
-                db.Materialen.Add(materiaal);
-            }
-            else
-            {
-                var bestaand = await db.Materialen.FirstOrDefaultAsync(m => m.Id == materiaal.Id);
-                if (bestaand == null) return;
-                bestaand.Naam = materiaal.Naam;
-                bestaand.AantalInInventaris = materiaal.AantalInInventaris;
-                bestaand.Huurprijs = materiaal.Huurprijs;
-                bestaand.IsActief = materiaal.IsActief;
-            }
-            await db.SaveChangesAsync();
+            db.Materialen.Add(materiaal);
         }
-        catch
+        else
         {
-            throw;
+            var bestaand = await db.Materialen.FirstOrDefaultAsync(m => m.Id == materiaal.Id);
+            if (bestaand == null) return;
+            bestaand.Naam = materiaal.Naam;
+            bestaand.AantalInInventaris = materiaal.AantalInInventaris;
+            bestaand.Huurprijs = materiaal.Huurprijs;
+            bestaand.IsActief = materiaal.IsActief;
         }
+        await db.SaveChangesAsync();
     }
 
     public async Task SaveEquipmentAsync(Materiaal mat) => await SlaMateriaalOpAsync(mat);
@@ -192,18 +177,19 @@ public class DataService
     // ================================================================
 
     /// <summary>
-    /// Haalt reservaties op, optioneel gefilterd op datum.
-    /// Combineert LINQ Method Syntax en sortering in geheugen (TimeSpan-beperking).
+    /// Haalt reservaties op inclusief terrein, materialen en gebruiker.
     /// </summary>
     public async Task<List<Reservation>> GetReservaties(DateTime? voorDatum = null)
     {
         using var db = _contextFactory.CreateDbContext();
 
-        // LINQ Method Syntax (vereiste opdracht)
+        // LINQ Method Syntax
         var query = db.Reservaties
             .Include(r => r.Terrein)
             .Include(r => r.Materiaal)
             .Include(r => r.User)
+            .Include(r => r.ReservationMaterialen)
+                .ThenInclude(rm => rm.Materiaal)
             .AsQueryable();
 
         if (voorDatum.HasValue)
@@ -211,49 +197,65 @@ public class DataService
 
         var lijst = await query.ToListAsync();
 
-        // In-memory sortering omdat TimeSpan niet door SQLite vertaald wordt
         return lijst
             .OrderBy(r => r.Datum)
             .ThenBy(r => r.StartUur)
             .ToList();
     }
 
-    /// <summary>Alias voor achterwaartse compatibiliteit.</summary>
     public Task<List<Reservation>> GetReservationsAsync(DateTime? forDate = null)
         => GetReservaties(forDate);
 
-    public async Task MaakReservatieAanAsync(Reservation reservatie)
+    /// <summary>
+    /// Maakt een nieuwe reservatie aan met strikte terrein-overlap en materiaal-voorraadcontrole.
+    /// </summary>
+    public async Task MaakReservatieAanAsync(Reservation reservatie, List<(int MateriaalId, int Aantal)> gekozenMaterialen)
     {
         using var db = _contextFactory.CreateDbContext();
         using var tx = await db.Database.BeginTransactionAsync();
         try
         {
-            // Overlap-check: haal dezelfde-dag-reservaties voor dit terrein op (LINQ Query Syntax)
+            // 1. Check terrein overlap op dezelfde datum (LINQ Query Syntax)
             var zelfdeTerreinReservaties =
                 (from r in db.Reservaties
                  where r.TerreinId == reservatie.TerreinId
                     && r.Datum.Date == reservatie.Datum.Date
+                    && !r.IsDeleted
                  select r).ToList();
 
-            bool overlap = zelfdeTerreinReservaties.Any(r =>
+            bool terreinOverlap = zelfdeTerreinReservaties.Any(r =>
                 r.StartUur < reservatie.EindUur &&
                 reservatie.StartUur < r.EindUur);
 
-            if (overlap)
-                throw new InvalidOperationException(
-                    "Er bestaat al een reservatie voor dit terrein en tijdslot.");
+            if (terreinOverlap)
+                throw new InvalidOperationException("Er bestaat al een reservatie voor dit terrein en tijdslot.");
 
-            // Bereken totale prijs
+            // 2. Strikte materiaalvoorraad- en overlapcontrole
+            await ValideerMateriaalStockAsync(db, reservatie, gekozenMaterialen);
+
+            // 3. Bereken totale prijs
             var terrein = await db.Terreinen.FindAsync(reservatie.TerreinId)
                 ?? throw new InvalidOperationException("Terrein niet gevonden.");
             var duur = (decimal)(reservatie.EindUur - reservatie.StartUur).TotalHours;
             reservatie.TotalePrijs = terrein.Uurtarief * duur;
 
-            if (reservatie.MateriaalId.HasValue && reservatie.AantalMateriaal > 0)
+            // Voeg gekozen materialen toe aan reservatie
+            reservatie.ReservationMaterialen.Clear();
+            foreach (var (matId, aantal) in gekozenMaterialen)
             {
-                var mat = await db.Materialen.FindAsync(reservatie.MateriaalId.Value)
-                    ?? throw new InvalidOperationException("Materiaal niet gevonden.");
-                reservatie.TotalePrijs += mat.Huurprijs * reservatie.AantalMateriaal;
+                if (aantal > 0)
+                {
+                    var mat = await db.Materialen.FindAsync(matId);
+                    if (mat != null)
+                    {
+                        reservatie.TotalePrijs += mat.Huurprijs * aantal;
+                        reservatie.ReservationMaterialen.Add(new ReservationMateriaal
+                        {
+                            MateriaalId = matId,
+                            Aantal = aantal
+                        });
+                    }
+                }
             }
 
             db.Reservaties.Add(reservatie);
@@ -267,44 +269,131 @@ public class DataService
         }
     }
 
-    public Task CreateReservationAsync(Reservation r) => MaakReservatieAanAsync(r);
-
-    public async Task WijzigReservatieAsync(Reservation reservatie)
+    public async Task WijzigReservatieAsync(Reservation reservatie, List<(int MateriaalId, int Aantal)> gekozenMaterialen)
     {
         using var db = _contextFactory.CreateDbContext();
+        using var tx = await db.Database.BeginTransactionAsync();
         try
         {
-            var bestaand = await db.Reservaties.FindAsync(reservatie.Id);
-            if (bestaand == null) return;
+            var bestaand = await db.Reservaties
+                .Include(r => r.ReservationMaterialen)
+                .FirstOrDefaultAsync(r => r.Id == reservatie.Id);
+            if (bestaand == null) throw new InvalidOperationException("Reservatie niet gevonden.");
+
+            // 1. Check terrein overlap
+            var zelfdeTerreinReservaties = await db.Reservaties
+                .Where(r => r.Id != reservatie.Id
+                         && r.TerreinId == reservatie.TerreinId
+                         && r.Datum.Date == reservatie.Datum.Date
+                         && !r.IsDeleted)
+                .ToListAsync();
+
+            bool terreinOverlap = zelfdeTerreinReservaties.Any(r =>
+                r.StartUur < reservatie.EindUur && reservatie.StartUur < r.EindUur);
+
+            if (terreinOverlap)
+                throw new InvalidOperationException("Er bestaat al een reservatie voor dit terrein op dit tijdslot.");
+
+            // 2. Materialen valideer stock
+            await ValideerMateriaalStockAsync(db, reservatie, gekozenMaterialen);
 
             bestaand.TerreinId = reservatie.TerreinId;
-            bestaand.MateriaalId = reservatie.MateriaalId;
-            bestaand.AantalMateriaal = reservatie.AantalMateriaal;
             bestaand.Datum = reservatie.Datum;
             bestaand.StartUur = reservatie.StartUur;
             bestaand.EindUur = reservatie.EindUur;
             bestaand.AantalSpelers = reservatie.AantalSpelers;
 
-            // Herbereken prijs
-            var terrein = await db.Terreinen.FindAsync(reservatie.TerreinId);
-            if (terrein != null)
-            {
-                var duur = (decimal)(reservatie.EindUur - reservatie.StartUur).TotalHours;
-                bestaand.TotalePrijs = terrein.Uurtarief * duur;
+            // Verwijder oude koppelingen
+            db.ReservationMaterialen.RemoveRange(bestaand.ReservationMaterialen);
 
-                if (reservatie.MateriaalId.HasValue && reservatie.AantalMateriaal > 0)
+            // Herbereken prijs en voeg nieuwe gekozen materialen toe
+            var terrein = await db.Terreinen.FindAsync(reservatie.TerreinId);
+            var duur = (decimal)(reservatie.EindUur - reservatie.StartUur).TotalHours;
+            bestaand.TotalePrijs = (terrein?.Uurtarief ?? 0m) * duur;
+
+            foreach (var (matId, aantal) in gekozenMaterialen)
+            {
+                if (aantal > 0)
                 {
-                    var mat = await db.Materialen.FindAsync(reservatie.MateriaalId.Value);
+                    var mat = await db.Materialen.FindAsync(matId);
                     if (mat != null)
-                        bestaand.TotalePrijs += mat.Huurprijs * reservatie.AantalMateriaal;
+                    {
+                        bestaand.TotalePrijs += mat.Huurprijs * aantal;
+                        bestaand.ReservationMaterialen.Add(new ReservationMateriaal
+                        {
+                            ReservationId = bestaand.Id,
+                            MateriaalId = matId,
+                            Aantal = aantal
+                        });
+                    }
                 }
             }
 
             await db.SaveChangesAsync();
+            await tx.CommitAsync();
         }
         catch
         {
+            await tx.RollbackAsync();
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Strikte controle op materiaalvoorraad (zowel totale inventaris als tijds-overlap).
+    /// </summary>
+    private async Task ValideerMateriaalStockAsync(AppDbContext db, Reservation reservatie, List<(int MateriaalId, int Aantal)> gekozenMaterialen)
+    {
+        foreach (var (matId, gevraagdAantal) in gekozenMaterialen)
+        {
+            if (gevraagdAantal <= 0) continue;
+
+            var mat = await db.Materialen.FindAsync(matId)
+                ?? throw new InvalidOperationException("Materiaal niet gevonden.");
+
+            // A) Controleer of gevraagd aantal de totale inventaris overschrijdt
+            if (gevraagdAantal > mat.AantalInInventaris)
+            {
+                throw new InvalidOperationException(
+                    $"Niet genoeg voorraad van '{mat.Naam}'.\n" +
+                    $"Totale inventaris: {mat.AantalInInventaris} stuks, gevraagd: {gevraagdAantal} stuks.");
+            }
+
+            // B) Controleer overlappende reservaties op dezelfde datum & tijdslot
+            var overlappendeReservaties = await db.Reservaties
+                .Include(r => r.ReservationMaterialen)
+                .Where(r => r.Id != reservatie.Id
+                         && r.Datum.Date == reservatie.Datum.Date
+                         && !r.IsDeleted)
+                .ToListAsync();
+
+            // Filter op tijdsoverlap
+            var inTijdsOverlap = overlappendeReservaties.Where(r =>
+                r.StartUur < reservatie.EindUur && reservatie.StartUur < r.EindUur).ToList();
+
+            int alGereserveerd = 0;
+            foreach (var r in inTijdsOverlap)
+            {
+                if (r.ReservationMaterialen != null && r.ReservationMaterialen.Count > 0)
+                {
+                    alGereserveerd += r.ReservationMaterialen
+                        .Where(rm => rm.MateriaalId == matId)
+                        .Sum(rm => rm.Aantal);
+                }
+                else if (r.MateriaalId == matId)
+                {
+                    alGereserveerd += r.AantalMateriaal;
+                }
+            }
+
+            if (alGereserveerd + gevraagdAantal > mat.AantalInInventaris)
+            {
+                int nogBeschikbaar = Math.Max(0, mat.AantalInInventaris - alGereserveerd);
+                throw new InvalidOperationException(
+                    $"Onvoldoende voorraad van '{mat.Naam}' op het gekozen tijdstip ({reservatie.StartUur:hh\\:mm} - {reservatie.EindUur:hh\\:mm}).\n" +
+                    $"Reeds gereserveerd op dit tijdstip: {alGereserveerd} van de {mat.AantalInInventaris}.\n" +
+                    $"Nog beschikbaar op dit tijdstip: {nogBeschikbaar}, gevraagd: {gevraagdAantal}.");
+            }
         }
     }
 
@@ -320,21 +409,30 @@ public class DataService
 
     public Task SoftDeleteReservationAsync(int id) => SoftDeleteReservatieAsync(id);
 
+    /// <summary>
+    /// Haalt enkel de reservaties op van een specifieke gebruiker (LINQ Query Syntax).
+    /// </summary>
     public async Task<List<Reservation>> GetReservatiesVanGebruiker(string userId)
     {
         using var db = _contextFactory.CreateDbContext();
 
-        // LINQ Query Syntax (vereiste opdracht)
+        // LINQ Query Syntax (server-side filtering)
         var query = from r in db.Reservaties
-                    where r.UserId == userId
-                    orderby r.Datum descending, r.StartUur
+                    where r.UserId == userId && !r.IsDeleted
+                    orderby r.Datum descending
                     select r;
 
         var lijst = await query
             .Include(r => r.Terrein)
             .Include(r => r.Materiaal)
+            .Include(r => r.ReservationMaterialen)
+                .ThenInclude(rm => rm.Materiaal)
             .ToListAsync();
 
-        return lijst;
+        // Client-side in-memory sortering op TimeSpan (voorkomt SQLite TimeSpan ORDER BY beperking)
+        return lijst
+            .OrderByDescending(r => r.Datum)
+            .ThenBy(r => r.StartUur)
+            .ToList();
     }
 }

@@ -3,59 +3,75 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
-using Equipment = PadelSimple.Models.Domain.Materiaal;
 
 namespace PadelSimple.Web.Controllers.Api;
 
+/// <summary>
+/// RESTful API controller voor het beheren van materiaal.
+/// </summary>
 [ApiController]
-[Route("api/equipment")]
+[Route("api/materiaal")]
+[Authorize(AuthenticationSchemes = "Bearer,Identity.Application")]
 public class EquipmentApiController : ControllerBase
 {
     private readonly AppDbContext _db;
     public EquipmentApiController(AppDbContext db) => _db = db;
 
-    [HttpGet, Authorize]
-    public async Task<ActionResult<List<Equipment>>> GetAll()
-        => await _db.Equipment.OrderBy(e => e.Name).ToListAsync();
+    /// <summary>GET /api/materiaal: Ophalen van al het actieve materiaal</summary>
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<Materiaal>>> GetAll()
+        => await _db.Materialen.Where(m => !m.IsDeleted).OrderBy(m => m.Naam).ToListAsync();
 
-    [HttpGet("{id:int}"), Authorize]
-    public async Task<ActionResult<Equipment>> Get(int id)
+    /// <summary>GET /api/materiaal/{id}: Ophalen van specifiek materiaal</summary>
+    [HttpGet("{id:int}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<Materiaal>> Get(int id)
     {
-        var e = await _db.Equipment.FindAsync(id);
-        return e == null ? NotFound() : Ok(e);
+        var m = await _db.Materialen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        return m == null ? NotFound(new { message = "Materiaal niet gevonden." }) : Ok(m);
     }
 
-    [HttpPost, Authorize(Roles = "Admin,Staff")]
-    public async Task<IActionResult> Create(Equipment model)
+    /// <summary>POST /api/materiaal: Nieuw materiaal toevoegen (Admin, Medewerker)</summary>
+    [HttpPost]
+    [Authorize(Roles = "Admin,Medewerker")]
+    public async Task<IActionResult> Create([FromBody] Materiaal model)
     {
-        model.AvailableQuantity = Math.Min(model.AvailableQuantity, model.TotalQuantity);
-        _db.Equipment.Add(model);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        model.AvailableQuantity = Math.Min(model.AvailableQuantity, model.AantalInInventaris);
+        _db.Materialen.Add(model);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
     }
 
-    [HttpPut("{id:int}"), Authorize(Roles = "Admin,Staff")]
-    public async Task<IActionResult> Update(int id, Equipment model)
+    /// <summary>PUT /api/materiaal/{id}: Materiaal bijwerken (Admin, Medewerker)</summary>
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Medewerker")]
+    public async Task<IActionResult> Update(int id, [FromBody] Materiaal model)
     {
-        if (id != model.Id) return BadRequest();
+        if (id != model.Id) return BadRequest(new { message = "ID mismatch." });
 
-        var existing = await _db.Equipment.FindAsync(id);
-        if (existing == null) return NotFound();
+        var existing = await _db.Materialen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        if (existing == null) return NotFound(new { message = "Materiaal niet gevonden." });
 
-        existing.Name = model.Name;
-        existing.TotalQuantity = model.TotalQuantity;
-        existing.AvailableQuantity = Math.Min(model.AvailableQuantity, model.TotalQuantity);
-        existing.IsActive = model.IsActive;
+        existing.Naam = model.Naam;
+        existing.AantalInInventaris = model.AantalInInventaris;
+        existing.AvailableQuantity = Math.Min(model.AvailableQuantity, model.AantalInInventaris);
+        existing.Huurprijs = model.Huurprijs;
+        existing.IsActief = model.IsActief;
 
         await _db.SaveChangesAsync();
         return NoContent();
     }
 
-    [HttpDelete("{id:int}"), Authorize(Roles = "Admin")]
+    /// <summary>DELETE /api/materiaal/{id}: Materiaal soft-deleten (Admin)</summary>
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var existing = await _db.Equipment.FindAsync(id);
-        if (existing == null) return NotFound();
+        var existing = await _db.Materialen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        if (existing == null) return NotFound(new { message = "Materiaal niet gevonden." });
 
         existing.IsDeleted = true;
         existing.DeletedAt = DateTime.UtcNow;

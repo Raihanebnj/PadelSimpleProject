@@ -19,7 +19,6 @@
         <Border DockPanel.Dock="Top" Background="#1B5E20" Padding="12,8">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <TextBlock Text="🏓" FontSize="22" Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <TextBlock Text="PadelSimple" FontSize="18" FontWeight="Bold"
                                Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -43,20 +42,20 @@
         <TabControl x:Name="MainTabControl">
 
             <!-- ========================= TAB: RESERVATIES ========================= -->
-            <TabItem Header="📅  Reservaties">
+            <TabItem Header="Reservaties">
                 <DockPanel Margin="12">
 
                     <!-- Toolbar -->
                     <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock Text="Datum:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
                         <DatePicker SelectedDate="{Binding SelectedDate}" Width="140" Margin="0,0,10,0"/>
-                        <Button Content="🔄  Laad" Command="{Binding LoadReservationsCommand}" Margin="0,0,6,0"/>
-                        <Button Content="➕  Nieuwe Reservatie" Command="{Binding NewReservationCommand}" Margin="0,0,6,0"/>
-                        <Button Content="✏️  Bewerken"
+                        <Button Content="Laad" Command="{Binding LoadReservationsCommand}" Margin="0,0,6,0"/>
+                        <Button Content="Nieuwe Reservatie" Command="{Binding NewReservationCommand}" Margin="0,0,6,0"/>
+                        <Button Content="Bewerken"
                                 Command="{Binding EditReservationCommand}"
                                 Style="{StaticResource SecondaryButton}"
                                 Margin="0,0,6,0"/>
-                        <Button Content="🗑️  Verwijderen"
+                        <Button Content="Verwijderen"
                                 Command="{Binding DeleteReservationCommand}"
                                 Style="{StaticResource DangerButton}"/>
                     </WrapPanel>
@@ -78,19 +77,16 @@
                                                Width="70"/>
                             <DataGridTextColumn Header="Terrein"
                                                Binding="{Binding Terrein.Naam}"
-                                               Width="180"/>
+                                               Width="160"/>
                             <DataGridTextColumn Header="Spelers"
                                                Binding="{Binding AantalSpelers}"
-                                               Width="60"/>
-                            <DataGridTextColumn Header="Materiaal"
-                                               Binding="{Binding Materiaal.Naam}"
-                                               Width="130"/>
-                            <DataGridTextColumn Header="Aantal"
-                                               Binding="{Binding AantalMateriaal}"
-                                               Width="60"/>
+                                               Width="55"/>
+                            <DataGridTextColumn Header="Gehuurd Materiaal"
+                                               Binding="{Binding MateriaalSamenvatting}"
+                                               Width="200"/>
                             <DataGridTextColumn Header="Totaal"
                                                Binding="{Binding TotalePrijs, StringFormat='€ {0:F2}'}"
-                                               Width="80"/>
+                                               Width="85"/>
                             <DataGridTextColumn Header="Gebruiker"
                                                Binding="{Binding User.Email}"
                                                Width="*"/>
@@ -99,27 +95,24 @@
                 </DockPanel>
             </TabItem>
 
-            <!-- ========================= TAB: MIJN RESERVATIES (Klant) ========================= -->
-            <TabItem Header="👤  Mijn Account">
+            <!-- ========================= TAB: MIJN RESERVATIES ========================= -->
+            <TabItem Header="Mijn Account">
                 <DockPanel Margin="12">
                     <Border DockPanel.Dock="Top" Background="White" CornerRadius="8"
                             Padding="16" Margin="0,0,0,12">
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.15"/>
                         </Border.Effect>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="👤" FontSize="32" Margin="0,0,12,0"/>
-                            <StackPanel>
-                                <TextBlock Text="{Binding WelkomTekst}" FontSize="16" FontWeight="Bold"
-                                           Foreground="#1B5E20"/>
-                                <TextBlock Text="Hieronder ziet u uw recente reservaties."
-                                           Foreground="#78909C"/>
-                            </StackPanel>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding WelkomTekst}" FontSize="16" FontWeight="Bold"
+                                       Foreground="#1B5E20"/>
+                            <TextBlock Text="Hieronder ziet u enkel uw eigen reservaties."
+                                       Foreground="#78909C"/>
                         </StackPanel>
                     </Border>
 
-                    <DataGrid ItemsSource="{Binding Reservations}"
-                              SelectedItem="{Binding SelectedReservation}"
+                    <DataGrid ItemsSource="{Binding MyReservations}"
+                              SelectedItem="{Binding SelectedMyReservation}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True">
                         <DataGrid.Columns>
@@ -128,23 +121,26 @@
                                                Width="100"/>
                             <DataGridTextColumn Header="Terrein"
                                                Binding="{Binding Terrein.Naam}"
-                                               Width="*"/>
+                                               Width="180"/>
                             <DataGridTextColumn Header="Start"
                                                Binding="{Binding StartUur, StringFormat='{}{0:hh\\:mm}'}"
                                                Width="70"/>
                             <DataGridTextColumn Header="Einde"
                                                Binding="{Binding EindUur, StringFormat='{}{0:hh\\:mm}'}"
                                                Width="70"/>
+                            <DataGridTextColumn Header="Gehuurd Materiaal"
+                                               Binding="{Binding MateriaalSamenvatting}"
+                                               Width="*"/>
                             <DataGridTextColumn Header="Prijs"
                                                Binding="{Binding TotalePrijs, StringFormat='€ {0:F2}'}"
-                                               Width="80"/>
+                                               Width="85"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
             </TabItem>
 
             <!-- ========================= TAB: ADMIN BEHEER ========================= -->
-            <TabItem Header="⚙️  Beheer"
+            <TabItem Header="Beheer"
                      Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}">
                 <Grid Margin="8">
                     <Grid.ColumnDefinitions>
@@ -154,12 +150,12 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- ===== Terreinen ===== -->
-                    <GroupBox Header="🏟️  Terreinen" Grid.Column="0">
+                    <GroupBox Header="Terreinen" Grid.Column="0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
-                                <Button Content="➕ Nieuw" Command="{Binding NewCourtCommand}" Margin="0,0,4,0"/>
-                                <Button Content="💾 Opslaan" Command="{Binding SaveCourtCommand}" Margin="0,0,4,0"/>
-                                <Button Content="🗑️ Verwijder" Command="{Binding DeleteCourtCommand}"
+                                <Button Content="Nieuw" Command="{Binding NewCourtCommand}" Margin="0,0,4,0"/>
+                                <Button Content="Opslaan" Command="{Binding SaveCourtCommand}" Margin="0,0,4,0"/>
+                                <Button Content="Verwijder" Command="{Binding DeleteCourtCommand}"
                                         Style="{StaticResource DangerButton}"/>
                             </StackPanel>
 
@@ -179,12 +175,12 @@
                     </GroupBox>
 
                     <!-- ===== Materialen ===== -->
-                    <GroupBox Header="🎾  Materialen" Grid.Column="1">
+                    <GroupBox Header="Materialen" Grid.Column="1">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
-                                <Button Content="➕ Nieuw" Command="{Binding NewEquipmentCommand}" Margin="0,0,4,0"/>
-                                <Button Content="💾 Opslaan" Command="{Binding SaveEquipmentCommand}" Margin="0,0,4,0"/>
-                                <Button Content="🗑️ Verwijder" Command="{Binding DeleteEquipmentCommand}"
+                                <Button Content="Nieuw" Command="{Binding NewEquipmentCommand}" Margin="0,0,4,0"/>
+                                <Button Content="Opslaan" Command="{Binding SaveEquipmentCommand}" Margin="0,0,4,0"/>
+                                <Button Content="Verwijder" Command="{Binding DeleteEquipmentCommand}"
                                         Style="{StaticResource DangerButton}"/>
                             </StackPanel>
 
@@ -204,7 +200,7 @@
                     </GroupBox>
 
                     <!-- ===== Gebruikers ===== -->
-                    <GroupBox Header="👥  Gebruikers" Grid.Column="2">
+                    <GroupBox Header="Gebruikers" Grid.Column="2">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
                                 <Button Content="Maak Admin" Command="{Binding MakeAdminCommand}" HorizontalAlignment="Stretch" Margin="0,2"/>

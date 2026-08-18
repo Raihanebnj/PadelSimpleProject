@@ -56,7 +56,7 @@
                     Style="{StaticResource SecondaryButton}"
                     IsCancel="True"
                     Click="Cancel_Click"/>
-            <Button Content="💾 Opslaan" Width="100"
+            <Button Content="Opslaan" Width="100"
                     IsDefault="True"
                     Click="Opslaan_Click"/>
         </StackPanel>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Navigatie -->
+  <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav_Reservaties" xml:space="preserve"><value>Reservaties</value></data>
+  <data name="Nav_Terreinen" xml:space="preserve"><value>Terreinen</value></data>
+  <data name="Nav_Materiaal" xml:space="preserve"><value>Materiaal</value></data>
+  <data name="Nav_Beheer" xml:space="preserve"><value>Beheer</value></data>
+  <data name="Nav_Gebruikers" xml:space="preserve"><value>Gebruikers</value></data>
+  <data name="Nav_Aanmelden" xml:space="preserve"><value>Aanmelden</value></data>
+  <data name="Nav_Registreren" xml:space="preserve"><value>Registreren</value></data>
+  <data name="Nav_Afmelden" xml:space="preserve"><value>Afmelden</value></data>
+  <data name="Nav_MijnProfiel" xml:space="preserve"><value>Mijn Profiel</value></data>
+
+  <!-- Algemeen -->
+  <data name="Btn_Opslaan" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="Btn_Annuleren" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Btn_Verwijderen" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Btn_Bewerken" xml:space="preserve"><value>Bewerken</value></data>
+  <data name="Btn_Toevoegen" xml:space="preserve"><value>Toevoegen</value></data>
+  <data name="Btn_Zoeken" xml:space="preserve"><value>Zoeken</value></data>
+  <data name="Btn_Filteren" xml:space="preserve"><value>Filteren</value></data>
+  <data name="Lbl_Acties" xml:space="preserve"><value>Acties</value></data>
+  <data name="Lbl_Details" xml:space="preserve"><value>Details</value></data>
+
+  <!-- Foutmeldingen -->
+  <data name="Fout_OngeldigeLogin" xml:space="preserve"><value>Ongeldig e-mailadres of wachtwoord.</value></data>
+  <data name="Fout_AccountGeblokkeerd" xml:space="preserve"><value>Uw account is geblokkeerd. Contacteer de beheerder.</value></data>
+  <data name="Fout_EmailBestaatAl" xml:space="preserve"><value>Dit e-mailadres is al in gebruik.</value></data>
+  <data name="Fout_TerreinOverlap" xml:space="preserve"><value>Er bestaat al een reservatie voor dit terrein en tijdslot.</value></data>
+  <data name="Fout_NietGenoegStock" xml:space="preserve"><value>Niet genoeg materiaal beschikbaar in voorraad.</value></data>
+  <data name="Fout_OngeldigeTijd" xml:space="preserve"><value>Ongeldig tijdstip. Gebruik het formaat UU:MM (bv. 10:00).</value></data>
+  <data name="Fout_EindNaStart" xml:space="preserve"><value>De eindtijd moet na de starttijd liggen.</value></data>
+
+  <!-- Succesmeldingen -->
+  <data name="OK_ReservatieAangemaakt" xml:space="preserve"><value>Reservatie succesvol aangemaakt.</value></data>
+  <data name="OK_ReservatieVerwijderd" xml:space="preserve"><value>Reservatie succesvol verwijderd.</value></data>
+  <data name="OK_TerreinOpgeslagen" xml:space="preserve"><value>Terrein succesvol opgeslagen.</value></data>
+  <data name="OK_MateriaalOpgeslagen" xml:space="preserve"><value>Materiaal succesvol opgeslagen.</value></data>
+  <data name="OK_GebruikerGeblokkeerd" xml:space="preserve"><value>Gebruiker geblokkeerd.</value></data>
+  <data name="OK_GebruikerGedeblokkeerd" xml:space="preserve"><value>Gebruiker gedeblokkeerd.</value></data>
+  <data name="OK_RolToegevoegd" xml:space="preserve"><value>Rol succesvol toegewezen.</value></data>
+  <data name="OK_RolVerwijderd" xml:space="preserve"><value>Rol succesvol verwijderd.</value></data>
+
+  <!-- Reservaties -->
+  <data name="Res_Datum" xml:space="preserve"><value>Datum</value></data>
+  <data name="Res_Starttijd" xml:space="preserve"><value>Starttijd</value></data>
+  <data name="Res_Eindtijd" xml:space="preserve"><value>Eindtijd</value></data>
+  <data name="Res_Terrein" xml:space="preserve"><value>Terrein</value></data>
+  <data name="Res_Materiaal" xml:space="preserve"><value>Materiaal</value></data>
+  <data name="Res_AantalSpelers" xml:space="preserve"><value>Aantal spelers</value></data>
+  <data name="Res_TotalePrijs" xml:space="preserve"><value>Totale prijs</value></data>
+  <data name="Res_Klant" xml:space="preserve"><value>Klant</value></data>
+
+  <!-- Gebruikers -->
+  <data name="Geb_Voornaam" xml:space="preserve"><value>Voornaam</value></data>
+  <data name="Geb_Achternaam" xml:space="preserve"><value>Achternaam</value></data>
+  <data name="Geb_Email" xml:space="preserve"><value>E-mailadres</value></data>
+  <data name="Geb_Telefoon" xml:space="preserve"><value>Telefoonnummer</value></data>
+  <data name="Geb_IsLid" xml:space="preserve"><value>Lid</value></data>
+  <data name="Geb_IsGeblokkeerd" xml:space="preserve"><value>Geblokkeerd</value></data>
+  <data name="Geb_Rollen" xml:space="preserve"><value>Rollen</value></data>
+</root>

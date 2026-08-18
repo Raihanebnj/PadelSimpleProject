@@ -3,57 +3,74 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
-using Court = PadelSimple.Models.Domain.Terrein;
 
 namespace PadelSimple.Web.Controllers.Api;
 
+/// <summary>
+/// RESTful API controller voor het beheren van terreinen.
+/// Ondersteunt JWT Bearer authenticatie en sessie cookies.
+/// </summary>
 [ApiController]
-[Route("api/courts")]
+[Route("api/terreinen")]
+[Authorize(AuthenticationSchemes = "Bearer,Identity.Application")]
 public class CourtsApiController : ControllerBase
 {
     private readonly AppDbContext _db;
     public CourtsApiController(AppDbContext db) => _db = db;
 
-    [HttpGet, Authorize]
-    public async Task<ActionResult<List<Court>>> GetAll()
-        => await _db.Courts.OrderBy(c => c.Name).ToListAsync();
+    /// <summary>GET /api/terreinen: Ophalen van alle actieve terreinen</summary>
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<Terrein>>> GetAll()
+        => await _db.Terreinen.Where(t => !t.IsDeleted).OrderBy(t => t.Naam).ToListAsync();
 
-    [HttpGet("{id:int}"), Authorize]
-    public async Task<ActionResult<Court>> Get(int id)
+    /// <summary>GET /api/terreinen/{id}: Ophalen van specifiek terrein</summary>
+    [HttpGet("{id:int}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<Terrein>> Get(int id)
     {
-        var c = await _db.Courts.FindAsync(id);
-        return c == null ? NotFound() : Ok(c);
+        var t = await _db.Terreinen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        return t == null ? NotFound(new { message = "Terrein niet gevonden." }) : Ok(t);
     }
 
-    [HttpPost, Authorize(Roles = "Admin,Staff")]
-    public async Task<IActionResult> Create(Court model)
+    /// <summary>POST /api/terreinen: Nieuw terrein toevoegen (Admin, Medewerker)</summary>
+    [HttpPost]
+    [Authorize(Roles = "Admin,Medewerker")]
+    public async Task<IActionResult> Create([FromBody] Terrein model)
     {
-        _db.Courts.Add(model);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        _db.Terreinen.Add(model);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
     }
 
-    [HttpPut("{id:int}"), Authorize(Roles = "Admin,Staff")]
-    public async Task<IActionResult> Update(int id, Court model)
+    /// <summary>PUT /api/terreinen/{id}: Terrein bijwerken (Admin, Medewerker)</summary>
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Medewerker")]
+    public async Task<IActionResult> Update(int id, [FromBody] Terrein model)
     {
-        if (id != model.Id) return BadRequest();
+        if (id != model.Id) return BadRequest(new { message = "ID mismatch." });
 
-        var existing = await _db.Courts.FindAsync(id);
-        if (existing == null) return NotFound();
+        var existing = await _db.Terreinen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        if (existing == null) return NotFound(new { message = "Terrein niet gevonden." });
 
-        existing.Name = model.Name;
-        existing.Capacity = model.Capacity;
-        existing.IsIndoor = model.IsIndoor;
+        existing.Naam = model.Naam;
+        existing.Capaciteit = model.Capaciteit;
+        existing.IsIndoors = model.IsIndoors;
+        existing.Uurtarief = model.Uurtarief;
 
         await _db.SaveChangesAsync();
         return NoContent();
     }
 
-    [HttpDelete("{id:int}"), Authorize(Roles = "Admin")]
+    /// <summary>DELETE /api/terreinen/{id}: Terrein soft-deleten (Admin)</summary>
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var existing = await _db.Courts.FindAsync(id);
-        if (existing == null) return NotFound();
+        var existing = await _db.Terreinen.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        if (existing == null) return NotFound(new { message = "Terrein niet gevonden." });
 
         existing.IsDeleted = true;
         existing.DeletedAt = DateTime.UtcNow;

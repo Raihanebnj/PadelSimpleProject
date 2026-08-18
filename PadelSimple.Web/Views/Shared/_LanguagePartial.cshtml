@@ -1,0 +1,44 @@
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    var huidigeTaal = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
+    var terugUrl = Context.Request.Path + Context.Request.QueryString;
+}
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle text-light" href="#" id="taalDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        🌐 @huidigeTaal.ToUpper()
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="taalDropdown">
+        <li>
+            <form asp-controller="Account" asp-action="WisselTaal" method="post">
+                <input type="hidden" name="taal" value="nl" />
+                <input type="hidden" name="terugUrl" value="@terugUrl" />
+                <button type="submit" class="dropdown-item @(huidigeTaal == "nl" ? "active fw-bold" : "")">
+                    🇳🇱 Nederlands
+                </button>
+            </form>
+        </li>
+        <li>
+            <form asp-controller="Account" asp-action="WisselTaal" method="post">
+                <input type="hidden" name="taal" value="en" />
+                <input type="hidden" name="terugUrl" value="@terugUrl" />
+                <button type="submit" class="dropdown-item @(huidigeTaal == "en" ? "active fw-bold" : "")">
+                    🇬🇧 English
+                </button>
+            </form>
+        </li>
+        <li>
+            <form asp-controller="Account" asp-action="WisselTaal" method="post">
+                <input type="hidden" name="taal" value="fr" />
+                <input type="hidden" name="terugUrl" value="@terugUrl" />
+                <button type="submit" class="dropdown-item @(huidigeTaal == "fr" ? "active fw-bold" : "")">
+                    🇫🇷 Français
+                </button>
+            </form>
+        </li>
+    </ul>
+</li>
