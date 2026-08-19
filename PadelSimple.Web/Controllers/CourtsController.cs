@@ -102,11 +102,11 @@ public class CourtsController : Controller
 
     // ==================== TOEVOEGEN (Admin / Medewerker) ====================
 
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public IActionResult Create() => View(new TerreinEditVm());
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TerreinEditVm vm)
     {
@@ -130,7 +130,7 @@ public class CourtsController : Controller
 
     // ==================== BEWERKEN (Admin / Medewerker) ====================
 
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var terrein = await _db.Terreinen.FindAsync(id);
@@ -149,7 +149,7 @@ public class CourtsController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(TerreinEditVm vm)
     {

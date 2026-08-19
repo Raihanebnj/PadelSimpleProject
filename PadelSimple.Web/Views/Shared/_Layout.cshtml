@@ -48,8 +48,8 @@
                             </li>
                         }
 
-                        @* Admin & Medewerker menu *@
-                        @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Medewerker")))
+                        @* Admin menu *@
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="adminDrop" role="button"
@@ -61,10 +61,10 @@
                                         <a class="dropdown-item" asp-controller="Gebruikers" asp-action="Index">@Localizer["Nav_Gebruikers"]</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Courts" asp-action="Create">@Localizer["Btn_Toevoegen"] Terrein</a>
+                                        <a class="dropdown-item" asp-controller="Courts" asp-action="Create">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Terreinen"]</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Equipment" asp-action="Create">@Localizer["Btn_Toevoegen"] Materiaal</a>
+                                        <a class="dropdown-item" asp-controller="Equipment" asp-action="Create">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Materiaal"]</a>
                                     </li>
                                 </ul>
                             </li>
@@ -127,7 +127,7 @@
 
     <footer class="border-top footer text-muted mt-5 bg-white py-3">
         <div class="container text-center">
-            &copy; @DateTime.Now.Year - <strong>PadelSimple</strong> - Club &amp; Reservatiebeheer
+            &copy; @DateTime.Now.Year - <strong>PadelSimple</strong> - @Localizer["Footer_Rechten"]
         </div>
     </footer>
 

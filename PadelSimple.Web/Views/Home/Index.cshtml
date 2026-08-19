@@ -3,63 +3,24 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Welkom bij PadelSimple";
+    ViewData["Title"] = Localizer["Home_Titel"];
 }
 
-<div class="p-5 mb-4 bg-success text-white rounded-3 shadow">
-    <div class="container-fluid py-3 text-center">
-        <h1 class="display-4 fw-bold">🎾 Welkom bij PadelSimple</h1>
-        <p class="fs-4 col-md-10 mx-auto">
-            Het eenvoudigste beheersysteem voor padelclubs, reservaties, terreinen en materiaalverhuur.
-        </p>
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a asp-controller="Reservations" asp-action="Create" class="btn btn-light btn-lg text-success fw-bold shadow-sm">
-                📅 Nu Terreinen Reserveren
-            </a>
-            <a asp-controller="Courts" asp-action="Index" class="btn btn-outline-light btn-lg">
-                🏟️ Bekijk Onze Terreinen
-            </a>
-        </div>
-    </div>
-</div>
+<div class="py-5 text-center">
+    <h1 class="display-4 fw-bold text-success mb-3">@Localizer["Home_Titel"]</h1>
+    <p class="lead text-muted col-md-8 mx-auto mb-4">
+        @Localizer["Home_Subtitel"]
+    </p>
 
-<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
-            <div class="fs-1 mb-2">🏟️</div>
-            <h4 class="fw-bold text-success">Padelterreinen</h4>
-            <p class="text-muted">
-                Reserveer snel zowel overdekte (indoors) als buitenbanen met transparante uurtarieven.
-            </p>
-            <div class="mt-auto">
-                <a asp-controller="Courts" asp-action="Index" class="btn btn-outline-success">Bekijk Terreinen</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
-            <div class="fs-1 mb-2">🎾</div>
-            <h4 class="fw-bold text-success">Materiaal Huren</h4>
-            <p class="text-muted">
-                Huur kwalitatieve padelrackets, ballensets en veiligheidsbrillen rechtstreeks bij uw reservatie.
-            </p>
-            <div class="mt-auto">
-                <a asp-controller="Equipment" asp-action="Index" class="btn btn-outline-success">Bekijk Materiaal</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100 shadow-sm border-0 rounded-3 text-center p-4">
-            <div class="fs-1 mb-2">🌐</div>
-            <h4 class="fw-bold text-success">RESTful API</h4>
-            <p class="text-muted">
-                Volledig geïntegreerde REST API voor mobiele apps en externe applicaties met JWT Bearer tokens.
-            </p>
-            <div class="mt-auto">
-                <span class="badge bg-success p-2">JSON / JWT Ready</span>
-            </div>
-        </div>
+    <div class="d-flex justify-content-center gap-3">
+        <a asp-controller="Reservations" asp-action="Create" class="btn btn-success btn-lg shadow-sm">
+            @Localizer["Home_TerreinReserveren"]
+        </a>
+        <a asp-controller="Courts" asp-action="Index" class="btn btn-outline-success btn-lg">
+            @Localizer["Home_TerreinenBekijken"]
+        </a>
+        <a asp-controller="Equipment" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            @Localizer["Home_MateriaalBekijken"]
+        </a>
     </div>
 </div>

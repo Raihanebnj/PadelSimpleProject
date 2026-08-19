@@ -4,14 +4,14 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Nieuwe Reservatie";
+    ViewData["Title"] = Localizer["Res_NieuweAanmaken"];
 }
 
 <div class="row justify-content-center mt-3">
     <div class="col-md-8">
         <div class="card shadow border-0 rounded-3">
             <div class="card-header bg-success text-white py-3">
-                <h4 class="mb-0 fw-bold">➕ Nieuwe Padelreservatie</h4>
+                <h4 class="mb-0 fw-bold">@Localizer["Res_NieuweAanmaken"]</h4>
             </div>
             <div class="card-body p-4">
                 <form asp-action="Create" method="post" id="reservationForm">
@@ -20,14 +20,14 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Date" class="form-label fw-semibold">Datum</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Datum"]</label>
                             <input asp-for="Date" type="date" class="form-control" id="inputDatum" />
                             <span asp-validation-for="Date" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="CourtId" class="form-label fw-semibold">Padelterrein</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Terrein"]</label>
                             <select asp-for="CourtId" asp-items="Model.Courts" class="form-select" id="selectTerrein">
-                                <option value="">-- Kies een terrein --</option>
+                                <option value="">-- @Localizer["Res_SelecteerTerrein"] --</option>
                             </select>
                             <span asp-validation-for="CourtId" class="text-danger"></span>
                         </div>
@@ -35,25 +35,25 @@
 
                     <!-- Live AJAX Bezette Tijdslots Preview Badge Box -->
                     <div class="mb-3 p-3 bg-light border rounded" id="ajaxBezetBox" style="display: none;">
-                        <h6 class="fw-bold text-success mb-2">⚡ Reeds gereserveerde tijdslots op dit terrein (Live AJAX):</h6>
+                        <h6 class="fw-bold text-success mb-2">⚡ Live AJAX:</h6>
                         <div id="bezetTijdslotsContainer" class="d-flex flex-wrap gap-2">
-                            <span class="text-muted">Laden...</span>
+                            <span class="text-muted">...</span>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label asp-for="StartTime" class="form-label fw-semibold">Starttijd (bv. 10:00)</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Starttijd"] (bv. 10:00)</label>
                             <input asp-for="StartTime" class="form-control" placeholder="10:00" />
                             <span asp-validation-for="StartTime" class="text-danger"></span>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label asp-for="EndTime" class="form-label fw-semibold">Eindtijd (bv. 11:00)</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Eindtijd"] (bv. 11:00)</label>
                             <input asp-for="EndTime" class="form-control" placeholder="11:00" />
                             <span asp-validation-for="EndTime" class="text-danger"></span>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label asp-for="NumberOfPlayers" class="form-label fw-semibold">Aantal Spelers</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_AantalSpelers"]</label>
                             <input asp-for="NumberOfPlayers" type="number" min="1" max="8" class="form-control" />
                             <span asp-validation-for="NumberOfPlayers" class="text-danger"></span>
                         </div>
@@ -61,23 +61,23 @@
 
                     <hr class="my-3" />
 
-                    <h5 class="fw-bold text-success mb-3">🎾 Optioneel Materiaal Huren</h5>
+                    <h5 class="fw-bold text-success mb-3">@Localizer["Res_SelecteerMateriaal"]</h5>
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label asp-for="EquipmentId" class="form-label fw-semibold">Materiaal</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Materiaal"]</label>
                             <select asp-for="EquipmentId" asp-items="Model.Equipment" class="form-select">
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label asp-for="EquipmentQuantity" class="form-label fw-semibold">Aantal stuks</label>
+                            <label class="form-label fw-semibold">@Localizer["Res_Aantal"]</label>
                             <input asp-for="EquipmentQuantity" type="number" min="0" max="20" class="form-control" />
                             <span asp-validation-for="EquipmentQuantity" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-secondary btn-lg">@Localizer["Btn_Annuleren"]</a>
-                        <button type="submit" class="btn btn-success btn-lg shadow-sm">💾 Reservatie Opslaan</button>
+                        <a asp-action="Index" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-success shadow-sm">@Localizer["Btn_Opslaan"]</button>
                     </div>
                 </form>
             </div>
@@ -88,7 +88,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // AJAX: Haal live bezette tijdslots op wanneer terrein of datum verandert (zonder herladen!)
         async function laadBezetteTijdslots() {
             const terreinId = document.getElementById('selectTerrein').value;
             const datum = document.getElementById('inputDatum').value;
@@ -109,22 +108,21 @@
                     container.innerHTML = '';
 
                     if (data.bezet.length === 0) {
-                        container.innerHTML = '<span class="badge bg-success p-2">✓ Dit terrein is nog de hele dag volledig vrij!</span>';
+                        container.innerHTML = '<span class="badge bg-success p-2">✓ Vrij</span>';
                     } else {
                         data.bezet.forEach(slot => {
-                            container.innerHTML += `<span class="badge bg-danger p-2">🔒 ${slot.start} - ${slot.einde} (Gereserveerd)</span>`;
+                            container.innerHTML += `<span class="badge bg-danger p-2">🔒 ${slot.start} - ${slot.einde}</span>`;
                         });
                     }
                 }
             } catch (err) {
-                console.error('AJAX fout:', err);
+                console.error('AJAX error:', err);
             }
         }
 
         document.getElementById('selectTerrein').addEventListener('change', laadBezetteTijdslots);
         document.getElementById('inputDatum').addEventListener('change', laadBezetteTijdslots);
 
-        // Voer 1x uit bij laden als er al een terain geselecteerd is
         if (document.getElementById('selectTerrein').value) {
             laadBezetteTijdslots();
         }

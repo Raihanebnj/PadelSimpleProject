@@ -4,14 +4,14 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = Localizer["Nav_MijnProfiel"];
+    ViewData["Title"] = Localizer["Acc_ProfielTitel"];
 }
 
 <div class="row justify-content-center mt-3">
     <div class="col-md-6">
         <div class="card shadow border-0 rounded-3">
             <div class="card-header bg-success text-white py-3">
-                <h4 class="mb-0 fw-bold">👤 @Localizer["Nav_MijnProfiel"]</h4>
+                <h4 class="mb-0 fw-bold">@Localizer["Acc_ProfielTitel"]</h4>
             </div>
             <div class="card-body p-4">
                 <form asp-action="Profiel" method="post">
@@ -19,40 +19,39 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <label class="form-label fw-semibold">@Localizer["Geb_Email"]</label>
                         <input asp-for="Email" class="form-control" readonly disabled />
-                        <div class="form-text">E-mailadres kan niet worden gewijzigd.</div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Voornaam" class="form-label fw-semibold"></label>
+                            <label class="form-label fw-semibold">@Localizer["Geb_Voornaam"]</label>
                             <input asp-for="Voornaam" class="form-control" />
                             <span asp-validation-for="Voornaam" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Achternaam" class="form-label fw-semibold"></label>
+                            <label class="form-label fw-semibold">@Localizer["Geb_Achternaam"]</label>
                             <input asp-for="Achternaam" class="form-control" />
                             <span asp-validation-for="Achternaam" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Telefoon" class="form-label fw-semibold"></label>
+                        <label class="form-label fw-semibold">@Localizer["Geb_Telefoon"]</label>
                         <input asp-for="Telefoon" class="form-control" />
                         <span asp-validation-for="Telefoon" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Status Lidmaatschap</label>
+                        <label class="form-label fw-semibold">@Localizer["Geb_IsLid"]</label>
                         <div>
                             @if (Model.IsLid)
                             {
-                                <span class="badge bg-success p-2">✓ Betalend Lid</span>
+                                <span class="badge bg-success p-2">✓ @Localizer["Geb_IsLid"]</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary p-2">Geen actief lidmaatschap</span>
+                                <span class="badge bg-secondary p-2">–</span>
                             }
                         </div>
                     </div>

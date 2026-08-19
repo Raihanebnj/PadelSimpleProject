@@ -4,19 +4,19 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = Localizer["Nav_Materiaal"];
+    ViewData["Title"] = Localizer["Eq_Titel"];
     var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-success mb-1">🎾 Materiaalinventaris</h2>
-        <p class="text-muted mb-0">Overzicht van al het verhuurbare padelmateriaal</p>
+        <h2 class="fw-bold text-success mb-1">@Localizer["Eq_Titel"]</h2>
+        <p class="text-muted mb-0">@Localizer["Eq_Subtitel"]</p>
     </div>
     @if (isBeheerder)
     {
         <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
-            ➕ Nieuw Materiaal
+            + @Localizer["Eq_Nieuw"]
         </a>
     }
 </div>
@@ -31,38 +31,37 @@
                         <h5 class="card-title fw-bold text-success mb-0">@item.Name</h5>
                         @if (item.IsActive)
                         {
-                            <span class="badge bg-success">Actief</span>
+                            <span class="badge bg-success">@Localizer["Geb_Actief"]</span>
                         }
                         else
                         {
-                            <span class="badge bg-secondary">Inactief</span>
+                            <span class="badge bg-secondary">@Localizer["Eq_NietBeschikbaar"]</span>
                         }
                     </div>
 
                     <p class="fs-5 fw-bold text-success mb-3">
-                        € @item.Huurprijs.ToString("F2") <small class="text-muted fs-6">/ stuk</small>
+                        € @item.Huurprijs.ToString("F2") <small class="text-muted fs-6">/ @Localizer["Res_Aantal"]</small>
                     </p>
 
                     <div class="p-3 bg-light rounded mb-3">
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Totaal in voorraad:</span>
-                            <strong id="totaal-@item.Id">@item.TotalQuantity stuks</strong>
+                            <span class="text-muted">@Localizer["Eq_AantalInVoorraad"]:</span>
+                            <strong id="totaal-@item.Id">@item.TotalQuantity</strong>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-muted">Momenteel beschikbaar:</span>
-                            <span class="badge bg-success fs-6" id="beschikbaar-@item.Id">@item.AvailableQuantity stuks</span>
+                            <span class="text-muted">@Localizer["Eq_Beschikbaar"]:</span>
+                            <span class="badge bg-success fs-6" id="beschikbaar-@item.Id">@item.AvailableQuantity</span>
                         </div>
                     </div>
 
-                    <!-- Live AJAX Quick Stock Adjustment (voor Admin & Medewerker) -->
                     @if (isBeheerder)
                     {
                         <div class="p-2 border rounded bg-white">
-                            <label class="form-label small fw-bold text-muted mb-1">⚡ Snel voorraad aanpassen (Live AJAX):</label>
+                            <label class="form-label small fw-bold text-muted mb-1">@Localizer["Eq_AantalInVoorraad"] (Live AJAX):</label>
                             <div class="input-group input-group-sm">
                                 <input type="number" id="input-stock-@item.Id" value="@item.TotalQuantity" min="0" class="form-control" />
                                 <button type="button" onclick="updateStockLive(@item.Id)" class="btn btn-outline-success font-weight-bold">
-                                    Update Stock
+                                    @Localizer["Btn_Opslaan"]
                                 </button>
                             </div>
                             <small class="text-success" id="msg-@item.Id" style="display:none;"></small>
@@ -74,10 +73,10 @@
                 {
                     <div class="card-footer bg-white border-0 pt-0 pb-3 text-end">
                         <div class="btn-group btn-group-sm">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">✏️ Bewerken</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">@Localizer["Btn_Bewerken"]</a>
                             @if (User.IsInRole("Admin"))
                             {
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">🗑️</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">@Localizer["Btn_Verwijderen"]</a>
                             }
                         </div>
                     </div>
@@ -89,7 +88,6 @@
 
 @section Scripts {
     <script>
-        // AJAX: live update van materiaalinventaris zonder pagina reload
         async function updateStockLive(id) {
             const nieuwAantal = document.getElementById(`input-stock-${id}`).value;
             const msgEl = document.getElementById(`msg-${id}`);
@@ -105,16 +103,16 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    document.getElementById(`totaal-${id}`).innerText = `${data.totaal} stuks`;
-                    document.getElementById(`beschikbaar-${id}`).innerText = `${data.beschikbaar} stuks`;
+                    document.getElementById(`totaal-${id}`).innerText = `${data.totaal}`;
+                    document.getElementById(`beschikbaar-${id}`).innerText = `${data.beschikbaar}`;
                     msgEl.style.display = 'block';
-                    msgEl.innerText = '✓ Voorraad live bijgewerkt!';
+                    msgEl.innerText = '✓ OK!';
                     setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
                 } else {
-                    alert(data.message || 'Fout bij bijwerken voorraad.');
+                    alert(data.message || 'Fout');
                 }
             } catch (err) {
-                console.error('AJAX fout:', err);
+                console.error('AJAX error:', err);
             }
         }
     </script>

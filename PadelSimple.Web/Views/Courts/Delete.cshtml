@@ -4,29 +4,29 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Terrein Verwijderen";
+    ViewData["Title"] = Localizer["Court_VerwijderenTitel"];
 }
 
 <div class="row justify-content-center mt-4">
     <div class="col-md-6">
         <div class="card shadow border-danger border-2">
             <div class="card-header bg-danger text-white py-3">
-                <h4 class="mb-0 fw-bold">⚠️ Terrein Verwijderen</h4>
+                <h4 class="mb-0 fw-bold">@Localizer["Court_VerwijderenTitel"]</h4>
             </div>
             <div class="card-body p-4">
-                <p class="lead">Weet u zeker dat u dit terrein wilt verwijderen (soft-delete)?</p>
+                <p class="lead">@Localizer["Court_VerwijderenBevestiging"]</p>
                 <dl class="row">
-                    <dt class="col-sm-4">Naam:</dt>
+                    <dt class="col-sm-4">@Localizer["Court_Naam"]:</dt>
                     <dd class="col-sm-8 fw-bold text-success">@Model.Naam</dd>
 
-                    <dt class="col-sm-4">Capaciteit:</dt>
-                    <dd class="col-sm-8">@Model.Capaciteit spelers</dd>
+                    <dt class="col-sm-4">@Localizer["Court_Capaciteit"]:</dt>
+                    <dd class="col-sm-8">@Model.Capaciteit @Localizer["Court_Spelers"]</dd>
 
-                    <dt class="col-sm-4">Uurtarief:</dt>
+                    <dt class="col-sm-4">@Localizer["Court_Uurtarief"]:</dt>
                     <dd class="col-sm-8">€ @Model.Uurtarief.ToString("F2")</dd>
 
-                    <dt class="col-sm-4">Overdekt:</dt>
-                    <dd class="col-sm-8">@(Model.IsIndoors ? "Ja" : "Nee")</dd>
+                    <dt class="col-sm-4">@Localizer["Court_Overdekt"]:</dt>
+                    <dd class="col-sm-8">@(Model.IsIndoors ? Localizer["Court_Overdekt"] : Localizer["Court_Openlucht"])</dd>
                 </dl>
 
                 <form asp-action="Delete" method="post" class="mt-4">
@@ -34,7 +34,7 @@
                     <input type="hidden" asp-for="Id" />
                     <div class="d-flex justify-content-between">
                         <a asp-action="Index" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
-                        <button type="submit" class="btn btn-danger btn-lg">🗑️ Bevestig Verwijdering</button>
+                        <button type="submit" class="btn btn-danger">@Localizer["Btn_Bevestigen"]</button>
                     </div>
                 </form>
             </div>

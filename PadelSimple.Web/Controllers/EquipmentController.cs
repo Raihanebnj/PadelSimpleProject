@@ -46,11 +46,11 @@ public class EquipmentController : Controller
 
     // ==================== TOEVOEGEN (Admin / Medewerker) ====================
 
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public IActionResult Create() => View(new MateriaalEditVm());
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(MateriaalEditVm vm)
     {
@@ -75,7 +75,7 @@ public class EquipmentController : Controller
 
     // ==================== BEWERKEN (Admin / Medewerker) ====================
 
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var mat = await _db.Materialen.FindAsync(id);
@@ -94,7 +94,7 @@ public class EquipmentController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(MateriaalEditVm vm)
     {
@@ -151,7 +151,7 @@ public class EquipmentController : Controller
     /// AJAX-call: past het aantal van een materiaal live aan (zonder herladen van de pagina).
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStockAsync(int id, int nieuwAantal)
     {
         if (nieuwAantal < 0)

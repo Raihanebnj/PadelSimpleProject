@@ -8,6 +8,7 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
 
+  <!-- Navigatie -->
   <data name="Nav_Home" xml:space="preserve"><value>Accueil</value></data>
   <data name="Nav_Reservaties" xml:space="preserve"><value>Réservations</value></data>
   <data name="Nav_Terreinen" xml:space="preserve"><value>Terrains</value></data>
@@ -19,6 +20,7 @@
   <data name="Nav_Afmelden" xml:space="preserve"><value>Se déconnecter</value></data>
   <data name="Nav_MijnProfiel" xml:space="preserve"><value>Mon profil</value></data>
 
+  <!-- Algemeen -->
   <data name="Btn_Opslaan" xml:space="preserve"><value>Enregistrer</value></data>
   <data name="Btn_Annuleren" xml:space="preserve"><value>Annuler</value></data>
   <data name="Btn_Verwijderen" xml:space="preserve"><value>Supprimer</value></data>
@@ -26,9 +28,96 @@
   <data name="Btn_Toevoegen" xml:space="preserve"><value>Ajouter</value></data>
   <data name="Btn_Zoeken" xml:space="preserve"><value>Rechercher</value></data>
   <data name="Btn_Filteren" xml:space="preserve"><value>Filtrer</value></data>
+  <data name="Btn_Terug" xml:space="preserve"><value>Retour à l'aperçu</value></data>
+  <data name="Btn_Bevestigen" xml:space="preserve"><value>Confirmer</value></data>
   <data name="Lbl_Acties" xml:space="preserve"><value>Actions</value></data>
   <data name="Lbl_Details" xml:space="preserve"><value>Détails</value></data>
+  <data name="Footer_Rechten" xml:space="preserve"><value>Gestion du club et des réservations</value></data>
 
+  <!-- Home -->
+  <data name="Home_Titel" xml:space="preserve"><value>Bienvenue sur PadelSimple</value></data>
+  <data name="Home_Subtitel" xml:space="preserve"><value>Gérez facilement vos réservations de padel, vos terrains et votre équipement.</value></data>
+  <data name="Home_TerreinenBekijken" xml:space="preserve"><value>Voir les Terrains</value></data>
+  <data name="Home_TerreinReserveren" xml:space="preserve"><value>Réserver un Terrain</value></data>
+  <data name="Home_MateriaalBekijken" xml:space="preserve"><value>Voir l'Équipement</value></data>
+
+  <!-- Terreinen -->
+  <data name="Court_Titel" xml:space="preserve"><value>Terrains de Padel</value></data>
+  <data name="Court_Subtitel" xml:space="preserve"><value>Aperçu et vérification de la disponibilité de tous les terrains</value></data>
+  <data name="Court_NieuwTerrein" xml:space="preserve"><value>Nouveau Terrain</value></data>
+  <data name="Court_Overdekt" xml:space="preserve"><value>Couverts (Indoors)</value></data>
+  <data name="Court_Openlucht" xml:space="preserve"><value>En plein air</value></data>
+  <data name="Court_Capaciteit" xml:space="preserve"><value>Capacité</value></data>
+  <data name="Court_Spelers" xml:space="preserve"><value>joueurs</value></data>
+  <data name="Court_PerUur" xml:space="preserve"><value>heure</value></data>
+  <data name="Court_Vrij" xml:space="preserve"><value>Disponible à l'heure choisie</value></data>
+  <data name="Court_Bezet" xml:space="preserve"><value>Occupé</value></data>
+  <data name="Court_VrijVanaf" xml:space="preserve"><value>Disponible à partir de</value></data>
+  <data name="Court_Reserveer" xml:space="preserve"><value>Réserver</value></data>
+  <data name="Court_CheckBeschikbaarheid" xml:space="preserve"><value>Vérifier la disponibilité</value></data>
+  <data name="Court_Reset" xml:space="preserve"><value>Réinitialiser</value></data>
+  <data name="Court_Naam" xml:space="preserve"><value>Nom</value></data>
+  <data name="Court_Uurtarief" xml:space="preserve"><value>Tarif horaire (€)</value></data>
+  <data name="Court_IsIndoor" xml:space="preserve"><value>Terrain couvert (Indoors)</value></data>
+  <data name="Court_BewerkenTitel" xml:space="preserve"><value>Modifier le Terrain</value></data>
+  <data name="Court_ToevoegenTitel" xml:space="preserve"><value>Ajouter un Nouveau Terrain</value></data>
+  <data name="Court_VerwijderenTitel" xml:space="preserve"><value>Supprimer le Terrain</value></data>
+  <data name="Court_VerwijderenBevestiging" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer ce terrain ?</value></data>
+
+  <!-- Materiaal -->
+  <data name="Eq_Titel" xml:space="preserve"><value>Équipement</value></data>
+  <data name="Eq_Subtitel" xml:space="preserve"><value>Aperçu du matériel disponible à la location</value></data>
+  <data name="Eq_Nieuw" xml:space="preserve"><value>Nouvel Équipement</value></data>
+  <data name="Eq_Naam" xml:space="preserve"><value>Nom</value></data>
+  <data name="Eq_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Eq_PrijsPerStuk" xml:space="preserve"><value>Prix par pièce (€)</value></data>
+  <data name="Eq_AantalInVoorraad" xml:space="preserve"><value>En stock</value></data>
+  <data name="Eq_Beschikbaar" xml:space="preserve"><value>Disponible</value></data>
+  <data name="Eq_NietBeschikbaar" xml:space="preserve"><value>Non disponible</value></data>
+  <data name="Eq_BewerkenTitel" xml:space="preserve"><value>Modifier l'Équipement</value></data>
+  <data name="Eq_ToevoegenTitel" xml:space="preserve"><value>Ajouter un Nouvel Équipement</value></data>
+  <data name="Eq_VerwijderenTitel" xml:space="preserve"><value>Supprimer l'Équipement</value></data>
+  <data name="Eq_VerwijderenBevestiging" xml:space="preserve"><value>Êtes-vous sûr de vouloir supprimer cet équipement ?</value></data>
+
+  <!-- Reservaties -->
+  <data name="Res_Titel" xml:space="preserve"><value>Réservations</value></data>
+  <data name="Res_Subtitel" xml:space="preserve"><value>Aperçu de toutes les réservations effectuées</value></data>
+  <data name="Res_Nieuw" xml:space="preserve"><value>Nouvelle Réservation</value></data>
+  <data name="Res_SelecteerTerrein" xml:space="preserve"><value>Sélectionner un terrain</value></data>
+  <data name="Res_SelecteerMateriaal" xml:space="preserve"><value>Équipement optionnel</value></data>
+  <data name="Res_Aantal" xml:space="preserve"><value>Quantité</value></data>
+  <data name="Res_VerwijderenTitel" xml:space="preserve"><value>Supprimer la Réservation</value></data>
+  <data name="Res_VerwijderenBevestiging" xml:space="preserve"><value>Êtes-vous sûr de vouloir annuler cette réservation ?</value></data>
+  <data name="Res_MijnReservaties" xml:space="preserve"><value>Mes Réservations</value></data>
+  <data name="Res_AlleReservaties" xml:space="preserve"><value>Toutes les Réservations</value></data>
+  <data name="Res_GeenReservaties" xml:space="preserve"><value>Aucune réservation trouvée.</value></data>
+  <data name="Res_NieuweAanmaken" xml:space="preserve"><value>Créer une Nouvelle Réservation</value></data>
+  <data name="Res_KlantSelecteren" xml:space="preserve"><value>Sélectionner le client (Admin)</value></data>
+  <data name="Res_BerekenPrijs" xml:space="preserve"><value>Calcul du prix total</value></data>
+
+  <!-- Gebruikers -->
+  <data name="Geb_Titel" xml:space="preserve"><value>Gestion des Utilisateurs</value></data>
+  <data name="Geb_Subtitel" xml:space="preserve"><value>Aperçu des utilisateurs inscrits et des rôles</value></data>
+  <data name="Geb_Blokkeren" xml:space="preserve"><value>Bloquer</value></data>
+  <data name="Geb_Deblokkeren" xml:space="preserve"><value>Débloquer</value></data>
+  <data name="Geb_RolToewijzen" xml:space="preserve"><value>Attribuer un rôle</value></data>
+  <data name="Geb_RolVerwijderen" xml:space="preserve"><value>Supprimer le rôle</value></data>
+  <data name="Geb_DetailsTitel" xml:space="preserve"><value>Détails de l'Utilisateur</value></data>
+  <data name="Geb_Status" xml:space="preserve"><value>Statut</value></data>
+  <data name="Geb_Actief" xml:space="preserve"><value>Actif</value></data>
+
+  <!-- Account -->
+  <data name="Acc_LoginTitel" xml:space="preserve"><value>Se connecter</value></data>
+  <data name="Acc_RegisterTitel" xml:space="preserve"><value>S'inscrire</value></data>
+  <data name="Acc_ProfielTitel" xml:space="preserve"><value>Mon Profil</value></data>
+  <data name="Acc_AccessDeniedTitel" xml:space="preserve"><value>Accès Refusé</value></data>
+  <data name="Acc_AccessDeniedBericht" xml:space="preserve"><value>Vous n'avez pas l'autorisation d'accéder à cette page.</value></data>
+  <data name="Acc_Wachtwoord" xml:space="preserve"><value>Mot de passe</value></data>
+  <data name="Acc_WachtwoordBevestig" xml:space="preserve"><value>Confirmer le mot de passe</value></data>
+  <data name="Acc_GeenAccount" xml:space="preserve"><value>Pas encore de compte ?</value></data>
+  <data name="Acc_AlAccount" xml:space="preserve"><value>Vous avez déjà un compte ?</value></data>
+
+  <!-- Foutmeldingen -->
   <data name="Fout_OngeldigeLogin" xml:space="preserve"><value>Adresse e-mail ou mot de passe invalide.</value></data>
   <data name="Fout_AccountGeblokkeerd" xml:space="preserve"><value>Votre compte est bloqué. Contactez l'administrateur.</value></data>
   <data name="Fout_EmailBestaatAl" xml:space="preserve"><value>Cette adresse e-mail est déjà utilisée.</value></data>
@@ -37,6 +126,7 @@
   <data name="Fout_OngeldigeTijd" xml:space="preserve"><value>Heure invalide. Utilisez le format HH:MM (ex. 10:00).</value></data>
   <data name="Fout_EindNaStart" xml:space="preserve"><value>L'heure de fin doit être après l'heure de début.</value></data>
 
+  <!-- Succesmeldingen -->
   <data name="OK_ReservatieAangemaakt" xml:space="preserve"><value>Réservation créée avec succès.</value></data>
   <data name="OK_ReservatieVerwijderd" xml:space="preserve"><value>Réservation supprimée avec succès.</value></data>
   <data name="OK_TerreinOpgeslagen" xml:space="preserve"><value>Terrain enregistré avec succès.</value></data>
@@ -46,6 +136,7 @@
   <data name="OK_RolToegevoegd" xml:space="preserve"><value>Rôle attribué avec succès.</value></data>
   <data name="OK_RolVerwijderd" xml:space="preserve"><value>Rôle supprimé avec succès.</value></data>
 
+  <!-- Reservaties velden -->
   <data name="Res_Datum" xml:space="preserve"><value>Date</value></data>
   <data name="Res_Starttijd" xml:space="preserve"><value>Heure de début</value></data>
   <data name="Res_Eindtijd" xml:space="preserve"><value>Heure de fin</value></data>
@@ -55,6 +146,7 @@
   <data name="Res_TotalePrijs" xml:space="preserve"><value>Prix total</value></data>
   <data name="Res_Klant" xml:space="preserve"><value>Client</value></data>
 
+  <!-- Gebruikers velden -->
   <data name="Geb_Voornaam" xml:space="preserve"><value>Prénom</value></data>
   <data name="Geb_Achternaam" xml:space="preserve"><value>Nom de famille</value></data>
   <data name="Geb_Email" xml:space="preserve"><value>Adresse e-mail</value></data>

@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:element name="root" msdata:IsDataSet="true">
-    </xsd:element>
+    <xsd:element name="root" msdata:IsDataSet="true"></xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
 
   <!-- Navigatie -->
   <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
@@ -37,8 +28,94 @@
   <data name="Btn_Toevoegen" xml:space="preserve"><value>Toevoegen</value></data>
   <data name="Btn_Zoeken" xml:space="preserve"><value>Zoeken</value></data>
   <data name="Btn_Filteren" xml:space="preserve"><value>Filteren</value></data>
+  <data name="Btn_Terug" xml:space="preserve"><value>Terug naar overzicht</value></data>
+  <data name="Btn_Bevestigen" xml:space="preserve"><value>Bevestigen</value></data>
   <data name="Lbl_Acties" xml:space="preserve"><value>Acties</value></data>
   <data name="Lbl_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Footer_Rechten" xml:space="preserve"><value>Club &amp; Reservatiebeheer</value></data>
+
+  <!-- Home -->
+  <data name="Home_Titel" xml:space="preserve"><value>Welkom bij PadelSimple</value></data>
+  <data name="Home_Subtitel" xml:space="preserve"><value>Beheer eenvoudig uw padelreservaties, terreinen en materiaal.</value></data>
+  <data name="Home_TerreinenBekijken" xml:space="preserve"><value>Bekijk Terreinen</value></data>
+  <data name="Home_TerreinReserveren" xml:space="preserve"><value>Nu Terreinen Reserveren</value></data>
+  <data name="Home_MateriaalBekijken" xml:space="preserve"><value>Bekijk Materiaal</value></data>
+
+  <!-- Terreinen -->
+  <data name="Court_Titel" xml:space="preserve"><value>Padelterreinen</value></data>
+  <data name="Court_Subtitel" xml:space="preserve"><value>Overzicht en beschikbaarheidscontrole van alle terreinen</value></data>
+  <data name="Court_NieuwTerrein" xml:space="preserve"><value>Nieuw Terrein</value></data>
+  <data name="Court_Overdekt" xml:space="preserve"><value>Overdekt (Indoors)</value></data>
+  <data name="Court_Openlucht" xml:space="preserve"><value>Openlucht</value></data>
+  <data name="Court_Capaciteit" xml:space="preserve"><value>Capaciteit</value></data>
+  <data name="Court_Spelers" xml:space="preserve"><value>spelers</value></data>
+  <data name="Court_PerUur" xml:space="preserve"><value>uur</value></data>
+  <data name="Court_Vrij" xml:space="preserve"><value>Vrij op gekozen tijdstip</value></data>
+  <data name="Court_Bezet" xml:space="preserve"><value>Bezet</value></data>
+  <data name="Court_VrijVanaf" xml:space="preserve"><value>Vrij vanaf</value></data>
+  <data name="Court_Reserveer" xml:space="preserve"><value>Reserveer</value></data>
+  <data name="Court_CheckBeschikbaarheid" xml:space="preserve"><value>Check Beschikbaarheid</value></data>
+  <data name="Court_Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Court_Naam" xml:space="preserve"><value>Naam</value></data>
+  <data name="Court_Uurtarief" xml:space="preserve"><value>Uurtarief (€)</value></data>
+  <data name="Court_IsIndoor" xml:space="preserve"><value>Overdekt terrein (Indoors)</value></data>
+  <data name="Court_BewerkenTitel" xml:space="preserve"><value>Terrein Bewerken</value></data>
+  <data name="Court_ToevoegenTitel" xml:space="preserve"><value>Nieuw Terrein Toevoegen</value></data>
+  <data name="Court_VerwijderenTitel" xml:space="preserve"><value>Terrein Verwijderen</value></data>
+  <data name="Court_VerwijderenBevestiging" xml:space="preserve"><value>Weet u zeker dat u dit terrein wilt verwijderen?</value></data>
+
+  <!-- Materiaal -->
+  <data name="Eq_Titel" xml:space="preserve"><value>Materiaal</value></data>
+  <data name="Eq_Subtitel" xml:space="preserve"><value>Overzicht van beschikbaar materiaal voor verhuur</value></data>
+  <data name="Eq_Nieuw" xml:space="preserve"><value>Nieuw Materiaal</value></data>
+  <data name="Eq_Naam" xml:space="preserve"><value>Naam</value></data>
+  <data name="Eq_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Eq_PrijsPerStuk" xml:space="preserve"><value>Prijs per stuk (€)</value></data>
+  <data name="Eq_AantalInVoorraad" xml:space="preserve"><value>In voorraad</value></data>
+  <data name="Eq_Beschikbaar" xml:space="preserve"><value>Beschikbaar</value></data>
+  <data name="Eq_NietBeschikbaar" xml:space="preserve"><value>Niet beschikbaar</value></data>
+  <data name="Eq_BewerkenTitel" xml:space="preserve"><value>Materiaal Bewerken</value></data>
+  <data name="Eq_ToevoegenTitel" xml:space="preserve"><value>Nieuw Materiaal Toevoegen</value></data>
+  <data name="Eq_VerwijderenTitel" xml:space="preserve"><value>Materiaal Verwijderen</value></data>
+  <data name="Eq_VerwijderenBevestiging" xml:space="preserve"><value>Weet u zeker dat u dit materiaal wilt verwijderen?</value></data>
+
+  <!-- Reservaties -->
+  <data name="Res_Titel" xml:space="preserve"><value>Reservaties</value></data>
+  <data name="Res_Subtitel" xml:space="preserve"><value>Overzicht van alle gemaakte reservaties</value></data>
+  <data name="Res_Nieuw" xml:space="preserve"><value>Nieuwe Reservatie</value></data>
+  <data name="Res_SelecteerTerrein" xml:space="preserve"><value>Selecteer terrein</value></data>
+  <data name="Res_SelecteerMateriaal" xml:space="preserve"><value>Optioneel materiaal</value></data>
+  <data name="Res_Aantal" xml:space="preserve"><value>Aantal</value></data>
+  <data name="Res_VerwijderenTitel" xml:space="preserve"><value>Reservatie Verwijderen</value></data>
+  <data name="Res_VerwijderenBevestiging" xml:space="preserve"><value>Weet u zeker dat u deze reservatie wilt annuleren?</value></data>
+  <data name="Res_MijnReservaties" xml:space="preserve"><value>Mijn Reservaties</value></data>
+  <data name="Res_AlleReservaties" xml:space="preserve"><value>Alle Reservaties</value></data>
+  <data name="Res_GeenReservaties" xml:space="preserve"><value>Geen reservaties gevonden.</value></data>
+  <data name="Res_NieuweAanmaken" xml:space="preserve"><value>Nieuwe Reservatie Maken</value></data>
+  <data name="Res_KlantSelecteren" xml:space="preserve"><value>Selecteer klant (Beheerder)</value></data>
+  <data name="Res_BerekenPrijs" xml:space="preserve"><value>Totale prijs berekening</value></data>
+
+  <!-- Gebruikers -->
+  <data name="Geb_Titel" xml:space="preserve"><value>Gebruikersbeheer</value></data>
+  <data name="Geb_Subtitel" xml:space="preserve"><value>Overzicht van geregistreerde gebruikers en rollen</value></data>
+  <data name="Geb_Blokkeren" xml:space="preserve"><value>Blokkeren</value></data>
+  <data name="Geb_Deblokkeren" xml:space="preserve"><value>Deblokkeren</value></data>
+  <data name="Geb_RolToewijzen" xml:space="preserve"><value>Rol Toewijzen</value></data>
+  <data name="Geb_RolVerwijderen" xml:space="preserve"><value>Rol Verwijderen</value></data>
+  <data name="Geb_DetailsTitel" xml:space="preserve"><value>Gebruikersdetails</value></data>
+  <data name="Geb_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Geb_Actief" xml:space="preserve"><value>Actief</value></data>
+
+  <!-- Account -->
+  <data name="Acc_LoginTitel" xml:space="preserve"><value>Aanmelden</value></data>
+  <data name="Acc_RegisterTitel" xml:space="preserve"><value>Registreren</value></data>
+  <data name="Acc_ProfielTitel" xml:space="preserve"><value>Mijn Profiel</value></data>
+  <data name="Acc_AccessDeniedTitel" xml:space="preserve"><value>Toegang Geweigerd</value></data>
+  <data name="Acc_AccessDeniedBericht" xml:space="preserve"><value>U heeft geen toestemming om deze pagina te bekijken.</value></data>
+  <data name="Acc_Wachtwoord" xml:space="preserve"><value>Wachtwoord</value></data>
+  <data name="Acc_WachtwoordBevestig" xml:space="preserve"><value>Bevestig Wachtwoord</value></data>
+  <data name="Acc_GeenAccount" xml:space="preserve"><value>Nog geen account?</value></data>
+  <data name="Acc_AlAccount" xml:space="preserve"><value>Al een account?</value></data>
 
   <!-- Foutmeldingen -->
   <data name="Fout_OngeldigeLogin" xml:space="preserve"><value>Ongeldig e-mailadres of wachtwoord.</value></data>
@@ -59,7 +136,7 @@
   <data name="OK_RolToegevoegd" xml:space="preserve"><value>Rol succesvol toegewezen.</value></data>
   <data name="OK_RolVerwijderd" xml:space="preserve"><value>Rol succesvol verwijderd.</value></data>
 
-  <!-- Reservaties -->
+  <!-- Reservaties velden -->
   <data name="Res_Datum" xml:space="preserve"><value>Datum</value></data>
   <data name="Res_Starttijd" xml:space="preserve"><value>Starttijd</value></data>
   <data name="Res_Eindtijd" xml:space="preserve"><value>Eindtijd</value></data>
@@ -69,7 +146,7 @@
   <data name="Res_TotalePrijs" xml:space="preserve"><value>Totale prijs</value></data>
   <data name="Res_Klant" xml:space="preserve"><value>Klant</value></data>
 
-  <!-- Gebruikers -->
+  <!-- Gebruikers velden -->
   <data name="Geb_Voornaam" xml:space="preserve"><value>Voornaam</value></data>
   <data name="Geb_Achternaam" xml:space="preserve"><value>Achternaam</value></data>
   <data name="Geb_Email" xml:space="preserve"><value>E-mailadres</value></data>

@@ -3,7 +3,7 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Toegang Geweigerd";
+    ViewData["Title"] = Localizer["Acc_AccessDeniedTitel"];
 }
 
 <div class="row justify-content-center mt-5">
@@ -11,12 +11,12 @@
         <div class="card shadow border-danger border-2">
             <div class="card-body p-5">
                 <h1 class="display-1 text-danger fw-bold">403</h1>
-                <h3 class="text-danger fw-bold mb-3">Toegang Geweigerd</h3>
+                <h3 class="text-danger fw-bold mb-3">@Localizer["Acc_AccessDeniedTitel"]</h3>
                 <p class="lead text-muted">
-                    U heeft onvoldoende rechten of uw rol geeft geen toegang tot deze pagina.
+                    @Localizer["Acc_AccessDeniedBericht"]
                 </p>
                 <div class="mt-4">
-                    <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">Terug naar Home</a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">@Localizer["Nav_Home"]</a>
                 </div>
             </div>
         </div>

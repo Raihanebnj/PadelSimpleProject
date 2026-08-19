@@ -34,7 +34,7 @@ public class EquipmentApiController : ControllerBase
 
     /// <summary>POST /api/materiaal: Nieuw materiaal toevoegen (Admin, Medewerker)</summary>
     [HttpPost]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] Materiaal model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -47,7 +47,7 @@ public class EquipmentApiController : ControllerBase
 
     /// <summary>PUT /api/materiaal/{id}: Materiaal bijwerken (Admin, Medewerker)</summary>
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin,Medewerker")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] Materiaal model)
     {
         if (id != model.Id) return BadRequest(new { message = "ID mismatch." });

@@ -9,9 +9,9 @@ using PadelSimple.Web.ViewModels.Gebruikers;
 namespace PadelSimple.Web.Controllers;
 
 /// <summary>
-/// Controller voor gebruikersbeheer door Admin en Medewerker.
+/// Controller voor gebruikersbeheer uitsluitend voor Admin.
 /// </summary>
-[Authorize(Roles = "Admin,Medewerker")]
+[Authorize(Roles = "Admin")]
 public class GebruikersController : Controller
 {
     private readonly UserManager<AppUser> _userManager;

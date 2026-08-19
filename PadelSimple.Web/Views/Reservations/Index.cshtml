@@ -4,19 +4,19 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = Localizer["Nav_Reservaties"];
+    ViewData["Title"] = Localizer["Res_Titel"];
     var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-success mb-1">📅 @Localizer["Nav_Reservaties"]</h2>
+        <h2 class="fw-bold text-success mb-1">@Localizer["Res_Titel"]</h2>
         <p class="text-muted mb-0">
-            @(isBeheerder ? "Overzicht van alle clubreservaties" : "Overzicht van uw persoonlijke reservaties")
+            @Localizer["Res_Subtitel"]
         </p>
     </div>
     <a asp-action="Create" class="btn btn-success btn-lg shadow-sm">
-        ➕ Nieuwe Reservatie
+        + @Localizer["Res_Nieuw"]
     </a>
 </div>
 
@@ -25,27 +25,27 @@
     <div class="card-body">
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label fw-semibold">Datum filter</label>
+                <label class="form-label fw-semibold">@Localizer["Res_Datum"]</label>
                 <input type="date" name="datum" value="@ViewBag.GeselecteerdeDatum" class="form-control" />
             </div>
             <div class="col-md-4">
-                <label class="form-label fw-semibold">Terrein filter</label>
+                <label class="form-label fw-semibold">@Localizer["Res_Terrein"]</label>
                 <select name="terreinId" class="form-select" asp-items="ViewBag.Terreinen">
-                    <option value="">-- Alle Terreinen --</option>
+                    <option value="">-- @Localizer["Res_Terrein"] --</option>
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold">Sorteren op</label>
+                <label class="form-label fw-semibold">@Localizer["Btn_Filteren"]</label>
                 <select name="sortering" class="form-select">
-                    <option value="datum_desc" selected="@(ViewBag.HuidigeSortering == "datum_desc")">Datum (nieuwste eerst)</option>
-                    <option value="datum_asc" selected="@(ViewBag.HuidigeSortering == "datum_asc")">Datum (oudste eerst)</option>
-                    <option value="prijs_desc" selected="@(ViewBag.HuidigeSortering == "prijs_desc")">Prijs (hoog naar laag)</option>
-                    <option value="prijs_asc" selected="@(ViewBag.HuidigeSortering == "prijs_asc")">Prijs (laag naar hoog)</option>
+                    <option value="datum_desc" selected="@(ViewBag.HuidigeSortering == "datum_desc")">@Localizer["Res_Datum"] ↓</option>
+                    <option value="datum_asc" selected="@(ViewBag.HuidigeSortering == "datum_asc")">@Localizer["Res_Datum"] ↑</option>
+                    <option value="prijs_desc" selected="@(ViewBag.HuidigeSortering == "prijs_desc")">@Localizer["Res_TotalePrijs"] ↓</option>
+                    <option value="prijs_asc" selected="@(ViewBag.HuidigeSortering == "prijs_asc")">@Localizer["Res_TotalePrijs"] ↑</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-success w-100 fw-bold">@Localizer["Btn_Filteren"]</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                <a asp-action="Index" class="btn btn-outline-secondary">@Localizer["Court_Reset"]</a>
             </div>
         </form>
     </div>
@@ -77,7 +77,7 @@
                     {
                         <tr>
                             <td colspan="@(isBeheerder ? 9 : 8)" class="text-center text-muted py-5">
-                                <em>Geen reservaties gevonden voor deze criteria.</em>
+                                <em>@Localizer["Res_GeenReservaties"]</em>
                             </td>
                         </tr>
                     }
@@ -93,11 +93,11 @@
                                     <span class="fw-semibold text-success">@item.Terrein?.Naam</span>
                                     @if (item.Terrein?.IsIndoors == true)
                                     {
-                                        <span class="badge bg-info text-dark ms-1">Indoors</span>
+                                        <span class="badge bg-info text-dark ms-1">@Localizer["Court_Overdekt"]</span>
                                     }
                                 </td>
                                 <td>@item.MateriaalSamenvatting</td>
-                                <td>@item.AantalSpelers spelers</td>
+                                <td>@item.AantalSpelers @Localizer["Court_Spelers"]</td>
                                 <td class="fw-bold text-success">€ @item.TotalePrijs.ToString("F2")</td>
                                 @if (isBeheerder)
                                 {
@@ -107,7 +107,7 @@
                                 }
                                 <td class="text-end pe-4">
                                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
-                                        🗑️ Cancel
+                                        @Localizer["Btn_Verwijderen"]
                                     </a>
                                 </td>
                             </tr>

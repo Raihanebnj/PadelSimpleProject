@@ -4,14 +4,14 @@
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
-    ViewData["Title"] = Localizer["Nav_Gebruikers"];
+    ViewData["Title"] = Localizer["Geb_Titel"];
     var isAdmin = User.IsInRole("Admin");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-success mb-1">👥 Gebruikersbeheer</h2>
-        <p class="text-muted mb-0">Beheer van rollen, blokkades en e-mailverificatie status</p>
+        <h2 class="fw-bold text-success mb-1">@Localizer["Geb_Titel"]</h2>
+        <p class="text-muted mb-0">@Localizer["Geb_Subtitel"]</p>
     </div>
 </div>
 
@@ -20,13 +20,13 @@
     <div class="card-body">
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
             <div class="col-md-5">
-                <label class="form-label fw-semibold">Zoek op naam of e-mail</label>
-                <input type="text" name="zoek" value="@Model.ZoekTerm" placeholder="bijv. Jan of admin@padelsimple.be" class="form-control" />
+                <label class="form-label fw-semibold">@Localizer["Btn_Zoeken"]</label>
+                <input type="text" name="zoek" value="@Model.ZoekTerm" class="form-control" />
             </div>
             <div class="col-md-4">
-                <label class="form-label fw-semibold">Filter op Rol</label>
+                <label class="form-label fw-semibold">@Localizer["Geb_Rollen"]</label>
                 <select name="rolFilter" class="form-select">
-                    <option value="">-- Alle Rollen --</option>
+                    <option value="">-- @Localizer["Geb_Rollen"] --</option>
                     @foreach (var rol in Model.BeschikbareRollen)
                     {
                         <option value="@rol" selected="@(Model.RolFilter == rol)">@rol</option>
@@ -35,7 +35,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-success w-100 fw-bold">@Localizer["Btn_Filteren"]</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                <a asp-action="Index" class="btn btn-outline-secondary">@Localizer["Court_Reset"]</a>
             </div>
         </form>
     </div>
@@ -48,11 +48,11 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-success">
                     <tr>
-                        <th>Naam</th>
-                        <th>E-mailadres</th>
-                        <th>Rollen</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Acties</th>
+                        <th>@Localizer["Geb_Voornaam"]</th>
+                        <th>@Localizer["Geb_Email"]</th>
+                        <th>@Localizer["Geb_Rollen"]</th>
+                        <th>@Localizer["Geb_Status"]</th>
+                        <th class="text-end pe-4">@Localizer["Lbl_Acties"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,7 +60,7 @@
                     {
                         <tr>
                             <td colspan="5" class="text-center text-muted py-5">
-                                <em>Geen gebruikers gevonden.</em>
+                                <em>@Localizer["Res_GeenReservaties"]</em>
                             </td>
                         </tr>
                     }
@@ -82,36 +82,36 @@
                                 <td>
                                     @if (g.IsGeblokkeerd)
                                     {
-                                        <span class="badge bg-danger">Geblokkeerd</span>
+                                        <span class="badge bg-danger">@Localizer["Geb_IsGeblokkeerd"]</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-success">Actief</span>
+                                        <span class="badge bg-success">@Localizer["Geb_Actief"]</span>
                                     }
 
                                     @if (g.IsLid)
                                     {
-                                        <span class="badge bg-info text-dark ms-1">Lid</span>
+                                        <span class="badge bg-info text-dark ms-1">@Localizer["Geb_IsLid"]</span>
                                     }
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group btn-group-sm">
                                         <a asp-action="Details" asp-route-id="@g.Id" class="btn btn-outline-primary">
-                                            🔍 Details
+                                            @Localizer["Lbl_Details"]
                                         </a>
 
                                         @if (g.IsGeblokkeerd)
                                         {
                                             <form asp-action="Deblokkeer" asp-route-id="@g.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-outline-success">Deblokkeer</button>
+                                                <button type="submit" class="btn btn-outline-success">@Localizer["Geb_Deblokkeren"]</button>
                                             </form>
                                         }
                                         else
                                         {
                                             <form asp-action="Blokkeer" asp-route-id="@g.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-outline-warning">Blokkeer</button>
+                                                <button type="submit" class="btn btn-outline-warning">@Localizer["Geb_Blokkeren"]</button>
                                             </form>
                                         }
                                     </div>
