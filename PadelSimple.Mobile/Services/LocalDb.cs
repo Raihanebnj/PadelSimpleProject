@@ -1,27 +1,44 @@
-﻿using SQLite;
+using SQLite;
 
 namespace PadelSimple.Mobile.Services;
 
 public class LocalDb
 {
     private readonly SQLiteAsyncConnection _db;
+    private bool _initialized;
 
     public LocalDb()
     {
         var path = Path.Combine(FileSystem.AppDataDirectory, "padelsimple.mobile.db");
         _db = new SQLiteAsyncConnection(path);
-
-        _db.CreateTableAsync<LocalReservationPending>().Wait();
     }
 
-    public Task<List<LocalReservationPending>> GetPendingAsync()
-        => _db.Table<LocalReservationPending>().ToListAsync();
+    private async Task InitAsync()
+    {
+        if (!_initialized)
+        {
+            await _db.CreateTableAsync<LocalReservationPending>();
+            _initialized = true;
+        }
+    }
 
-    public Task InsertPendingAsync(LocalReservationPending item)
-        => _db.InsertAsync(item);
+    public async Task<List<LocalReservationPending>> GetPendingAsync()
+    {
+        await InitAsync();
+        return await _db.Table<LocalReservationPending>().ToListAsync();
+    }
 
-    public Task DeletePendingAsync(int id)
-        => _db.DeleteAsync<LocalReservationPending>(id);
+    public async Task InsertPendingAsync(LocalReservationPending item)
+    {
+        await InitAsync();
+        await _db.InsertAsync(item);
+    }
+
+    public async Task DeletePendingAsync(int id)
+    {
+        await InitAsync();
+        await _db.DeleteAsync<LocalReservationPending>(id);
+    }
 }
 
 public class LocalReservationPending

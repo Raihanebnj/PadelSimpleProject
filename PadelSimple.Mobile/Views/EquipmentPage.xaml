@@ -1,21 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="PadelSimple.Mobile.Views.EquipmentPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Title="Materiaal">
 
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,0,12,0" VerticalOptions="Center">
+            <Label Grid.Column="0" Text="Materiaal" FontSize="18" FontAttributes="Bold" VerticalOptions="Center"/>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center" HorizontalOptions="End">
+                <Label Text="{Binding UserEmail}" VerticalOptions="Center" FontAttributes="Bold" FontSize="13" TextColor="#512BD4" IsVisible="{Binding IsLoggedIn}"/>
+                <Button Text="Uitloggen" Command="{Binding LogoutCommand}" BackgroundColor="#D32F2F" TextColor="White" Padding="10,0" HeightRequest="32" CornerRadius="6" FontSize="12" FontAttributes="Bold" IsVisible="{Binding IsLoggedIn}" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </Shell.TitleView>
+
     <ScrollView>
         <VerticalStackLayout Padding="12" Spacing="12">
 
             <HorizontalStackLayout>
-                <Label Text="Materiaal" FontSize="20" FontAttributes="Bold" />
+                <Label Text="Materiaal Overzicht" FontSize="20" FontAttributes="Bold" />
                 <Button Text="Refresh" Command="{Binding LoadCommand}" HorizontalOptions="EndAndExpand" />
             </HorizontalStackLayout>
 
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#512BD4" />
 
-       
             <Label Text="{Binding Info}" TextColor="Green">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding Info}" Value="">
@@ -27,7 +37,6 @@
                 </Label.Triggers>
             </Label>
 
-            
             <Label Text="{Binding Error}" TextColor="Red">
                 <Label.Triggers>
                     <DataTrigger TargetType="Label" Binding="{Binding Error}" Value="">
@@ -39,15 +48,14 @@
                 </Label.Triggers>
             </Label>
 
-            <CollectionView ItemsSource="{Binding Equipment}">
+            <CollectionView ItemsSource="{Binding Items}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Padding="10" Margin="0,6" BorderColor="#333" CornerRadius="10">
+                        <Frame Padding="12" Margin="0,6" BorderColor="#444" CornerRadius="10" HasShadow="True">
                             <VerticalStackLayout Spacing="6">
-                                <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" />
-                                <Label Text="{Binding TotalQuantity, StringFormat='Totaal: {0}'}" />
-                                <Label Text="{Binding AvailableQuantity, StringFormat='Beschikbaar: {0}'}" />
-                                <Label Text="{Binding IsActive, StringFormat='Actief: {0}'}" />
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                <Label Text="{Binding TotalQuantity, StringFormat='Totaal beschikbaar: {0}'}" />
+                                <Label Text="{Binding Price, StringFormat='Prijs per stuk: €{0:F2}'}" TextColor="#512BD4" FontAttributes="Bold" />
                             </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>

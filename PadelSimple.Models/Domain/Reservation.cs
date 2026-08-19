@@ -108,4 +108,7 @@ public class Reservation : ISoftDeletable
         get => AantalSpelers;
         set => AantalSpelers = value;
     }
+
+    public string CourtName => Terrein?.Naam ?? $"Terrein #{TerreinId}";
+    public string? EquipmentName => Materiaal?.Naam ?? (MateriaalId.HasValue ? $"Materiaal #{MateriaalId}" : null);
 }

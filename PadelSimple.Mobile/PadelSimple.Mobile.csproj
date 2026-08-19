@@ -57,6 +57,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.3.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
@@ -72,6 +73,9 @@
     <Compile Update="Views\ReservationsPage.xaml.cs">
       <DependentUpon>ReservationsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\NewReservationPage.xaml.cs">
+      <DependentUpon>NewReservationPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\EquipmentPage.xaml.cs">
       <DependentUpon>EquipmentPage.xaml</DependentUpon>
     </Compile>
@@ -85,6 +89,9 @@
 
   <ItemGroup>
     <MauiXaml Update="Views\ReservationsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Views\NewReservationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Views\EquipmentPage.xaml">

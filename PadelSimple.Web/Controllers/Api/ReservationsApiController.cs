@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PadelSimple.Models.Data;
 using PadelSimple.Models.Domain;
+using PadelSimple.Models.Dtos;
 using PadelSimple.Models.Identity;
 
 namespace PadelSimple.Web.Controllers.Api;
@@ -27,10 +28,10 @@ public class ReservationsApiController : ControllerBase
 
     /// <summary>GET /api/reservaties: Ophalen van reservaties (met optionele datum filter)</summary>
     [HttpGet]
-    public async Task<ActionResult<List<Reservation>>> GetAll([FromQuery] DateTime? date)
+    public async Task<ActionResult<List<ReservationDto>>> GetAll([FromQuery] DateTime? date)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
+        if (user == null) return Unauthorized(new { message = "Je bent niet ingelogd of je sessie is verlopen." });
 
         var query = _db.Reservaties
             .Include(r => r.Terrein)
@@ -52,13 +53,29 @@ public class ReservationsApiController : ControllerBase
         }
 
         var lijst = await query.ToListAsync();
-        lijst = lijst.OrderBy(r => r.Datum).ThenBy(r => r.StartUur).ToList();
-        return Ok(lijst);
+        var dtos = lijst
+            .OrderBy(r => r.Datum)
+            .ThenBy(r => r.StartUur)
+            .Select(r => new ReservationDto(
+                r.Id,
+                r.TerreinId,
+                r.Terrein?.Naam ?? $"Terrein #{r.TerreinId}",
+                r.Datum,
+                r.StartUur,
+                r.EindUur,
+                r.AantalSpelers,
+                r.MateriaalId,
+                r.Materiaal?.Naam,
+                r.AantalMateriaal
+            ))
+            .ToList();
+
+        return Ok(dtos);
     }
 
     /// <summary>GET /api/reservaties/{id}: Ophalen van een specifieke reservatie</summary>
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Reservation>> Get(int id)
+    public async Task<ActionResult<ReservationDto>> Get(int id)
     {
         var r = await _db.Reservaties
             .Include(x => x.Terrein)
@@ -73,53 +90,102 @@ public class ReservationsApiController : ControllerBase
         if (!isBeheerder && r.UserId != user?.Id)
             return Forbid();
 
-        return Ok(r);
+        var dto = new ReservationDto(
+            r.Id,
+            r.TerreinId,
+            r.Terrein?.Naam ?? $"Terrein #{r.TerreinId}",
+            r.Datum,
+            r.StartUur,
+            r.EindUur,
+            r.AantalSpelers,
+            r.MateriaalId,
+            r.Materiaal?.Naam,
+            r.AantalMateriaal
+        );
+
+        return Ok(dto);
     }
 
     /// <summary>POST /api/reservaties: Nieuwe reservatie aanmaken met overlap en voorraad validatie</summary>
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Reservation model)
+    public async Task<IActionResult> Create([FromBody] ReservationCreateDto model)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
+        if (user == null) return Unauthorized(new { message = "Je bent niet ingelogd of je sessie is verlopen." });
         if (user.IsBlocked) return StatusCode(StatusCodes.Status403Forbidden, new { message = "Account is geblokkeerd." });
 
-        model.UserId = user.Id;
-        model.Datum = model.Datum.Date;
+        int courtId = model.CourtId;
+        DateTime datum = model.Date.Date;
+        TimeSpan startUur = model.StartTime;
+        TimeSpan eindUur = model.EndTime;
+
+        if (courtId <= 0) return BadRequest(new { message = "Selecteer een geldig terrein." });
+        if (startUur >= eindUur) return BadRequest(new { message = "Starttijd moet vóór eindtijd liggen." });
 
         // Overlap validatie
         var zelfdeTerrein = await _db.Reservaties
-            .Where(r => r.TerreinId == model.TerreinId && r.Datum.Date == model.Datum.Date && !r.IsDeleted)
+            .Where(r => r.TerreinId == courtId && r.Datum.Date == datum && !r.IsDeleted)
             .ToListAsync();
 
-        bool overlap = zelfdeTerrein.Any(r => r.StartUur < model.EindUur && model.StartUur < r.EindUur);
+        bool overlap = zelfdeTerrein.Any(r => r.StartUur < eindUur && startUur < r.EindUur);
         if (overlap) return BadRequest(new { message = "Er bestaat al een reservatie voor dit terrein op dit tijdslot." });
 
         // Materiaal voorraad check
-        if (model.MateriaalId.HasValue && model.AantalMateriaal > 0)
-        {
-            var mat = await _db.Materialen.FirstOrDefaultAsync(m => m.Id == model.MateriaalId.Value && !m.IsDeleted);
-            if (mat == null) return BadRequest(new { message = "Materiaal niet gevonden." });
-            if (mat.AvailableQuantity < model.AantalMateriaal) return BadRequest(new { message = "Niet genoeg materiaal beschikbaar." });
+        int? matId = (model.EquipmentId.HasValue && model.EquipmentId.Value > 0) ? model.EquipmentId : null;
+        int matAantal = matId.HasValue ? Math.Max(1, model.EquipmentQuantity ?? 1) : 0;
 
-            mat.AvailableQuantity -= model.AantalMateriaal;
+        if (matId.HasValue && matAantal > 0)
+        {
+            var mat = await _db.Materialen.FirstOrDefaultAsync(m => m.Id == matId.Value && !m.IsDeleted);
+            if (mat == null) return BadRequest(new { message = "Geselecteerd materiaal niet gevonden." });
+            if (mat.AvailableQuantity < matAantal) return BadRequest(new { message = "Niet genoeg materiaal beschikbaar." });
+
+            mat.AvailableQuantity -= matAantal;
         }
 
         // Prijs berekenen
-        var terrein = await _db.Terreinen.FindAsync(model.TerreinId);
-        var duur = (decimal)(model.EindUur - model.StartUur).TotalHours;
-        model.TotalePrijs = (terrein?.Uurtarief ?? 0m) * duur;
+        var terrein = await _db.Terreinen.FindAsync(courtId);
+        if (terrein == null) return BadRequest(new { message = "Geselecteerd terrein niet gevonden." });
 
-        if (model.MateriaalId.HasValue && model.AantalMateriaal > 0)
+        var duur = (decimal)(eindUur - startUur).TotalHours;
+        decimal totalePrijs = terrein.Uurtarief * duur;
+
+        if (matId.HasValue && matAantal > 0)
         {
-            var mat = await _db.Materialen.FindAsync(model.MateriaalId.Value);
-            if (mat != null) model.TotalePrijs += mat.Huurprijs * model.AantalMateriaal;
+            var mat = await _db.Materialen.FindAsync(matId.Value);
+            if (mat != null) totalePrijs += mat.Huurprijs * matAantal;
         }
 
-        _db.Reservaties.Add(model);
+        var reservatie = new Reservation
+        {
+            UserId = user.Id,
+            TerreinId = courtId,
+            Datum = datum,
+            StartUur = startUur,
+            EindUur = eindUur,
+            AantalSpelers = Math.Max(1, model.NumberOfPlayers),
+            MateriaalId = matId,
+            AantalMateriaal = matAantal,
+            TotalePrijs = totalePrijs
+        };
+
+        _db.Reservaties.Add(reservatie);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
+        var resultDto = new ReservationDto(
+            reservatie.Id,
+            reservatie.TerreinId,
+            terrein.Naam,
+            reservatie.Datum,
+            reservatie.StartUur,
+            reservatie.EindUur,
+            reservatie.AantalSpelers,
+            reservatie.MateriaalId,
+            matId.HasValue ? (await _db.Materialen.FindAsync(matId.Value))?.Naam : null,
+            reservatie.AantalMateriaal
+        );
+
+        return CreatedAtAction(nameof(Get), new { id = reservatie.Id }, resultDto);
     }
 
     /// <summary>DELETE /api/reservaties/{id}: Reservatie annuleren/verwijderen</summary>

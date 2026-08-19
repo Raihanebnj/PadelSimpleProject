@@ -15,6 +15,6 @@ public partial class ReservationsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _vm.InitAsync();
+        await _vm.LoadAsync();
     }
 }

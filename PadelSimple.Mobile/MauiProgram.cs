@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using PadelSimple.Mobile.Services;
 using PadelSimple.Mobile.ViewModels;
 using PadelSimple.Mobile.Views;
@@ -47,12 +47,14 @@ public static class MauiProgram
         builder.Services.AddTransient<CourtsVm>();
         builder.Services.AddTransient<EquipmentVm>();
         builder.Services.AddTransient<ReservationsVm>();
+        builder.Services.AddTransient<NewReservationVm>();
 
    
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<CourtsPage>();
         builder.Services.AddTransient<EquipmentPage>();
         builder.Services.AddTransient<ReservationsPage>();
+        builder.Services.AddTransient<NewReservationPage>();
 
         return builder.Build();
     }
