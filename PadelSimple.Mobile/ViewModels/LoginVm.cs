@@ -18,6 +18,31 @@ public partial class LoginVm : BaseVm
     }
 
     [RelayCommand]
+    private async Task RestoreAsync()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+
+        try
+        {
+            var ok = await _auth.TryRestoreAsync();
+            if (ok)
+            {
+                await _sync.TrySyncAsync();
+                await Shell.Current.GoToAsync("//main/courts");
+            }
+        }
+        catch
+        {
+            // Geen geldige sessie: blijf op de loginpagina.
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private async Task LoginAsync()
     {
         if (IsBusy) return;

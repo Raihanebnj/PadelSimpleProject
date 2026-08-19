@@ -8,8 +8,8 @@ public class ReservationsService
     public ReservationsService(ApiClient api) => _api = api;
 
     public Task<List<ReservationDto>?> GetReservationsAsync(DateTime date)
-        => _api.GetAsync<List<ReservationDto>>($"/api/reservations?date={date:yyyy-MM-dd}");
+        => _api.GetAsync<List<ReservationDto>>($"/api/reservaties?date={date:yyyy-MM-dd}");
 
     public Task<ReservationDto?> CreateReservationAsync(ReservationCreateDto dto)
-        => _api.PostAsync<ReservationCreateDto, ReservationDto>("/api/reservations", dto);
+        => _api.PostAsync<ReservationCreateDto, ReservationDto>("/api/reservaties", dto);
 }

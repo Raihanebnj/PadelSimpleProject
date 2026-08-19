@@ -8,5 +8,5 @@ public class EquipmentService
     public EquipmentService(ApiClient api) => _api = api;
 
     public Task<List<EquipmentDto>?> GetEquipmentAsync()
-        => _api.GetAsync<List<EquipmentDto>>("/api/equipment");
+        => _api.GetAsync<List<EquipmentDto>>("/api/materiaal");
 }

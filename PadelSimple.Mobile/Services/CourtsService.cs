@@ -8,5 +8,5 @@ public class CourtsService
     public CourtsService(ApiClient api) => _api = api;
 
     public Task<List<CourtDto>?> GetCourtsAsync()
-        => _api.GetAsync<List<CourtDto>>("/api/courts");
+        => _api.GetAsync<List<CourtDto>>("/api/terreinen");
 }
