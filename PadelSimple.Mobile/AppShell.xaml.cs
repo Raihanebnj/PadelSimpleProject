@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using PadelSimple.Mobile.Views;
 
 namespace PadelSimple.Mobile;
@@ -13,8 +12,9 @@ public partial class AppShell : Shell
 
         var login = new ShellContent
         {
+            Title = "Login",
             Route = "login",
-            Content = services.GetRequiredService<LoginPagina>()
+            ContentTemplate = new DataTemplate(() => services.GetRequiredService<LoginPagina>())
         };
 
         var tabBar = new TabBar { Route = "main" };
@@ -23,28 +23,28 @@ public partial class AppShell : Shell
         {
             Title = "Terreinen",
             Route = "terreinen",
-            Content = services.GetRequiredService<TerreinenPagina>()
+            ContentTemplate = new DataTemplate(() => services.GetRequiredService<TerreinenPagina>())
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Materiaal",
             Route = "materiaal",
-            Content = services.GetRequiredService<MateriaalPagina>()
+            ContentTemplate = new DataTemplate(() => services.GetRequiredService<MateriaalPagina>())
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Reservaties",
             Route = "reservaties",
-            Content = services.GetRequiredService<ReservatiesPagina>()
+            ContentTemplate = new DataTemplate(() => services.GetRequiredService<ReservatiesPagina>())
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Nieuwe Reservatie",
             Route = "nieuwe_reservatie_tab",
-            Content = services.GetRequiredService<NieuweReservatiePagina>()
+            ContentTemplate = new DataTemplate(() => services.GetRequiredService<NieuweReservatiePagina>())
         });
 
         Items.Add(login);

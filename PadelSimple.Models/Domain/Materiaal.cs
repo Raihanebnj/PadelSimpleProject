@@ -29,6 +29,7 @@ public class Materiaal : IZachtVerwijderbaar
     /// <summary>Huurprijs per stuk per reservatie.</summary>
     [Range(0.00, 999.99, ErrorMessage = "Huurprijs moet tussen € 0,00 en € 999,99 zijn.")]
     [Display(Name = "Huurprijs (€/stuk)")]
+    [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
     public decimal Huurprijs { get; set; }
 
     /// <summary>Of het materiaal actief beschikbaar is.</summary>

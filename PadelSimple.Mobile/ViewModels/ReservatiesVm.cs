@@ -60,7 +60,7 @@ public partial class ReservatiesVm : BasisVm
     [RelayCommand]
     public async Task GoToNewReservationAsync()
     {
-        await Shell.Current.GoToAsync("nieuwe_reservatie");
+        await Shell.Current.GoToAsync("//nieuwe_reservatie_tab");
     }
 
     [RelayCommand]

@@ -7,7 +7,7 @@
 
     <Shell.TitleView>
         <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,0,12,0" VerticalOptions="Center">
-            <Label Grid.Column="0" Text="Terreinen" FontSize="18" FontAttributes="Bold" VerticalOptions="Center"/>
+            <Label Grid.Column="0" Text="Terreinen" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}" VerticalOptions="Center"/>
 
             <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center" HorizontalOptions="End">
                 <Label Text="{Binding UserEmail}" VerticalOptions="Center" FontAttributes="Bold" FontSize="13" TextColor="#512BD4" IsVisible="{Binding IsLoggedIn}"/>
@@ -51,11 +51,11 @@
             <CollectionView ItemsSource="{Binding Items}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Padding="12" Margin="0,6" BorderColor="#444" CornerRadius="10" HasShadow="True">
+                        <Frame Padding="12" Margin="0,6" BorderColor="{AppThemeBinding Light=#ACACAC, Dark=#404040}" BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#212121}" CornerRadius="10" HasShadow="True">
                             <VerticalStackLayout Spacing="6">
                                 <Label Text="{Binding Naam}" FontSize="18" FontAttributes="Bold" />
                                 <Label Text="{Binding Capaciteit, StringFormat='Capaciteit: {0} personen'}" />
-                                <Label Text="{Binding IsIndoors, StringFormat='Indoor: {0}'}" TextColor="Gray" />
+                                <Label Text="{Binding IsIndoors, StringFormat='Indoor: {0}'}" TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}" />
                             </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>

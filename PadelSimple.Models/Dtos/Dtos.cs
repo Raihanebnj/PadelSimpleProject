@@ -1,4 +1,6 @@
-﻿namespace PadelSimple.Models.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PadelSimple.Models.Dtos;
 
 public record LoginAanvraag(string Email, string Wachtwoord);
 public record LoginAntwoord(string Token);

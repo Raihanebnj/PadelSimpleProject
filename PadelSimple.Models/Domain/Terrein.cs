@@ -28,6 +28,7 @@ public class Terrein : IZachtVerwijderbaar
     /// <summary>Tarief per uur in euro.</summary>
     [Range(0.01, 500.00, ErrorMessage = "Uurtarief moet tussen € 0,01 en € 500,00 zijn.")]
     [Display(Name = "Uurtarief (€/u)")]
+    [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
     public decimal Uurtarief { get; set; }
 
     // Soft delete

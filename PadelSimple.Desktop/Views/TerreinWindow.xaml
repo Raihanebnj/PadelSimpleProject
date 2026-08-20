@@ -32,7 +32,7 @@
             <TextBox Text="{Binding Capaciteit, UpdateSourceTrigger=PropertyChanged}"/>
 
             <Label Content="Uurtarief (€)"/>
-            <TextBox Text="{Binding Uurtarief, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding Uurtarief, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"/>
 
             <CheckBox Content="Overdekt terrein (indoors)"
                       IsChecked="{Binding IsIndoors}"

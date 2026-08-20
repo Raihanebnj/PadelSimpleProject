@@ -12,7 +12,7 @@
             <VerticalStackLayout IsVisible="{Binding IsLoggedIn}" Spacing="14">
                 <Frame Padding="16" CornerRadius="12" BorderColor="#512BD4" HasShadow="True">
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="Ingelogd als:" TextColor="Gray" FontSize="14"/>
+                        <Label Text="Ingelogd als:" TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}" FontSize="14"/>
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                             <Label Text="👤" FontSize="20" VerticalOptions="Center"/>
                             <Label Text="{Binding UserEmail}" FontAttributes="Bold" FontSize="18" TextColor="#512BD4" VerticalOptions="Center"/>
@@ -33,7 +33,7 @@
             <VerticalStackLayout IsVisible="{Binding IsNotLoggedIn}" Spacing="14">
 
                 <Label Text="Inloggen" FontSize="24" FontAttributes="Bold" TextColor="#512BD4" />
-                <Label Text="Meld je aan om reservaties te maken en te bekijken." TextColor="Gray"/>
+                <Label Text="Meld je aan om reservaties te maken en te bekijken." TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}"/>
 
                 <Entry Placeholder="E-mailadres" Text="{Binding Email}" Keyboard="Email" HeightRequest="46"/>
                 <Entry Placeholder="Wachtwoord" Text="{Binding Password}" IsPassword="True" HeightRequest="46"/>

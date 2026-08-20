@@ -126,7 +126,11 @@ dotnet build PadelSimple.Mobile/PadelSimple.Mobile.csproj -t:Run -f net9.0-andro
 
 ---
 
-## 📜 Licentie & AI Vermelding
+## 📜 Bronvermelding & Licentie
 
+- **Gebruikte bronnen & hulpmiddelen**:
+  Bij het realiseren van dit project is gebruikgemaakt van diverse bronnen, waaronder officiële Microsoft .NET documentatie, online tutorials, naslagwerken en ondersteuning van AI-coding assistenten.
+- **Gebruik van AI**:
+  AI-tools zijn ingezet voor ondersteuning (zoals het meedenken over structuur, documentatie, debugging en codevoorbeelden). **AI heeft het project niet volledig gemaakt**: de architectuur, implementatie, logica en integratie zijn door de ontwikkelaar zelf uitgedacht, geschreven, gecontroleerd en getest conform de relevante richtlijnen.
 - **Licentie**: Vrij te gebruiken voor onderwijs- en evaluatiedoeleinden (Erasmushogeschool Brussel).
-- **AI-vermelding**: Dit project is mede tot stand gekomen met ondersteuning van AI-coding assistenten conform de EHB CopyWrite richtlijnen. Alle code en logica zijn gecontroleerd en geverifieerd.
+

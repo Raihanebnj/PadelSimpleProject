@@ -32,7 +32,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-semibold">@Localizer["Eq_PrijsPerStuk"]</label>
-                            <input asp-for="Huurprijs" type="number" step="0.25" class="form-control" />
+                            <input asp-for="Huurprijs" asp-format="{0:F2}" type="number" step="0.01" min="0.00" max="999.99" class="form-control" onblur="if(this.value) this.value = parseFloat(this.value).toFixed(2);" />
                             <span asp-validation-for="Huurprijs" class="text-danger"></span>
                         </div>
                     </div>

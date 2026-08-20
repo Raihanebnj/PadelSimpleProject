@@ -32,6 +32,7 @@ public class MateriaalEditVm
 
     [Range(0.00, 999.99, ErrorMessage = "Huurprijs moet tussen € 0,00 en € 999,99 zijn.")]
     [Display(Name = "Huurprijs (€/stuk)")]
+    [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
     public decimal Huurprijs { get; set; } = 2.50m;
 
     [Display(Name = "Actief beschikbaar")]

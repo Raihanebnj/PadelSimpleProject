@@ -22,19 +22,16 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-       
         builder.Services.AddHttpClient<ApiKlant>(client =>
         {
             client.BaseAddress = new Uri(ApiConfig.BaseUrl);
         });
 
-      
+        // App infrastructure
         builder.Services.AddSingleton<App>();
-
-     
         builder.Services.AddSingleton<AppShell>();
 
-  
+        // Services (State & DB)
         builder.Services.AddSingleton<LokaleDb>();
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<TerreinenService>();
@@ -42,14 +39,14 @@ public static class MauiProgram
         builder.Services.AddSingleton<ReservatiesService>();
         builder.Services.AddSingleton<SynchronisatieService>();
 
-     
+        // ViewModels
         builder.Services.AddTransient<LoginVm>();
         builder.Services.AddTransient<TerreinenVm>();
         builder.Services.AddTransient<MateriaalVm>();
         builder.Services.AddTransient<ReservatiesVm>();
         builder.Services.AddTransient<NieuweReservatieVm>();
 
-   
+        // Pages
         builder.Services.AddTransient<LoginPagina>();
         builder.Services.AddTransient<TerreinenPagina>();
         builder.Services.AddTransient<MateriaalPagina>();

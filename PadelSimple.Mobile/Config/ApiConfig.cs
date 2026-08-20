@@ -1,4 +1,4 @@
-﻿namespace PadelSimple.Mobile.Services;
+namespace PadelSimple.Mobile.Services;
 
 public static class ApiConfig
 {
@@ -12,6 +12,7 @@ public static class ApiConfig
 #if ANDROID
             // Android emulator -> host machine = 10.0.2.2
             return "http://10.0.2.2:5009/";
+            //return "http://localhost:5009/";
 #elif WINDOWS
             // Windows desktop MAUI kan localhost gebruiken
             return "http://localhost:5009/";
