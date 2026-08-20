@@ -43,7 +43,8 @@ De applicatie kent drie rollen met specifieke toegangsrechten:
 ### Standaard Inloggegevens (Seed Data)
 | Rol | E-mailadres | Wachtwoord |
 |---|---|---|
-| **Admin** | `admin@padelsimple.be` | `Admin123!` |
+| **Admin Desktop** | `admin@padelsimple.be` | `Admin123!` |
+| **Admin Web/ Maui** | `admin@padel.local` | `Admin123!` |
 | **Medewerker** | `medewerker@padelsimple.be` | `Medewerker123!` |
 | **Klant** | `klant@padelsimple.be` | `Klant123!` |
 
