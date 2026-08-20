@@ -8,9 +8,9 @@ public class RegisterVm
     public string Email { get; set; } = "";
 
     [Required, MinLength(6), DataType(DataType.Password)]
-    public string Password { get; set; } = "";
+    public string Wachtwoord { get; set; } = "";
 
-    [Required, Compare(nameof(Password)), DataType(DataType.Password)]
-    public string PasswordRepeat { get; set; } = "";
-    public bool IsMember { get; set; } = true;
+    [Required, Compare(nameof(Wachtwoord)), DataType(DataType.Password)]
+    public string HerhaalWachtwoord { get; set; } = "";
+    public bool IsLid { get; set; } = true;
 }

@@ -1,0 +1,130 @@
+@model PadelSimple.Web.ViewModels.ReservatieEditVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Res_NieuweAanmaken"];
+}
+
+<div class="row justify-content-center mt-3">
+    <div class="col-md-8">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0 fw-bold">@Localizer["Res_NieuweAanmaken"]</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Maak" method="post" id="reservatieForm">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Datum"]</label>
+                            <input asp-for="Datum" type="date" class="form-control" id="inputDatum" />
+                            <span asp-validation-for="Datum" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Terrein"]</label>
+                            <select asp-for="TerreinId" asp-items="Model.Terreinen" class="form-select" id="selectTerrein">
+                                <option value="">-- @Localizer["Res_SelecteerTerrein"] --</option>
+                            </select>
+                            <span asp-validation-for="TerreinId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Live AJAX Bezette Tijdslots Preview Badge Box -->
+                    <div class="mb-3 p-3 bg-light border rounded" id="ajaxBezetBox" style="display: none;">
+                        <h6 class="fw-bold text-success mb-2">⚡ Live AJAX:</h6>
+                        <div id="bezetTijdslotsContainer" class="d-flex flex-wrap gap-2">
+                            <span class="text-muted">...</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Starttijd"] (bv. 10:00)</label>
+                            <input asp-for="StartUur" class="form-control" placeholder="10:00" />
+                            <span asp-validation-for="StartUur" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Eindtijd"] (bv. 11:00)</label>
+                            <input asp-for="EindUur" class="form-control" placeholder="11:00" />
+                            <span asp-validation-for="EindUur" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_AantalSpelers"]</label>
+                            <input asp-for="AantalSpelers" type="number" min="1" max="8" class="form-control" />
+                            <span asp-validation-for="AantalSpelers" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <h5 class="fw-bold text-success mb-3">@Localizer["Res_SelecteerMateriaal"]</h5>
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Materiaal"]</label>
+                            <select asp-for="MateriaalId" asp-items="Model.Materialen" class="form-select">
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Res_Aantal"]</label>
+                            <input asp-for="AantalMateriaal" type="number" min="0" max="20" class="form-control" />
+                            <span asp-validation-for="AantalMateriaal" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Overzicht" class="btn btn-secondary">@Localizer["Btn_Annuleren"]</a>
+                        <button type="submit" class="btn btn-success shadow-sm">@Localizer["Btn_Opslaan"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        async function laadBezetteTijdslots() {
+            const terreinId = document.getElementById('selectTerrein').value;
+            const datum = document.getElementById('inputDatum').value;
+            const box = document.getElementById('ajaxBezetBox');
+            const container = document.getElementById('bezetTijdslotsContainer');
+
+            if (!terreinId || !datum) {
+                box.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Reservaties/HaalBezetteTijdslotsOp?terreinId=${terreinId}&datum=${datum}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    box.style.display = 'block';
+                    container.innerHTML = '';
+
+                    if (data.bezet.length === 0) {
+                        container.innerHTML = '<span class="badge bg-success p-2">✓ Vrij</span>';
+                    } else {
+                        data.bezet.forEach(slot => {
+                            container.innerHTML += `<span class="badge bg-danger p-2">🔒 ${slot.start} - ${slot.einde}</span>`;
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('AJAX error:', err);
+            }
+        }
+
+        document.getElementById('selectTerrein').addEventListener('change', laadBezetteTijdslots);
+        document.getElementById('inputDatum').addEventListener('change', laadBezetteTijdslots);
+
+        if (document.getElementById('selectTerrein').value) {
+            laadBezetteTijdslots();
+        }
+    </script>
+}

@@ -1,0 +1,24 @@
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Acc_AccessDeniedTitel"];
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow border-danger border-2">
+            <div class="card-body p-5">
+                <h1 class="display-1 text-danger fw-bold">403</h1>
+                <h3 class="text-danger fw-bold mb-3">@Localizer["Acc_AccessDeniedTitel"]</h3>
+                <p class="lead text-muted">
+                    @Localizer["Acc_AccessDeniedBericht"]
+                </p>
+                <div class="mt-4">
+                    <a asp-controller="Home" asp-action="Overzicht" class="btn btn-success btn-lg">@Localizer["Nav_Home"]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

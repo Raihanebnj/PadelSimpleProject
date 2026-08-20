@@ -9,12 +9,12 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        Routing.RegisterRoute("new_reservation", typeof(NewReservationPage));
+        Routing.RegisterRoute("nieuwe_reservatie", typeof(NieuweReservatiePagina));
 
         var login = new ShellContent
         {
             Route = "login",
-            Content = services.GetRequiredService<LoginPage>()
+            Content = services.GetRequiredService<LoginPagina>()
         };
 
         var tabBar = new TabBar { Route = "main" };
@@ -22,29 +22,29 @@ public partial class AppShell : Shell
         tabBar.Items.Add(new ShellContent
         {
             Title = "Terreinen",
-            Route = "courts",
-            Content = services.GetRequiredService<CourtsPage>()
+            Route = "terreinen",
+            Content = services.GetRequiredService<TerreinenPagina>()
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Materiaal",
-            Route = "equipment",
-            Content = services.GetRequiredService<EquipmentPage>()
+            Route = "materiaal",
+            Content = services.GetRequiredService<MateriaalPagina>()
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Reservaties",
-            Route = "reservations",
-            Content = services.GetRequiredService<ReservationsPage>()
+            Route = "reservaties",
+            Content = services.GetRequiredService<ReservatiesPagina>()
         });
 
         tabBar.Items.Add(new ShellContent
         {
             Title = "Nieuwe Reservatie",
-            Route = "new_reservation_tab",
-            Content = services.GetRequiredService<NewReservationPage>()
+            Route = "nieuwe_reservatie_tab",
+            Content = services.GetRequiredService<NieuweReservatiePagina>()
         });
 
         Items.Add(login);

@@ -34,7 +34,7 @@ public partial class App : Application
                 AppHost = Host.CreateDefaultBuilder()
                     .ConfigureServices((context, services) =>
                     {
-                        // ---- Database ----
+                        // ---- Databank ----
                         services.AddDbContextFactory<AppDbContext>(options =>
                         {
                             var folder = Path.Combine(
@@ -48,30 +48,30 @@ public partial class App : Application
 
                         // ---- ASP.NET Identity & Data Protection ----
                         services.AddDataProtection();
-                        services.AddIdentityCore<AppUser>(options =>
+                        services.AddIdentityCore<AppGebruiker>(options =>
                         {
                             options.Password.RequireDigit = false;
                             options.Password.RequireNonAlphanumeric = false;
                             options.Password.RequireUppercase = false;
                             options.Password.RequiredLength = 6;
                         })
-                        .AddRoles<AppRole>()
+                        .AddRoles<AppRol>()
                         .AddEntityFrameworkStores<AppDbContext>()
                         .AddDefaultTokenProviders();
 
-                        // ---- Services ----
-                        services.AddScoped<AuthService>();
-                        services.AddScoped<DataService>();
+                        // ---- Diensten ----
+                        services.AddScoped<AuthenticatieService>();
+                        services.AddScoped<GegevensService>();
 
                         // ---- ViewModels ----
-                        services.AddTransient<LoginViewModel>();
-                        services.AddTransient<MainViewModel>();
-                        services.AddTransient<ReservationDialogViewModel>();
+                        services.AddTransient<AanmeldenViewModel>();
+                        services.AddTransient<HoofdViewModel>();
+                        services.AddTransient<ReservatieDialoogViewModel>();
 
-                        // ---- Windows ----
-                        services.AddTransient<LoginWindow>();
-                        services.AddTransient<MainWindow>();
-                        services.AddTransient<ReservationDialog>();
+                        // ---- Vensters ----
+                        services.AddTransient<AanmeldenVenster>();
+                        services.AddTransient<Hoofdvenster>();
+                        services.AddTransient<ReservatieDialoog>();
                     })
                     .Build();
             }
@@ -79,11 +79,11 @@ public partial class App : Application
             await AppHost.StartAsync();
 
             // Databank en seed-data initialiseren bij opstarten
-            await SeedDataAsync(AppHost.Services);
+            await InitialiseerDataAsync(AppHost.Services);
 
-            var login = AppHost.Services.GetRequiredService<LoginWindow>();
-            MainWindow = login;
-            login.Show();
+            var aanmeldenVenster = AppHost.Services.GetRequiredService<AanmeldenVenster>();
+            MainWindow = aanmeldenVenster;
+            aanmeldenVenster.Show();
         }
         catch (Exception ex)
         {
@@ -96,22 +96,22 @@ public partial class App : Application
         }
     }
 
-    private static async Task SeedDataAsync(IServiceProvider services)
+    private static async Task InitialiseerDataAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureCreatedAsync();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
-        var hasher = new PasswordHasher<AppUser>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppGebruiker>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRol>>();
+        var hasher = new PasswordHasher<AppGebruiker>();
 
         // Rollen garanderen
-        foreach (var roleName in new[] { "Admin", "Klant" })
+        foreach (var rolNaam in new[] { "Admin", "Klant" })
         {
-            if (!await roleManager.RoleExistsAsync(roleName))
+            if (!await roleManager.RoleExistsAsync(rolNaam))
             {
-                await roleManager.CreateAsync(new AppRole(roleName));
+                await roleManager.CreateAsync(new AppRol(rolNaam));
             }
         }
 
@@ -119,7 +119,7 @@ public partial class App : Application
         var admin = await userManager.FindByEmailAsync("admin@padelsimple.be");
         if (admin == null)
         {
-            admin = new AppUser
+            admin = new AppGebruiker
             {
                 UserName = "admin@padelsimple.be",
                 Email = "admin@padelsimple.be",
@@ -129,8 +129,8 @@ public partial class App : Application
                 IsLid = true,
                 EmailConfirmed = true
             };
-            var res = await userManager.CreateAsync(admin, "Admin123!");
-            if (res.Succeeded)
+            var resultaat = await userManager.CreateAsync(admin, "Admin123!");
+            if (resultaat.Succeeded)
             {
                 await userManager.AddToRoleAsync(admin, "Admin");
             }
@@ -138,8 +138,8 @@ public partial class App : Application
         else
         {
             admin.PasswordHash = hasher.HashPassword(admin, "Admin123!");
-            admin.IsBlocked = false;
-            admin.IsDeleted = false;
+            admin.IsGeblokkeerd = false;
+            admin.IsVerwijderd = false;
             await userManager.UpdateAsync(admin);
 
             if (!await userManager.IsInRoleAsync(admin, "Admin"))
@@ -152,7 +152,7 @@ public partial class App : Application
         var klant = await userManager.FindByEmailAsync("klant@padelsimple.be");
         if (klant == null)
         {
-            klant = new AppUser
+            klant = new AppGebruiker
             {
                 UserName = "klant@padelsimple.be",
                 Email = "klant@padelsimple.be",
@@ -162,8 +162,8 @@ public partial class App : Application
                 IsLid = true,
                 EmailConfirmed = true
             };
-            var res = await userManager.CreateAsync(klant, "Klant123!");
-            if (res.Succeeded)
+            var resultaat = await userManager.CreateAsync(klant, "Klant123!");
+            if (resultaat.Succeeded)
             {
                 await userManager.AddToRoleAsync(klant, "Klant");
             }
@@ -171,8 +171,8 @@ public partial class App : Application
         else
         {
             klant.PasswordHash = hasher.HashPassword(klant, "Klant123!");
-            klant.IsBlocked = false;
-            klant.IsDeleted = false;
+            klant.IsGeblokkeerd = false;
+            klant.IsVerwijderd = false;
             await userManager.UpdateAsync(klant);
 
             if (!await userManager.IsInRoleAsync(klant, "Klant"))

@@ -43,7 +43,7 @@
             <!-- Status badge preview -->
             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                 <TextBlock Text="Status: " VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <ctrl:StatusBadge Text="Overdekt" IsActive="{Binding IsIndoors}"/>
+                <ctrl:StatusBadge Text="Overdekt" IsActief="{Binding IsIndoors}"/>
             </StackPanel>
 
             <TextBlock Text="{Binding FoutBoodschap}" Foreground="#C62828"

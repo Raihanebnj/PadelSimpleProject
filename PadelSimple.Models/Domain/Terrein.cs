@@ -6,7 +6,7 @@ namespace PadelSimple.Models.Domain;
 /// <summary>
 /// Vertegenwoordigt een padelterrein in de club.
 /// </summary>
-public class Terrein : ISoftDeletable
+public class Terrein : IZachtVerwijderbaar
 {
     public int Id { get; set; }
 
@@ -31,28 +31,9 @@ public class Terrein : ISoftDeletable
     public decimal Uurtarief { get; set; }
 
     // Soft delete
-    public bool IsDeleted { get; set; }
-    public DateTime? DeletedAt { get; set; }
+    public bool IsVerwijderd { get; set; }
+    public DateTime? VerwijderdOp { get; set; }
 
     // Navigatie
-    public ICollection<Reservation> Reservaties { get; set; } = new List<Reservation>();
-
-    // Aliassen met getters en setters voor compatibiliteit met Web/Mobile projecten
-    public string Name
-    {
-        get => Naam;
-        set => Naam = value;
-    }
-
-    public int Capacity
-    {
-        get => Capaciteit;
-        set => Capaciteit = value;
-    }
-
-    public bool IsIndoor
-    {
-        get => IsIndoors;
-        set => IsIndoors = value;
-    }
+    public ICollection<Reservatie> Reservaties { get; set; } = new List<Reservatie>();
 }

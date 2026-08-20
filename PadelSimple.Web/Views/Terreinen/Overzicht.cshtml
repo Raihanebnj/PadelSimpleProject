@@ -1,0 +1,104 @@
+@model PadelSimple.Web.ViewModels.Terreinen.TerreinenOverzichtVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Court_Titel"];
+    var isBeheerder = User.IsInRole("Admin") || User.IsInRole("Medewerker");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-success mb-1">@Localizer["Court_Titel"]</h2>
+        <p class="text-muted mb-0">@Localizer["Court_Subtitel"]</p>
+    </div>
+    @if (isBeheerder)
+    {
+        <a asp-action="Maak" class="btn btn-success btn-lg shadow-sm">
+            + @Localizer["Court_NieuwTerrein"]
+        </a>
+    }
+</div>
+
+<!-- Beschikbaarheidsfilterbalk -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" asp-action="Overzicht" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">@Localizer["Res_Datum"]</label>
+                <input type="date" name="datum" value="@Model.Datum.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">@Localizer["Res_Starttijd"] (bv. 18:00)</label>
+                <input type="text" name="start" value="@Model.Start" placeholder="18:00" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">@Localizer["Res_Eindtijd"] (bv. 19:00)</label>
+                <input type="text" name="einde" value="@Model.Einde" placeholder="19:00" class="form-control" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success w-100 fw-bold">@Localizer["Court_CheckBeschikbaarheid"]</button>
+                <a asp-action="Overzicht" class="btn btn-outline-secondary">@Localizer["Court_Reset"]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Kaartenraster -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var terrein in Model.Terreinen)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold text-success mb-0">@terrein.Naam</h5>
+                        @if (terrein.IsIndoors)
+                        {
+                            <span class="badge bg-info text-dark">@Localizer["Court_Overdekt"]</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@Localizer["Court_Openlucht"]</span>
+                        }
+                    </div>
+
+                    <p class="text-muted small mb-2">@Localizer["Court_Capaciteit"]: <strong>@terrein.Capaciteit @Localizer["Court_Spelers"]</strong></p>
+                    <p class="fs-5 fw-bold text-success mb-3">€ @terrein.Uurtarief.ToString("F2") <small class="text-muted fs-6">/ @Localizer["Court_PerUur"]</small></p>
+
+                    <div class="p-3 bg-light rounded text-center mb-3">
+                        @if (terrein.IsBeschikbaar)
+                        {
+                            <span class="badge bg-success p-2 fs-6">✓ @Localizer["Court_Vrij"]</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger p-2 fs-6">@Localizer["Court_Bezet"]</span>
+                            @if (!string.IsNullOrEmpty(terrein.VrijVanaf))
+                            {
+                                <div class="small text-muted mt-1">@Localizer["Court_VrijVanaf"]: <strong>@terrein.VrijVanaf</strong></div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex justify-content-between">
+                    <a asp-controller="Reservaties" asp-action="Maak" class="btn btn-sm btn-outline-success fw-bold">
+                        @Localizer["Court_Reserveer"]
+                    </a>
+                    @if (isBeheerder)
+                    {
+                        <div class="btn-group btn-group-sm">
+                            <a asp-action="Bewerk" asp-route-id="@terrein.Id" class="btn btn-outline-secondary">@Localizer["Btn_Bewerken"]</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Verwijder" asp-route-id="@terrein.Id" class="btn btn-outline-danger">@Localizer["Btn_Verwijderen"]</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

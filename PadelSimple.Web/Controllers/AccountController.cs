@@ -11,13 +11,13 @@ namespace PadelSimple.Web.Controllers;
 /// </summary>
 public class AccountController : Controller
 {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly SignInManager<AppUser> _signInManager;
+    private readonly UserManager<AppGebruiker> _userManager;
+    private readonly SignInManager<AppGebruiker> _signInManager;
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
-        UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager,
+        UserManager<AppGebruiker> userManager,
+        SignInManager<AppGebruiker> signInManager,
         ILogger<AccountController> logger)
     {
         _userManager = userManager;
@@ -28,10 +28,10 @@ public class AccountController : Controller
     // ==================== REGISTREREN ====================
 
     [HttpGet, AllowAnonymous]
-    public IActionResult Register() => View(new RegisterVm());
+    public IActionResult Registreren() => View(new RegisterVm());
 
     [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterVm vm)
+    public async Task<IActionResult> Registreren(RegisterVm vm)
     {
         if (!ModelState.IsValid) return View(vm);
 
@@ -42,7 +42,7 @@ public class AccountController : Controller
             return View(vm);
         }
 
-        var gebruiker = new AppUser
+        var gebruiker = new AppGebruiker
         {
             UserName = vm.Email,
             Email = vm.Email,
@@ -50,7 +50,7 @@ public class AccountController : Controller
             Achternaam = vm.Achternaam,
             Telefoonnummer = vm.Telefoon,
             IsLid = vm.IsLid,
-            IsBlocked = false
+            IsGeblokkeerd = false
         };
 
         var resultaat = await _userManager.CreateAsync(gebruiker, vm.Wachtwoord);
@@ -67,20 +67,20 @@ public class AccountController : Controller
 
         await _signInManager.SignInAsync(gebruiker, isPersistent: false);
         TempData["Success"] = "Welkom bij PadelSimple! Uw account is aangemaakt.";
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Overzicht", "Home");
     }
 
     // ==================== AANMELDEN ====================
 
     [HttpGet, AllowAnonymous]
-    public IActionResult Login(string? returnUrl = null)
+    public IActionResult Inloggen(string? returnUrl = null)
     {
         ViewBag.ReturnUrl = returnUrl;
         return View(new LoginVm());
     }
 
     [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginVm vm, string? returnUrl = null)
+    public async Task<IActionResult> Inloggen(LoginVm vm, string? returnUrl = null)
     {
         if (!ModelState.IsValid) return View(vm);
 
@@ -92,7 +92,7 @@ public class AccountController : Controller
             return View(vm);
         }
 
-        if (gebruiker.IsBlocked)
+        if (gebruiker.IsGeblokkeerd)
         {
             _logger.LogWarning("Aanmelding geweigerd: account {Email} is geblokkeerd.", vm.Email);
             ModelState.AddModelError(string.Empty, "Uw account is geblokkeerd. Contacteer de beheerder.");
@@ -112,17 +112,17 @@ public class AccountController : Controller
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Overzicht", "Home");
     }
 
     // ==================== AFMELDEN ====================
 
     [HttpPost, Authorize, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Uitloggen()
     {
         _logger.LogInformation("Gebruiker {Email} afgemeld.", User.Identity?.Name);
         await _signInManager.SignOutAsync();
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Overzicht", "Home");
     }
 
     // ==================== PROFIEL ====================
@@ -188,10 +188,10 @@ public class AccountController : Controller
         if (!string.IsNullOrWhiteSpace(terugUrl) && Url.IsLocalUrl(terugUrl))
             return Redirect(terugUrl);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Overzicht", "Home");
     }
 
     // ==================== TOEGANG GEWEIGERD ====================
 
-    public IActionResult AccessDenied() => View();
+    public IActionResult ToegangGeweigerd() => View();
 }

@@ -5,11 +5,11 @@ namespace PadelSimple.Mobile.Services;
 
 public partial class AuthService : ObservableObject
 {
-    private readonly ApiClient _api;
+    private readonly ApiKlant _api;
 
     public static string? CurrentToken { get; set; }
 
-    public AuthService(ApiClient api) => _api = api;
+    public AuthService(ApiKlant api) => _api = api;
 
     [ObservableProperty] private string? token;
     [ObservableProperty] private string? email;
@@ -18,9 +18,9 @@ public partial class AuthService : ObservableObject
 
     public async Task<bool> LoginAsync(string emailInput, string password)
     {
-        var response = await _api.PostAsync<LoginRequest, LoginResponse>(
-            "/api/auth/login",
-            new LoginRequest(emailInput, password));
+        var response = await _api.PostAsync<LoginAanvraag, LoginAntwoord>(
+            "/api/auth/inloggen",
+            new LoginAanvraag(emailInput, password));
 
         if (response == null || string.IsNullOrWhiteSpace(response.Token))
             return false;

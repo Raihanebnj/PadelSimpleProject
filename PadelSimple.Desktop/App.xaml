@@ -5,11 +5,11 @@
              ShutdownMode="OnLastWindowClose">
 
     <Application.Resources>
-        <!-- ===================== CONVERTERS ===================== -->
-        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
-        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
-        <conv:BoolToStatusConverter x:Key="BoolToStatus"/>
-        <conv:NullToVisibilityConverter x:Key="NullToVisibility"/>
+        <!-- ===================== OMZETTERS ===================== -->
+        <conv:BoolNaarZichtbaarheidConverter x:Key="BoolNaarZichtbaarheid"/>
+        <conv:OmgekeerdeBoolNaarZichtbaarheidConverter x:Key="OmgekeerdeBoolNaarZichtbaarheid"/>
+        <conv:BoolNaarStatusConverter x:Key="BoolNaarStatus"/>
+        <conv:NullNaarZichtbaarheidConverter x:Key="NullNaarZichtbaarheid"/>
 
         <!-- ===================== KLEUREN ===================== -->
         <Color x:Key="PrimaryColor">#1B5E20</Color>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using PadelSimple.Models.Domain;
+using PadelSimple.Models.Data;
 using PadelSimple.Models.Identity;
 using System.Threading.Tasks;
 
@@ -10,21 +10,21 @@ namespace PadelSimple.Models.Data.Seeders
     {
         public static async Task SeedAsync(
             AppDbContext db,
-            RoleManager<AppRole> roleManager,
-            UserManager<AppUser> userManager,
+            RoleManager<AppRol> roleManager,
+            UserManager<AppGebruiker> userManager,
             IConfiguration config)
         {
             await db.Database.EnsureCreatedAsync();
 
             // Ensure Roles
             if (!await roleManager.RoleExistsAsync("Admin"))
-                await roleManager.CreateAsync(new AppRole { Name = "Admin" });
+                await roleManager.CreateAsync(new AppRol { Name = "Admin" });
 
-            if (!await roleManager.RoleExistsAsync("Staff"))
-                await roleManager.CreateAsync(new AppRole { Name = "Staff" });
+            if (!await roleManager.RoleExistsAsync("Medewerker"))
+                await roleManager.CreateAsync(new AppRol { Name = "Medewerker" });
 
-            if (!await roleManager.RoleExistsAsync("Member"))
-                await roleManager.CreateAsync(new AppRole { Name = "Member" });
+            if (!await roleManager.RoleExistsAsync("Klant"))
+                await roleManager.CreateAsync(new AppRol { Name = "Klant" });
 
             // Ensure Admin User
             var adminEmail = "admin@club.com";
@@ -37,12 +37,12 @@ namespace PadelSimple.Models.Data.Seeders
 
             if (admin == null)
             {
-                admin = new AppUser
+                admin = new AppGebruiker
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
-                    IsMember = false,
-                    IsDeleted = false
+                    IsLid = false,
+                    IsVerwijderd = false
                 };
 
                 var result = await userManager.CreateAsync(admin, adminPass);

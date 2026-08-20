@@ -32,7 +32,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ============================================================
 // 4. ASP.NET Identity (Admin / Medewerker / Klant)
 // ============================================================
-builder.Services.AddIdentity<AppUser, AppRole>(options =>
+builder.Services.AddIdentity<AppGebruiker, AppRol>(options =>
 {
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = true;
@@ -45,8 +45,8 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.LoginPath = "/Account/Inloggen";
+    options.AccessDeniedPath = "/Account/ToegangGeweigerd";
     options.Cookie.Name = "PadelSimple.Auth";
     options.Events.OnRedirectToLogin = context =>
     {
@@ -143,6 +143,6 @@ using (var scope = app.Services.CreateScope())
 // MVC route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Overzicht}/{id?}");
 
 app.Run();

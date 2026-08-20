@@ -6,25 +6,25 @@ namespace PadelSimple.Models.Domain;
 /// <summary>
 /// Een reservatie voor een terrein, optioneel met meerdere stuks materiaal.
 /// </summary>
-public class Reservation : ISoftDeletable
+public class Reservatie : IZachtVerwijderbaar
 {
     public int Id { get; set; }
 
     // FK naar ApplicationUser
-    public string UserId { get; set; } = null!;
-    public AppUser User { get; set; } = null!;
+    public string GebruikerId { get; set; } = null!;
+    public AppGebruiker Gebruiker { get; set; } = null!;
 
     // FK naar Terrein
     public int TerreinId { get; set; }
     public Terrein Terrein { get; set; } = null!;
 
-    // Optionele legacy FK naar 1 Materiaal (achterwaartse compatibiliteit)
+    // Optionele legacy FK naar 1 Materiaal
     public int? MateriaalId { get; set; }
     public Materiaal? Materiaal { get; set; }
     public int AantalMateriaal { get; set; }
 
     // Meerdere materialen per reservatie
-    public ICollection<ReservationMateriaal> ReservationMaterialen { get; set; } = new List<ReservationMateriaal>();
+    public ICollection<ReservatieMateriaal> ReservatieMaterialen { get; set; } = new List<ReservatieMateriaal>();
 
     /// <summary>Datum van de reservatie.</summary>
     public DateTime Datum { get; set; }
@@ -42,17 +42,17 @@ public class Reservation : ISoftDeletable
     public int AantalSpelers { get; set; } = 2;
 
     // Soft delete
-    public bool IsDeleted { get; set; }
-    public DateTime? DeletedAt { get; set; }
+    public bool IsVerwijderd { get; set; }
+    public DateTime? VerwijderdOp { get; set; }
 
-    // --- Weergave helper voor DataGrid ---
+    // --- Weergave helper ---
     public string MateriaalSamenvatting
     {
         get
         {
-            if (ReservationMaterialen != null && ReservationMaterialen.Count > 0)
+            if (ReservatieMaterialen != null && ReservatieMaterialen.Count > 0)
             {
-                return string.Join(", ", ReservationMaterialen.Select(rm => $"{rm.Materiaal?.Naam ?? "Materiaal"} ({rm.Aantal}x)"));
+                return string.Join(", ", ReservatieMaterialen.Select(rm => $"{rm.Materiaal?.Naam ?? "Materiaal"} ({rm.Aantal}x)"));
             }
             if (Materiaal != null && AantalMateriaal > 0)
             {
@@ -62,53 +62,6 @@ public class Reservation : ISoftDeletable
         }
     }
 
-    // --- Aliassen voor bestaande code ---
-    public int CourtId
-    {
-        get => TerreinId;
-        set => TerreinId = value;
-    }
-    public Terrein Court
-    {
-        get => Terrein;
-        set => Terrein = value;
-    }
-    public int? EquipmentId
-    {
-        get => MateriaalId;
-        set => MateriaalId = value;
-    }
-    public Materiaal? Equipment
-    {
-        get => Materiaal;
-        set => Materiaal = value;
-    }
-    public int? EquipmentQuantity
-    {
-        get => AantalMateriaal;
-        set => AantalMateriaal = value ?? 0;
-    }
-    public DateTime Date
-    {
-        get => Datum;
-        set => Datum = value;
-    }
-    public TimeSpan StartTime
-    {
-        get => StartUur;
-        set => StartUur = value;
-    }
-    public TimeSpan EndTime
-    {
-        get => EindUur;
-        set => EindUur = value;
-    }
-    public int NumberOfPlayers
-    {
-        get => AantalSpelers;
-        set => AantalSpelers = value;
-    }
-
-    public string CourtName => Terrein?.Naam ?? $"Terrein #{TerreinId}";
-    public string? EquipmentName => Materiaal?.Naam ?? (MateriaalId.HasValue ? $"Materiaal #{MateriaalId}" : null);
+    public string TerreinNaam => Terrein?.Naam ?? $"Terrein #{TerreinId}";
+    public string? MateriaalNaam => Materiaal?.Naam ?? (MateriaalId.HasValue ? $"Materiaal #{MateriaalId}" : null);
 }

@@ -12,15 +12,15 @@ namespace PadelSimple.Web.Services;
 public class AppSeeder
 {
     private readonly AppDbContext _db;
-    private readonly RoleManager<AppRole> _roleManager;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly RoleManager<AppRol> _roleManager;
+    private readonly UserManager<AppGebruiker> _userManager;
     private readonly IConfiguration _config;
     private readonly ILogger<AppSeeder> _logger;
 
     public AppSeeder(
         AppDbContext db,
-        RoleManager<AppRole> roleManager,
-        UserManager<AppUser> userManager,
+        RoleManager<AppRol> roleManager,
+        UserManager<AppGebruiker> userManager,
         IConfiguration config,
         ILogger<AppSeeder> logger)
     {
@@ -45,7 +45,7 @@ public class AppSeeder
         {
             if (!await _roleManager.RoleExistsAsync(rol))
             {
-                await _roleManager.CreateAsync(new AppRole { Name = rol });
+                await _roleManager.CreateAsync(new AppRol { Name = rol });
                 _logger.LogInformation("Rol '{Rol}' aangemaakt.", rol);
             }
         }
@@ -83,9 +83,9 @@ public class AppSeeder
         if (!await _db.Materialen.AnyAsync())
         {
             _db.Materialen.AddRange(
-                new Materiaal { Naam = "Padelracket", AantalInInventaris = 20, AvailableQuantity = 20, Huurprijs = 5.00m, IsActief = true },
-                new Materiaal { Naam = "Set Ballen", AantalInInventaris = 30, AvailableQuantity = 30, Huurprijs = 2.50m, IsActief = true },
-                new Materiaal { Naam = "Beschermingsbril", AantalInInventaris = 15, AvailableQuantity = 15, Huurprijs = 1.50m, IsActief = true }
+                new Materiaal { Naam = "Padelracket", AantalInInventaris = 20, BeschikbaarAantal = 20, Huurprijs = 5.00m, IsActief = true },
+                new Materiaal { Naam = "Set Ballen", AantalInInventaris = 30, BeschikbaarAantal = 30, Huurprijs = 2.50m, IsActief = true },
+                new Materiaal { Naam = "Beschermingsbril", AantalInInventaris = 15, BeschikbaarAantal = 15, Huurprijs = 1.50m, IsActief = true }
             );
             await _db.SaveChangesAsync();
             _logger.LogInformation("Materialen geseed.");
@@ -100,9 +100,9 @@ public class AppSeeder
             if (klantUser != null && adminUser != null)
             {
                 _db.Reservaties.AddRange(
-                    new Reservation
+                    new Reservatie
                     {
-                        UserId = klantUser.Id,
+                        GebruikerId = klantUser.Id,
                         TerreinId = 1,
                         MateriaalId = 1,
                         AantalMateriaal = 2,
@@ -112,9 +112,9 @@ public class AppSeeder
                         TotalePrijs = 28.00m,
                         AantalSpelers = 4
                     },
-                    new Reservation
+                    new Reservatie
                     {
-                        UserId = klantUser.Id,
+                        GebruikerId = klantUser.Id,
                         TerreinId = 2,
                         MateriaalId = null,
                         AantalMateriaal = 0,
@@ -124,9 +124,9 @@ public class AppSeeder
                         TotalePrijs = 12.00m,
                         AantalSpelers = 2
                     },
-                    new Reservation
+                    new Reservatie
                     {
-                        UserId = adminUser.Id,
+                        GebruikerId = adminUser.Id,
                         TerreinId = 3,
                         MateriaalId = 2,
                         AantalMateriaal = 1,
@@ -153,7 +153,7 @@ public class AppSeeder
         var gebruiker = await _userManager.FindByEmailAsync(email);
         if (gebruiker == null)
         {
-            gebruiker = new AppUser
+            gebruiker = new AppGebruiker
             {
                 Id = fixedId,
                 UserName = email,
@@ -163,7 +163,7 @@ public class AppSeeder
                 Achternaam = achternaam,
                 Telefoonnummer = telefoon,
                 IsLid = isLid,
-                IsBlocked = false
+                IsGeblokkeerd = false
             };
 
             var resultaat = await _userManager.CreateAsync(gebruiker, wachtwoord);
@@ -178,7 +178,7 @@ public class AppSeeder
         }
         else
         {
-            var hasher = new PasswordHasher<AppUser>();
+            var hasher = new PasswordHasher<AppGebruiker>();
             gebruiker.PasswordHash = hasher.HashPassword(gebruiker, wachtwoord);
             gebruiker.SecurityStamp = Guid.NewGuid().ToString();
             await _userManager.UpdateAsync(gebruiker);

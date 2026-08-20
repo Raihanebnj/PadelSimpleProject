@@ -37,21 +37,4 @@ public class RegisterVm
 
     [Display(Name = "Ik wil een lidmaatschap afsluiten (korting op terreinen)")]
     public bool IsLid { get; set; } = true;
-
-    // Aliassen voor achterwaartse compatibiliteit
-    public string Password
-    {
-        get => Wachtwoord;
-        set => Wachtwoord = value;
-    }
-    public string ConfirmPassword
-    {
-        get => HerhaalWachtwoord;
-        set => HerhaalWachtwoord = value;
-    }
-    public bool IsMember
-    {
-        get => IsLid;
-        set => IsLid = value;
-    }
 }

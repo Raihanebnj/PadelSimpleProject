@@ -2,8 +2,8 @@
 @using Microsoft.Extensions.Localization
 @using PadelSimple.Models.Identity
 @using PadelSimple.Web.Resources
-@inject SignInManager<AppUser> SignInManager
-@inject UserManager<AppUser> UserManager
+@inject SignInManager<AppGebruiker> SignInManager
+@inject UserManager<AppGebruiker> UserManager
 @inject IStringLocalizer<SharedResources> Localizer
 
 <!DOCTYPE html>
@@ -20,7 +20,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-success border-bottom shadow-sm mb-3">
             <div class="container">
-                <a class="navbar-brand fw-bold fs-4" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand fw-bold fs-4" asp-controller="Home" asp-action="Overzicht">
                     PadelSimple
                 </a>
 
@@ -32,19 +32,19 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Overzicht">@Localizer["Nav_Home"]</a>
                         </li>
 
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Reservations" asp-action="Index">@Localizer["Nav_Reservaties"]</a>
+                                <a class="nav-link" asp-controller="Reservaties" asp-action="Overzicht">@Localizer["Nav_Reservaties"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Courts" asp-action="Index">@Localizer["Nav_Terreinen"]</a>
+                                <a class="nav-link" asp-controller="Terreinen" asp-action="Overzicht">@Localizer["Nav_Terreinen"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Equipment" asp-action="Index">@Localizer["Nav_Materiaal"]</a>
+                                <a class="nav-link" asp-controller="Materiaal" asp-action="Overzicht">@Localizer["Nav_Materiaal"]</a>
                             </li>
                         }
 
@@ -58,13 +58,13 @@
                                 </a>
                                 <ul class="dropdown-menu shadow" aria-labelledby="adminDrop">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Gebruikers" asp-action="Index">@Localizer["Nav_Gebruikers"]</a>
+                                        <a class="dropdown-item" asp-controller="Gebruikers" asp-action="Overzicht">@Localizer["Nav_Gebruikers"]</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Courts" asp-action="Create">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Terreinen"]</a>
+                                        <a class="dropdown-item" asp-controller="Terreinen" asp-action="Maak">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Terreinen"]</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Equipment" asp-action="Create">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Materiaal"]</a>
+                                        <a class="dropdown-item" asp-controller="Materiaal" asp-action="Maak">@Localizer["Btn_Toevoegen"] @Localizer["Nav_Materiaal"]</a>
                                     </li>
                                 </ul>
                             </li>
@@ -83,7 +83,7 @@
                                 </a>
                             </li>
                             <li class="nav-item ms-2">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <form asp-controller="Account" asp-action="Uitloggen" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <button class="btn btn-outline-light btn-sm" type="submit">@Localizer["Nav_Afmelden"]</button>
                                 </form>
@@ -92,10 +92,10 @@
                         else
                         {
                             <li class="nav-item ms-2">
-                                <a class="btn btn-outline-light btn-sm me-2" asp-controller="Account" asp-action="Login">@Localizer["Nav_Aanmelden"]</a>
+                                <a class="btn btn-outline-light btn-sm me-2" asp-controller="Account" asp-action="Inloggen">@Localizer["Nav_Aanmelden"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-light btn-sm text-success fw-bold" asp-controller="Account" asp-action="Register">@Localizer["Nav_Registreren"]</a>
+                                <a class="btn btn-light btn-sm text-success fw-bold" asp-controller="Account" asp-action="Registreren">@Localizer["Nav_Registreren"]</a>
                             </li>
                         }
                     </ul>

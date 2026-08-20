@@ -4,7 +4,7 @@
              x:Name="root"
              Height="26">
 
-    <Border Background="{Binding BadgeBackground, ElementName=root}"
+    <Border Background="{Binding BadgeAchtergrond, ElementName=root}"
             CornerRadius="13"
             Padding="10,4"
             Margin="2">

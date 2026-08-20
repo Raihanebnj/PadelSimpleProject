@@ -57,7 +57,7 @@ Alle API endpoints zijn beschikbaar onder `/api/`:
 | `POST` | `/api/materiaal` | Nieuw materiaal toevoegen | Admin, Medewerker |
 | `PUT` | `/api/materiaal/{id}` | Materiaal bijwerken | Admin, Medewerker |
 | `DELETE` | `/api/materiaal/{id}` | Materiaal verwijderen | Admin |
-| `GET` | `/api/reservaties` | Ophalen van reservaties (met optionele `?date=` filter) | Bearer / Cookie |
+| `GET` | `/api/reservaties` | Ophalen van reservaties (met optionele `?datum=` filter) | Bearer / Cookie |
 | `GET` | `/api/reservaties/{id}` | Ophalen van specifieke reservatie | Bearer / Cookie |
 | `POST` | `/api/reservaties` | Nieuwe reservatie aanmaken (inclusief overlap & stock validatie) | Bearer / Cookie |
 | `DELETE` | `/api/reservaties/{id}` | Reservatie annuleren | Bearer / Cookie |

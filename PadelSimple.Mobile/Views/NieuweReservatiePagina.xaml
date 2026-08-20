@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PadelSimple.Mobile.Views.NieuweReservatiePagina"
+    Title="Nieuwe Reservatie">
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,0,12,0" VerticalOptions="Center">
+            <Label Grid.Column="0" Text="Nieuwe Reservatie" FontSize="18" FontAttributes="Bold" VerticalOptions="Center"/>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center" HorizontalOptions="End">
+                <Label Text="{Binding UserEmail}" VerticalOptions="Center" FontAttributes="Bold" FontSize="13" TextColor="#512BD4" IsVisible="{Binding IsLoggedIn}"/>
+                <Button Text="Uitloggen" Command="{Binding LogoutCommand}" BackgroundColor="#D32F2F" TextColor="White" Padding="10,0" HeightRequest="32" CornerRadius="6" FontSize="12" FontAttributes="Bold" IsVisible="{Binding IsLoggedIn}" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <Label Text="Nieuwe Reservatie Maken" FontSize="22" FontAttributes="Bold" TextColor="#512BD4"/>
+            <Label Text="Vul onderstaande gegevens in om een terrein te boeken." TextColor="Gray"/>
+
+            <Frame Padding="14" CornerRadius="12" BorderColor="#444" HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    
+                    <Label Text="Datum van reservatie" FontAttributes="Bold"/>
+                    <DatePicker Date="{Binding SelectedDate}" Format="dd/MM/yyyy" />
+
+                    <Label Text="Kies een terrein" FontAttributes="Bold" Margin="0,6,0,0"/>
+                    <Picker Title="Selecteer terrein..."
+                            ItemsSource="{Binding Terreinen}"
+                            ItemDisplayBinding="{Binding Naam}"
+                            SelectedItem="{Binding SelectedTerrein}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,6,0,0">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Starttijd (hh:mm)" FontAttributes="Bold"/>
+                            <Entry Text="{Binding StartUur}" Placeholder="18:00" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="Eindtijd (hh:mm)" FontAttributes="Bold"/>
+                            <Entry Text="{Binding EindUur}" Placeholder="19:00" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Aantal spelers" FontAttributes="Bold" Margin="0,6,0,0"/>
+                    <Entry Keyboard="Numeric" Text="{Binding AantalSpelers}" Placeholder="4" />
+
+                    <Label Text="Materiaal huren (optioneel)" FontAttributes="Bold" Margin="0,6,0,0"/>
+                    <Picker Title="Selecteer materiaal..."
+                            ItemsSource="{Binding Materiaal}"
+                            ItemDisplayBinding="{Binding Naam}"
+                            SelectedItem="{Binding SelectedMateriaal}" />
+
+                    <Label Text="Aantal materiaal" FontAttributes="Bold"/>
+                    <Entry Keyboard="Numeric" Text="{Binding MateriaalAantal}" Placeholder="1" />
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Reservatie Bevestigen" 
+                    Command="{Binding CreateCommand}" 
+                    BackgroundColor="#512BD4" 
+                    TextColor="White" 
+                    HeightRequest="50" 
+                    CornerRadius="10" 
+                    FontAttributes="Bold" 
+                    FontSize="16" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="#512BD4" />
+
+            <!-- Success message -->
+            <Label Text="{Binding Info}" TextColor="Green" FontAttributes="Bold" HorizontalOptions="Center">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Info}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+            <!-- Error message -->
+            <Label Text="{Binding Error}" TextColor="Red" FontAttributes="Bold" HorizontalOptions="Center">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding Error}" Value="">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                        <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                </Label.Triggers>
+            </Label>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

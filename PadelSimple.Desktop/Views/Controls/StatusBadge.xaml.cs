@@ -6,7 +6,7 @@ namespace PadelSimple.Desktop.Controls;
 
 /// <summary>
 /// Custom UserControl die een gekleurde statusbadge toont.
-/// Gebruik: Text = "Overdekt", IsActive = true/false
+/// Gebruik: Text = "Overdekt", IsActief = true/false
 /// </summary>
 public partial class StatusBadge : UserControl
 {
@@ -14,12 +14,12 @@ public partial class StatusBadge : UserControl
         DependencyProperty.Register(nameof(Text), typeof(string), typeof(StatusBadge),
             new PropertyMetadata("Status"));
 
-    public static readonly DependencyProperty IsActiveProperty =
-        DependencyProperty.Register(nameof(IsActive), typeof(bool), typeof(StatusBadge),
-            new PropertyMetadata(true, OnIsActiveChanged));
+    public static readonly DependencyProperty IsActiefProperty =
+        DependencyProperty.Register(nameof(IsActief), typeof(bool), typeof(StatusBadge),
+            new PropertyMetadata(true, OnIsActiefGewijzigd));
 
-    public static readonly DependencyProperty BadgeBackgroundProperty =
-        DependencyProperty.Register(nameof(BadgeBackground), typeof(Brush), typeof(StatusBadge),
+    public static readonly DependencyProperty BadgeAchtergrondProperty =
+        DependencyProperty.Register(nameof(BadgeAchtergrond), typeof(Brush), typeof(StatusBadge),
             new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32))));
 
     public string Text
@@ -28,16 +28,16 @@ public partial class StatusBadge : UserControl
         set => SetValue(TextProperty, value);
     }
 
-    public bool IsActive
+    public bool IsActief
     {
-        get => (bool)GetValue(IsActiveProperty);
-        set => SetValue(IsActiveProperty, value);
+        get => (bool)GetValue(IsActiefProperty);
+        set => SetValue(IsActiefProperty, value);
     }
 
-    public Brush BadgeBackground
+    public Brush BadgeAchtergrond
     {
-        get => (Brush)GetValue(BadgeBackgroundProperty);
-        set => SetValue(BadgeBackgroundProperty, value);
+        get => (Brush)GetValue(BadgeAchtergrondProperty);
+        set => SetValue(BadgeAchtergrondProperty, value);
     }
 
     public StatusBadge()
@@ -45,11 +45,11 @@ public partial class StatusBadge : UserControl
         InitializeComponent();
     }
 
-    private static void OnIsActiveChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnIsActiefGewijzigd(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is StatusBadge badge)
         {
-            badge.BadgeBackground = (bool)e.NewValue
+            badge.BadgeAchtergrond = (bool)e.NewValue
                 ? new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32))  // groen
                 : new SolidColorBrush(Color.FromRgb(0x78, 0x90, 0x9C));  // grijs
         }

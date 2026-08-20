@@ -1,0 +1,78 @@
+@model PadelSimple.Web.ViewModels.Auth.RegisterVm
+@using Microsoft.Extensions.Localization
+@using PadelSimple.Web.Resources
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Acc_RegisterTitel"];
+}
+
+<div class="row justify-content-center mt-3">
+    <div class="col-md-7">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0 fw-bold">@Localizer["Acc_RegisterTitel"]</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Registreren" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Geb_Voornaam"]</label>
+                            <input asp-for="Voornaam" class="form-control" />
+                            <span asp-validation-for="Voornaam" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Geb_Achternaam"]</label>
+                            <input asp-for="Achternaam" class="form-control" />
+                            <span asp-validation-for="Achternaam" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">@Localizer["Geb_Email"]</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">@Localizer["Geb_Telefoon"]</label>
+                        <input asp-for="Telefoon" class="form-control" />
+                        <span asp-validation-for="Telefoon" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Acc_Wachtwoord"]</label>
+                            <input asp-for="Wachtwoord" type="password" class="form-control" />
+                            <span asp-validation-for="Wachtwoord" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">@Localizer["Acc_WachtwoordBevestig"]</label>
+                            <input asp-for="HerhaalWachtwoord" type="password" class="form-control" />
+                            <span asp-validation-for="HerhaalWachtwoord" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check bg-light p-3 border rounded">
+                        <input asp-for="IsLid" class="form-check-input ms-1 me-2" />
+                        <label class="form-check-label fw-bold text-success" asp-for="IsLid">@Localizer["Geb_IsLid"]</label>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">@Localizer["Acc_RegisterTitel"]</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3 bg-light">
+                @Localizer["Acc_AlAccount"] <a asp-action="Inloggen" class="text-success fw-bold">@Localizer["Acc_LoginTitel"]</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

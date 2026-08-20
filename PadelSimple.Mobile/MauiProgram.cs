@@ -23,7 +23,7 @@ public static class MauiProgram
 #endif
 
        
-        builder.Services.AddHttpClient<ApiClient>(client =>
+        builder.Services.AddHttpClient<ApiKlant>(client =>
         {
             client.BaseAddress = new Uri(ApiConfig.BaseUrl);
         });
@@ -35,26 +35,26 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShell>();
 
   
-        builder.Services.AddSingleton<LocalDb>();
+        builder.Services.AddSingleton<LokaleDb>();
         builder.Services.AddSingleton<AuthService>();
-        builder.Services.AddSingleton<CourtsService>();
-        builder.Services.AddSingleton<EquipmentService>();
-        builder.Services.AddSingleton<ReservationsService>();
-        builder.Services.AddSingleton<SyncService>();
+        builder.Services.AddSingleton<TerreinenService>();
+        builder.Services.AddSingleton<MateriaalService>();
+        builder.Services.AddSingleton<ReservatiesService>();
+        builder.Services.AddSingleton<SynchronisatieService>();
 
      
         builder.Services.AddTransient<LoginVm>();
-        builder.Services.AddTransient<CourtsVm>();
-        builder.Services.AddTransient<EquipmentVm>();
-        builder.Services.AddTransient<ReservationsVm>();
-        builder.Services.AddTransient<NewReservationVm>();
+        builder.Services.AddTransient<TerreinenVm>();
+        builder.Services.AddTransient<MateriaalVm>();
+        builder.Services.AddTransient<ReservatiesVm>();
+        builder.Services.AddTransient<NieuweReservatieVm>();
 
    
-        builder.Services.AddTransient<LoginPage>();
-        builder.Services.AddTransient<CourtsPage>();
-        builder.Services.AddTransient<EquipmentPage>();
-        builder.Services.AddTransient<ReservationsPage>();
-        builder.Services.AddTransient<NewReservationPage>();
+        builder.Services.AddTransient<LoginPagina>();
+        builder.Services.AddTransient<TerreinenPagina>();
+        builder.Services.AddTransient<MateriaalPagina>();
+        builder.Services.AddTransient<ReservatiesPagina>();
+        builder.Services.AddTransient<NieuweReservatiePagina>();
 
         return builder.Build();
     }

@@ -1,31 +1,31 @@
 ﻿namespace PadelSimple.Models.Dtos;
 
-public record LoginRequest(string Email, string Password);
-public record LoginResponse(string Token);
+public record LoginAanvraag(string Email, string Wachtwoord);
+public record LoginAntwoord(string Token);
 
-public record CourtDto(int Id, string Name, int Capacity, bool IsIndoor);
+public record TerreinDto(int Id, string Naam, int Capaciteit, bool IsIndoors);
 
-public record EquipmentDto(int Id, string Name, int TotalQuantity, int AvailableQuantity, bool IsActive);
+public record MateriaalDto(int Id, string Naam, int AantalInInventaris, int BeschikbaarAantal, bool IsActief);
 
-public record ReservationCreateDto(
-    int CourtId,
-    DateTime Date,
-    TimeSpan StartTime,
-    TimeSpan EndTime,
-    int NumberOfPlayers,
-    int? EquipmentId,
-    int? EquipmentQuantity
+public record ReservatieCreateDto(
+    int TerreinId,
+    DateTime Datum,
+    TimeSpan StartUur,
+    TimeSpan EindUur,
+    int AantalSpelers,
+    int? MateriaalId,
+    int? MateriaalAantal
 );
 
-public record ReservationDto(
+public record ReservatieDto(
     int Id,
-    int CourtId,
-    string CourtName,
-    DateTime Date,
-    TimeSpan StartTime,
-    TimeSpan EndTime,
-    int NumberOfPlayers,
-    int? EquipmentId,
-    string? EquipmentName,
-    int? EquipmentQuantity
+    int TerreinId,
+    string TerreinNaam,
+    DateTime Datum,
+    TimeSpan StartUur,
+    TimeSpan EindUur,
+    int AantalSpelers,
+    int? MateriaalId,
+    string? MateriaalNaam,
+    int? MateriaalAantal
 );

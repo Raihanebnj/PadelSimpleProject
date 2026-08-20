@@ -119,196 +119,208 @@ namespace PadelSimple.Models.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Domain.Court", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.Materiaal", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Capacity")
+                    b.Property<int>("AantalInInventaris")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("DeletedAt")
+                    b.Property<int>("BeschikbaarAantal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Huurprijs")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<bool>("IsActief")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsVerwijderd")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Naam")
+                        .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsIndoor")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<DateTime?>("VerwijderdOp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courts");
+                    b.ToTable("Materialen");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Capacity = 4,
-                            IsDeleted = false,
-                            IsIndoor = false,
-                            Name = "Court 1"
+                            AantalInInventaris = 20,
+                            BeschikbaarAantal = 0,
+                            Huurprijs = 5.00m,
+                            IsActief = true,
+                            IsVerwijderd = false,
+                            Naam = "Padelracket"
                         },
                         new
                         {
                             Id = 2,
-                            Capacity = 4,
-                            IsDeleted = false,
-                            IsIndoor = true,
-                            Name = "Court 2"
+                            AantalInInventaris = 30,
+                            BeschikbaarAantal = 0,
+                            Huurprijs = 2.50m,
+                            IsActief = true,
+                            IsVerwijderd = false,
+                            Naam = "Set Ballen"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AantalInInventaris = 15,
+                            BeschikbaarAantal = 0,
+                            Huurprijs = 1.50m,
+                            IsActief = true,
+                            IsVerwijderd = false,
+                            Naam = "Beschermingsbril"
                         });
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Domain.Equipment", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.Reservatie", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AvailableQuantity")
+                    b.Property<int>("AantalMateriaal")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("DeletedAt")
+                    b.Property<int>("AantalSpelers")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Datum")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                    b.Property<TimeSpan>("EindUur")
+                        .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("GebruikerId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TotalQuantity")
+                    b.Property<bool>("IsVerwijderd")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("MateriaalId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<TimeSpan>("StartUur")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TerreinId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("TotalePrijs")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("VerwijderdOp")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GebruikerId");
+
+                    b.HasIndex("MateriaalId");
+
+                    b.HasIndex("TerreinId");
+
+                    b.ToTable("Reservaties");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Domain.ReservatieMateriaal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Aantal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MateriaalId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReservatieId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Equipment");
+                    b.HasIndex("MateriaalId");
+
+                    b.HasIndex("ReservatieId");
+
+                    b.ToTable("ReservatieMaterialen");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Domain.Terrein", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Capaciteit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsIndoors")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsVerwijderd")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Naam")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Uurtarief")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("VerwijderdOp")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Terreinen");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            AvailableQuantity = 20,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Padelracket",
-                            TotalQuantity = 20
+                            Capaciteit = 4,
+                            IsIndoors = true,
+                            IsVerwijderd = false,
+                            Naam = "Terrein 1 (Overdekt)",
+                            Uurtarief = 18.00m
                         },
                         new
                         {
                             Id = 2,
-                            AvailableQuantity = 30,
-                            IsActive = true,
-                            IsDeleted = false,
-                            Name = "Ballen set",
-                            TotalQuantity = 30
-                        });
-                });
-
-            modelBuilder.Entity("PadelSimple.Models.Domain.Reservation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CourtId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("EquipmentId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("EquipmentQuantity")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("NumberOfPlayers")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourtId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reservations");
-                });
-
-            modelBuilder.Entity("PadelSimple.Models.Identity.AppRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "ROLE_ADMIN",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
+                            Capaciteit = 4,
+                            IsIndoors = false,
+                            IsVerwijderd = false,
+                            Naam = "Terrein 2 (Buiten)",
+                            Uurtarief = 12.00m
                         },
                         new
                         {
-                            Id = "ROLE_STAFF",
-                            Name = "Staff",
-                            NormalizedName = "STAFF"
-                        },
-                        new
-                        {
-                            Id = "ROLE_MEMBER",
-                            Name = "Member",
-                            NormalizedName = "MEMBER"
+                            Id = 3,
+                            Capaciteit = 4,
+                            IsIndoors = true,
+                            IsVerwijderd = false,
+                            Naam = "Terrein 3 (Overdekt VIP)",
+                            Uurtarief = 25.00m
                         });
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Identity.AppUser", b =>
+            modelBuilder.Entity("PadelSimple.Models.Identity.AppGebruiker", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -316,11 +328,13 @@ namespace PadelSimple.Models.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
+                    b.Property<string>("Achternaam")
+                        .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("DeletedAt")
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -330,13 +344,13 @@ namespace PadelSimple.Models.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsBlocked")
+                    b.Property<bool>("IsGeblokkeerd")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsLid")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsMember")
+                    b.Property<bool>("IsVerwijderd")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("LockoutEnabled")
@@ -365,11 +379,24 @@ namespace PadelSimple.Models.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Telefoonnummer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("VerwijderdOp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Voornaam")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -384,9 +411,58 @@ namespace PadelSimple.Models.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PadelSimple.Models.Identity.AppRol", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "ROLE_ADMIN",
+                            ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000001",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "ROLE_MEDEWERKER",
+                            ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000003",
+                            Name = "Medewerker",
+                            NormalizedName = "MEDEWERKER"
+                        },
+                        new
+                        {
+                            Id = "ROLE_KLANT",
+                            ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000002",
+                            Name = "Klant",
+                            NormalizedName = "KLANT"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Identity.AppRole", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppRol", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -395,7 +471,7 @@ namespace PadelSimple.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Identity.AppUser", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppGebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -404,7 +480,7 @@ namespace PadelSimple.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Identity.AppUser", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppGebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -413,13 +489,13 @@ namespace PadelSimple.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Identity.AppRole", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppRol", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PadelSimple.Models.Identity.AppUser", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppGebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -428,51 +504,76 @@ namespace PadelSimple.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Identity.AppUser", null)
+                    b.HasOne("PadelSimple.Models.Identity.AppGebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Domain.Reservation", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.Reservatie", b =>
                 {
-                    b.HasOne("PadelSimple.Models.Domain.Court", "Court")
-                        .WithMany("Reservations")
-                        .HasForeignKey("CourtId")
+                    b.HasOne("PadelSimple.Models.Identity.AppGebruiker", "Gebruiker")
+                        .WithMany("Reservaties")
+                        .HasForeignKey("GebruikerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PadelSimple.Models.Domain.Equipment", "Equipment")
-                        .WithMany("Reservations")
-                        .HasForeignKey("EquipmentId");
+                    b.HasOne("PadelSimple.Models.Domain.Materiaal", "Materiaal")
+                        .WithMany("Reservaties")
+                        .HasForeignKey("MateriaalId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("PadelSimple.Models.Identity.AppUser", "User")
-                        .WithMany("Reservations")
-                        .HasForeignKey("UserId")
+                    b.HasOne("PadelSimple.Models.Domain.Terrein", "Terrein")
+                        .WithMany("Reservaties")
+                        .HasForeignKey("TerreinId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Court");
+                    b.Navigation("Gebruiker");
 
-                    b.Navigation("Equipment");
+                    b.Navigation("Materiaal");
 
-                    b.Navigation("User");
+                    b.Navigation("Terrein");
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Domain.Court", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.ReservatieMateriaal", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.HasOne("PadelSimple.Models.Domain.Materiaal", "Materiaal")
+                        .WithMany()
+                        .HasForeignKey("MateriaalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PadelSimple.Models.Domain.Reservatie", "Reservatie")
+                        .WithMany("ReservatieMaterialen")
+                        .HasForeignKey("ReservatieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Materiaal");
+
+                    b.Navigation("Reservatie");
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Domain.Equipment", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.Materiaal", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.Navigation("Reservaties");
                 });
 
-            modelBuilder.Entity("PadelSimple.Models.Identity.AppUser", b =>
+            modelBuilder.Entity("PadelSimple.Models.Domain.Reservatie", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.Navigation("ReservatieMaterialen");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Domain.Terrein", b =>
+                {
+                    b.Navigation("Reservaties");
+                });
+
+            modelBuilder.Entity("PadelSimple.Models.Identity.AppGebruiker", b =>
+                {
+                    b.Navigation("Reservaties");
                 });
 #pragma warning restore 612, 618
         }

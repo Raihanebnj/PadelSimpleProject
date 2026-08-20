@@ -10,19 +10,12 @@ namespace PadelSimple.Models.Data;
 /// Hoofd-DbContext voor de PadelSimple applicatie.
 /// Erft van IdentityDbContext zodat ASP.NET Identity gebruikers en rollen worden bijgehouden.
 /// </summary>
-public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
+public class AppDbContext : IdentityDbContext<AppGebruiker, AppRol, string>
 {
-    // DbSets (Nederlandse namen conform opdracht)
     public DbSet<Terrein> Terreinen => Set<Terrein>();
     public DbSet<Materiaal> Materialen => Set<Materiaal>();
-    public DbSet<Reservation> Reservaties => Set<Reservation>();
-
-    public DbSet<ReservationMateriaal> ReservationMaterialen => Set<ReservationMateriaal>();
-
-    // Aliassen voor achterwaartse compat. met bestaande code
-    public DbSet<Terrein> Courts => Set<Terrein>();
-    public DbSet<Materiaal> Equipment => Set<Materiaal>();
-    public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<Reservatie> Reservaties => Set<Reservatie>();
+    public DbSet<ReservatieMateriaal> ReservatieMaterialen => Set<ReservatieMateriaal>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -31,37 +24,37 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
         base.OnModelCreating(builder);
 
         // ---- Global Query Filters voor Soft-Delete ----
-        builder.Entity<Terrein>().HasQueryFilter(t => !t.IsDeleted);
-        builder.Entity<Materiaal>().HasQueryFilter(m => !m.IsDeleted);
-        builder.Entity<Reservation>().HasQueryFilter(r => !r.IsDeleted);
-        builder.Entity<AppUser>().HasQueryFilter(u => !u.IsDeleted);
+        builder.Entity<Terrein>().HasQueryFilter(t => !t.IsVerwijderd);
+        builder.Entity<Materiaal>().HasQueryFilter(m => !m.IsVerwijderd);
+        builder.Entity<Reservatie>().HasQueryFilter(r => !r.IsVerwijderd);
+        builder.Entity<AppGebruiker>().HasQueryFilter(u => !u.IsVerwijderd);
 
-        // ---- Relaties voor Reservation & ReservationMateriaal ----
-        builder.Entity<Reservation>()
+        // ---- Relaties voor Reservatie & ReservatieMateriaal ----
+        builder.Entity<Reservatie>()
             .HasOne(r => r.Terrein)
             .WithMany(t => t.Reservaties)
             .HasForeignKey(r => r.TerreinId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Reservation>()
-            .HasOne(r => r.User)
-            .WithMany(u => u.Reservations)
-            .HasForeignKey(r => r.UserId)
+        builder.Entity<Reservatie>()
+            .HasOne(r => r.Gebruiker)
+            .WithMany(u => u.Reservaties)
+            .HasForeignKey(r => r.GebruikerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Reservation>()
+        builder.Entity<Reservatie>()
             .HasOne(r => r.Materiaal)
             .WithMany(m => m.Reservaties)
             .HasForeignKey(r => r.MateriaalId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.Entity<ReservationMateriaal>()
-            .HasOne(rm => rm.Reservation)
-            .WithMany(r => r.ReservationMaterialen)
-            .HasForeignKey(rm => rm.ReservationId)
+        builder.Entity<ReservatieMateriaal>()
+            .HasOne(rm => rm.Reservatie)
+            .WithMany(r => r.ReservatieMaterialen)
+            .HasForeignKey(rm => rm.ReservatieId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<ReservationMateriaal>()
+        builder.Entity<ReservatieMateriaal>()
             .HasOne(rm => rm.Materiaal)
             .WithMany()
             .HasForeignKey(rm => rm.MateriaalId)
@@ -76,7 +69,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
             .Property(m => m.Huurprijs)
             .HasColumnType("decimal(10,2)");
 
-        builder.Entity<Reservation>()
+        builder.Entity<Reservatie>()
             .Property(r => r.TotalePrijs)
             .HasColumnType("decimal(10,2)");
 
@@ -87,28 +80,28 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
     private static void SeedData(ModelBuilder builder)
     {
         // --- Rollen ---
-        var adminRole = new AppRole
+        var adminRol = new AppRol
         {
             Id = "ROLE_ADMIN",
             Name = "Admin",
             NormalizedName = "ADMIN",
             ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000001"
         };
-        var medewerkerRole = new AppRole
+        var medewerkerRol = new AppRol
         {
             Id = "ROLE_MEDEWERKER",
             Name = "Medewerker",
             NormalizedName = "MEDEWERKER",
             ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000003"
         };
-        var klantRole = new AppRole
+        var klantRol = new AppRol
         {
             Id = "ROLE_KLANT",
             Name = "Klant",
             NormalizedName = "KLANT",
             ConcurrencyStamp = "a1b2c3d4-0000-0000-0000-000000000002"
         };
-        builder.Entity<AppRole>().HasData(adminRole, medewerkerRole, klantRole);
+        builder.Entity<AppRol>().HasData(adminRol, medewerkerRol, klantRol);
 
         // --- Terreinen ---
         builder.Entity<Terrein>().HasData(
@@ -119,7 +112,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 Capaciteit = 4,
                 IsIndoors = true,
                 Uurtarief = 18.00m,
-                IsDeleted = false
+                IsVerwijderd = false
             },
             new Terrein
             {
@@ -128,7 +121,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 Capaciteit = 4,
                 IsIndoors = false,
                 Uurtarief = 12.00m,
-                IsDeleted = false
+                IsVerwijderd = false
             },
             new Terrein
             {
@@ -137,7 +130,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 Capaciteit = 4,
                 IsIndoors = true,
                 Uurtarief = 25.00m,
-                IsDeleted = false
+                IsVerwijderd = false
             }
         );
 
@@ -150,7 +143,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 AantalInInventaris = 20,
                 Huurprijs = 5.00m,
                 IsActief = true,
-                IsDeleted = false
+                IsVerwijderd = false
             },
             new Materiaal
             {
@@ -159,7 +152,7 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 AantalInInventaris = 30,
                 Huurprijs = 2.50m,
                 IsActief = true,
-                IsDeleted = false
+                IsVerwijderd = false
             },
             new Materiaal
             {
@@ -168,9 +161,8 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
                 AantalInInventaris = 15,
                 Huurprijs = 1.50m,
                 IsActief = true,
-                IsDeleted = false
+                IsVerwijderd = false
             }
         );
-
     }
 }

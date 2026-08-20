@@ -14,14 +14,14 @@ namespace PadelSimple.Web.Controllers;
 [Authorize(Roles = "Admin")]
 public class GebruikersController : Controller
 {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly RoleManager<AppRole> _roleManager;
+    private readonly UserManager<AppGebruiker> _userManager;
+    private readonly RoleManager<AppRol> _roleManager;
     private readonly AppDbContext _db;
     private readonly ILogger<GebruikersController> _logger;
 
     public GebruikersController(
-        UserManager<AppUser> userManager,
-        RoleManager<AppRole> roleManager,
+        UserManager<AppGebruiker> userManager,
+        RoleManager<AppRol> roleManager,
         AppDbContext db,
         ILogger<GebruikersController> logger)
     {
@@ -33,10 +33,10 @@ public class GebruikersController : Controller
 
     // ==================== OVERZICHT ====================
 
-    public async Task<IActionResult> Index(string? zoek = null, string? rolFilter = null)
+    public async Task<IActionResult> Overzicht(string? zoek = null, string? rolFilter = null)
     {
         var alleGebruikers = await _userManager.Users
-            .Where(u => !u.IsDeleted)
+            .Where(u => !u.IsVerwijderd)
             .OrderBy(u => u.Achternaam)
             .ThenBy(u => u.Voornaam)
             .ToListAsync();
@@ -67,7 +67,7 @@ public class GebruikersController : Controller
                 VolledigeNaam = gebruiker.VolledigeNaam,
                 Email = gebruiker.Email ?? string.Empty,
                 IsLid = gebruiker.IsLid,
-                IsGeblokkeerd = gebruiker.IsBlocked,
+                IsGeblokkeerd = gebruiker.IsGeblokkeerd,
                 EmailBevestigd = gebruiker.EmailConfirmed,
                 Rollen = rollen.ToList()
             });
@@ -94,7 +94,7 @@ public class GebruikersController : Controller
         var rollen = await _userManager.GetRolesAsync(gebruiker);
         var reservaties = await _db.Reservaties
             .Include(r => r.Terrein)
-            .Where(r => r.UserId == id)
+            .Where(r => r.GebruikerId == id)
             .OrderByDescending(r => r.Datum)
             .ToListAsync();
 
@@ -105,7 +105,7 @@ public class GebruikersController : Controller
             Email = gebruiker.Email ?? string.Empty,
             Telefoon = gebruiker.Telefoonnummer,
             IsLid = gebruiker.IsLid,
-            IsGeblokkeerd = gebruiker.IsBlocked,
+            IsGeblokkeerd = gebruiker.IsGeblokkeerd,
             EmailBevestigd = gebruiker.EmailConfirmed,
             Rollen = rollen.ToList(),
             Reservaties = reservaties.Select(r => new ReservatieRijVm
@@ -131,12 +131,12 @@ public class GebruikersController : Controller
         var gebruiker = await _userManager.FindByIdAsync(id);
         if (gebruiker == null) return NotFound();
 
-        gebruiker.IsBlocked = true;
+        gebruiker.IsGeblokkeerd = true;
         await _userManager.UpdateAsync(gebruiker);
 
         _logger.LogInformation("Gebruiker {Email} geblokkeerd door {Door}.", gebruiker.Email, User.Identity?.Name);
         TempData["Success"] = $"{gebruiker.VolledigeNaam} is geblokkeerd.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Overzicht));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -145,12 +145,12 @@ public class GebruikersController : Controller
         var gebruiker = await _userManager.FindByIdAsync(id);
         if (gebruiker == null) return NotFound();
 
-        gebruiker.IsBlocked = false;
+        gebruiker.IsGeblokkeerd = false;
         await _userManager.UpdateAsync(gebruiker);
 
         _logger.LogInformation("Gebruiker {Email} gedeblokkeerd door {Door}.", gebruiker.Email, User.Identity?.Name);
         TempData["Success"] = $"{gebruiker.VolledigeNaam} is gedeblokkeerd.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Overzicht));
     }
 
     // ==================== ROLLEN BEHEER ====================

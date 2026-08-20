@@ -3,10 +3,10 @@ using PadelSimple.Mobile.Services;
 
 namespace PadelSimple.Mobile.ViewModels;
 
-public partial class LoginVm : BaseVm
+public partial class LoginVm : BasisVm
 {
     private readonly AuthService _auth;
-    private readonly SyncService _sync;
+    private readonly SynchronisatieService _sync;
 
     public string Email { get; set; } = "";
     public string Password { get; set; } = "";
@@ -15,7 +15,7 @@ public partial class LoginVm : BaseVm
     public bool IsLoggedIn => _auth.IsLoggedIn;
     public bool IsNotLoggedIn => !_auth.IsLoggedIn;
 
-    public LoginVm(AuthService auth, SyncService sync)
+    public LoginVm(AuthService auth, SynchronisatieService sync)
     {
         _auth = auth;
         _sync = sync;
@@ -42,7 +42,7 @@ public partial class LoginVm : BaseVm
             if (ok)
             {
                 await _sync.TrySyncAsync();
-                await Shell.Current.GoToAsync("//main/courts");
+                await Shell.Current.GoToAsync("//main/terreinen");
             }
         }
         catch
@@ -75,7 +75,7 @@ public partial class LoginVm : BaseVm
             OnPropertyChanged(nameof(UserEmail));
             OnPropertyChanged(nameof(IsLoggedIn));
             await _sync.TrySyncAsync();
-            await Shell.Current.GoToAsync("//main/courts");
+            await Shell.Current.GoToAsync("//main/terreinen");
         }
         catch (Exception ex)
         {
